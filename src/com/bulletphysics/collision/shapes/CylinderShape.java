@@ -31,7 +31,9 @@ import cz.advel.stack.Stack;
 import javax.vecmath.Vector3f;
 
 /**
- * Cylinder shape around the Y axis.
+ * CylinderShape class implements a cylinder shape primitive, centered around
+ * the origin. Its central axis aligned with the Y axis. {@link CylinderShapeX}
+ * is aligned with the X axis and {@link CylinderShapeZ} around the Z axis.
  * 
  * @author jezek2
  */

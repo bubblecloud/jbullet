@@ -23,21 +23,37 @@
 
 package com.bulletphysics.collision.shapes;
 
-import com.bulletphysics.linearmath.MatrixUtil;
+import com.bulletphysics.linearmath.AabbUtil2;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.linearmath.VectorUtil;
 import cz.advel.stack.Stack;
-import javax.vecmath.Matrix3f;
 import javax.vecmath.Vector3f;
 
 /**
- * PolyhedralConvexShape is an abstract class for feature based (vertex/edge/face)
- * convex shapes.
+ * PolyhedralConvexShape is an internal interface class for polyhedral convex shapes.
  * 
  * @author jezek2
  */
 public abstract class PolyhedralConvexShape extends ConvexInternalShape {
 
+	private static Vector3f[] _directions = new Vector3f[] {
+		new Vector3f( 1f,  0f,  0f),
+		new Vector3f( 0f,  1f,  0f),
+		new Vector3f( 0f,  0f,  1f),
+		new Vector3f(-1f,  0f,  0f),
+		new Vector3f( 0f, -1f,  0f),
+		new Vector3f( 0f,  0f, -1f)
+	};
+
+	private static Vector3f[] _supporting = new Vector3f[] {
+		new Vector3f(0f, 0f, 0f),
+		new Vector3f(0f, 0f, 0f),
+		new Vector3f(0f, 0f, 0f),
+		new Vector3f(0f, 0f, 0f),
+		new Vector3f(0f, 0f, 0f),
+		new Vector3f(0f, 0f, 0f)
+	};
+	
 	protected final Vector3f localAabbMin = new Vector3f(1f, 1f, 1f);
 	protected final Vector3f localAabbMax = new Vector3f(-1f, -1f, -1f);
 	protected boolean isLocalAabbValid = false;
@@ -143,40 +159,7 @@ public abstract class PolyhedralConvexShape extends ConvexInternalShape {
 		// lazy evaluation of local aabb
 		assert (isLocalAabbValid);
 
-		assert (localAabbMin.x <= localAabbMax.x);
-		assert (localAabbMin.y <= localAabbMax.y);
-		assert (localAabbMin.z <= localAabbMax.z);
-
-		Vector3f localHalfExtents = Stack.alloc(Vector3f.class);
-		localHalfExtents.sub(localAabbMax, localAabbMin);
-		localHalfExtents.scale(0.5f);
-
-		Vector3f localCenter = Stack.alloc(Vector3f.class);
-		localCenter.add(localAabbMax, localAabbMin);
-		localCenter.scale(0.5f);
-
-		Matrix3f abs_b = Stack.alloc(trans.basis);
-		MatrixUtil.absolute(abs_b);
-
-		Vector3f center = Stack.alloc(localCenter);
-		trans.transform(center);
-
-		Vector3f extent = Stack.alloc(Vector3f.class);
-		Vector3f tmp = Stack.alloc(Vector3f.class);
-
-		abs_b.getRow(0, tmp);
-		extent.x = tmp.dot(localHalfExtents);
-		abs_b.getRow(1, tmp);
-		extent.y = tmp.dot(localHalfExtents);
-		abs_b.getRow(2, tmp);
-		extent.z = tmp.dot(localHalfExtents);
-
-		extent.x += margin;
-		extent.y += margin;
-		extent.z += margin;
-
-		aabbMin.sub(center, extent);
-		aabbMax.add(center, extent);
+		AabbUtil2.transformAabb(localAabbMin, localAabbMax, margin, trans, aabbMin, aabbMax);
 	}
 	
 	@Override
@@ -191,16 +174,33 @@ public abstract class PolyhedralConvexShape extends ConvexInternalShape {
 	public void recalcLocalAabb() {
 		isLocalAabbValid = true;
 
-		for (int i = 0; i < 3; i++) {
-			Vector3f vec = Stack.alloc(Vector3f.class);
-			vec.set(0f, 0f, 0f);
-			VectorUtil.setCoord(vec, i, 1f);
-			Vector3f tmp = localGetSupportingVertex(vec, Stack.alloc(Vector3f.class));
-			VectorUtil.setCoord(localAabbMax, i, VectorUtil.getCoord(tmp, i) + collisionMargin);
-			VectorUtil.setCoord(vec, i, -1f);
-			localGetSupportingVertex(vec, tmp);
-			VectorUtil.setCoord(localAabbMin, i, VectorUtil.getCoord(tmp, i) - collisionMargin);
+		//#if 1
+
+		batchedUnitVectorGetSupportingVertexWithoutMargin(_directions, _supporting, 6);
+
+		for (int i=0; i<3; i++) {
+			VectorUtil.setCoord(localAabbMax, i, VectorUtil.getCoord(_supporting[i], i) + collisionMargin);
+			VectorUtil.setCoord(localAabbMin, i, VectorUtil.getCoord(_supporting[i + 3], i) - collisionMargin);
 		}
+		
+		//#else
+		//for (int i=0; i<3; i++) {
+		//	Vector3f vec = Stack.alloc(Vector3f.class);
+		//	vec.set(0f, 0f, 0f);
+		//	VectorUtil.setCoord(vec, i, 1f);
+		//	Vector3f tmp = localGetSupportingVertex(vec, Stack.alloc(Vector3f.class));
+		//	VectorUtil.setCoord(localAabbMax, i, VectorUtil.getCoord(tmp, i) + collisionMargin);
+		//	VectorUtil.setCoord(vec, i, -1f);
+		//	localGetSupportingVertex(vec, tmp);
+		//	VectorUtil.setCoord(localAabbMin, i, VectorUtil.getCoord(tmp, i) - collisionMargin);
+		//}
+		//#endif
+	}
+
+	@Override
+	public void setLocalScaling(Vector3f scaling) {
+		super.setLocalScaling(scaling);
+		recalcLocalAabb();
 	}
 
 	public abstract int getNumVertices();

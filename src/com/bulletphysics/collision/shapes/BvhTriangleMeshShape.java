@@ -31,9 +31,17 @@ import cz.advel.stack.Stack;
 import javax.vecmath.Vector3f;
 
 /**
- * BvhTriangleMeshShape is a static-triangle mesh shape with Bounding Volume Hierarchy
- * optimization. Uses an interface to access the triangles to allow for sharing
- * graphics/physics triangles.
+ * BvhTriangleMeshShape is a static-triangle mesh shape with several optimizations,
+ * such as bounding volume hierarchy. It is recommended to enable useQuantizedAabbCompression
+ * for better memory usage.<p>
+ *
+ * It takes a triangle mesh as input, for example a {@link TriangleMesh} or
+ * {@link TriangleIndexVertexArray}. The BvhTriangleMeshShape class allows for
+ * triangle mesh deformations by a refit or partialRefit method.<p>
+ *
+ * Instead of building the bounding volume hierarchy acceleration structure, it is
+ * also possible to serialize (save) and deserialize (load) the structure from disk.
+ * See ConcaveDemo for an example.
  * 
  * @author jezek2
  */
@@ -71,10 +79,11 @@ public class BvhTriangleMeshShape extends TriangleMeshShape {
 			bvh = new OptimizedBvh();
 			bvh.build(meshInterface, useQuantizedAabbCompression, bvhAabbMin, bvhAabbMax);
 			ownsBvh = true;
+
+			// JAVA NOTE: moved from TriangleMeshShape
+			recalcLocalAabb();
 		}
 
-		// JAVA NOTE: moved from TriangleMeshShape
-		recalcLocalAabb();
 		//#endif //DISABLE_BVH
 	}
 

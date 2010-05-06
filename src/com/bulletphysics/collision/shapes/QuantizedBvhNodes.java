@@ -23,6 +23,8 @@
 
 package com.bulletphysics.collision.shapes;
 
+import java.io.Serializable;
+
 /**
  * QuantizedBvhNodes is array of compressed AABB nodes, each of 16 bytes.
  * Node can be used for leaf node or internal node. Leaf nodes can point to 32-bit
@@ -39,7 +41,9 @@ package com.bulletphysics.collision.shapes;
  * 
  * @author jezek2
  */
-public class QuantizedBvhNodes {
+public class QuantizedBvhNodes implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private static final int STRIDE = 4; // 16 bytes
 	

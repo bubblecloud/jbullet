@@ -57,6 +57,9 @@ public class BulletStats {
 	
 	public static final Clock gProfileClock = new Clock();
 
+	// DiscreteDynamicsWorld:
+	public static int gNumClampedCcdMotions = 0;
+
 	// JAVA NOTE: added for statistics in applet demo
 	public static long stepSimulationTime;
 	public static long updateTime;

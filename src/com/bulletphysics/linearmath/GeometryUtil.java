@@ -29,7 +29,8 @@ import javax.vecmath.Vector3f;
 import javax.vecmath.Vector4f;
 
 /**
- * Geometry utility functions for operations with point clouds.
+ * GeometryUtil helper class provides a few methods to convert between plane
+ * equations and vertices.
  * 
  * @author jezek2
  */

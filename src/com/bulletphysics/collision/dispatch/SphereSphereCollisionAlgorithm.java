@@ -91,10 +91,15 @@ public class SphereSphereCollisionAlgorithm extends CollisionAlgorithm {
 		float radius0 = sphere0.getRadius();
 		float radius1 = sphere1.getRadius();
 
+		//#ifdef CLEAR_MANIFOLD
 		//manifoldPtr.clearManifold(); // don't do this, it disables warmstarting
+		//#endif
 
 		// if distance positive, don't generate a new contact
 		if (len > (radius0 + radius1)) {
+			//#ifndef CLEAR_MANIFOLD
+			resultOut.refreshContactPoints();
+			//#endif //CLEAR_MANIFOLD
 			return;
 		}
 		// distance (negative means penetration)
@@ -121,7 +126,9 @@ public class SphereSphereCollisionAlgorithm extends CollisionAlgorithm {
 		// report a contact. internally this will be kept persistent, and contact reduction is done
 		resultOut.addContactPoint(normalOnSurfaceB, pos1, dist);
 
-		//no resultOut->refreshContactPoints(); needed, because of clearManifold (all points are new)
+		//#ifndef CLEAR_MANIFOLD
+		resultOut.refreshContactPoints();
+		//#endif //CLEAR_MANIFOLD
 	}
 
 	@Override

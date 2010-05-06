@@ -23,12 +23,16 @@
 
 package com.bulletphysics.collision.shapes;
 
+import java.io.Serializable;
+
 /**
  * BvhSubtreeInfo provides info to gather a subtree of limited size.
  * 
  * @author jezek2
  */
-public class BvhSubtreeInfo {
+public class BvhSubtreeInfo implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 	
 	public final /*unsigned*/ short[] quantizedAabbMin = new short[3];
 	public final /*unsigned*/ short[] quantizedAabbMax = new short[3];

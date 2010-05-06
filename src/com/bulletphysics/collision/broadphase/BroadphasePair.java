@@ -26,8 +26,10 @@ package com.bulletphysics.collision.broadphase;
 import java.util.Comparator;
 
 /**
- * Pair of collision objects with their AABBs colliding in broadphase.
- * 
+ * BroadphasePair class contains a pair of AABB-overlapping objects.
+ * {@link Dispatcher} can search a {@link CollisionAlgorithm} that performs
+ * exact/narrowphase collision detection on the actual collision shapes.
+ *
  * @author jezek2
  */
 public class BroadphasePair {

@@ -29,7 +29,7 @@ import cz.advel.stack.Stack;
 import javax.vecmath.Vector3f;
 
 /**
- * SphereShape implements an implicit ({@link #localGetSupportingVertex localGetSupportingVertex}) sphere.
+ * SphereShape implements an implicit sphere, centered around a local origin with radius.
  * 
  * @author jezek2
  */
@@ -37,6 +37,7 @@ public class SphereShape extends ConvexInternalShape {
 	
 	public SphereShape(float radius) {
 		implicitShapeDimensions.x = radius;
+		collisionMargin = radius;
 	}
 
 	@Override

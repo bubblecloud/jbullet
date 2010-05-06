@@ -31,11 +31,11 @@
 
 package com.bulletphysics.linearmath;
 
-import com.bulletphysics.BulletGlobals;
 import com.bulletphysics.BulletStats;
 
 /**
- *
+ * A node in the Profile Hierarchy Tree.
+ * 
  * @author jezek2
  */
 class CProfileNode {

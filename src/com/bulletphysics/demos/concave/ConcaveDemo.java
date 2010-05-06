@@ -40,6 +40,9 @@ import com.bulletphysics.collision.narrowphase.ManifoldPoint;
 import com.bulletphysics.collision.shapes.BoxShape;
 import com.bulletphysics.collision.shapes.BvhTriangleMeshShape;
 import com.bulletphysics.collision.shapes.CollisionShape;
+import com.bulletphysics.collision.shapes.CompoundShape;
+import com.bulletphysics.collision.shapes.CylinderShapeX;
+import com.bulletphysics.collision.shapes.OptimizedBvh;
 import com.bulletphysics.collision.shapes.TriangleIndexVertexArray;
 import com.bulletphysics.demos.opengl.DemoApplication;
 import com.bulletphysics.demos.opengl.GLDebugDrawer;
@@ -49,7 +52,17 @@ import com.bulletphysics.dynamics.DiscreteDynamicsWorld;
 import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.dynamics.constraintsolver.ConstraintSolver;
 import com.bulletphysics.dynamics.constraintsolver.SequentialImpulseConstraintSolver;
+import com.bulletphysics.linearmath.QuaternionUtil;
 import com.bulletphysics.linearmath.Transform;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
+import javax.vecmath.Quat4f;
 import javax.vecmath.Vector3f;
 import org.lwjgl.LWJGLException;
 import static com.bulletphysics.demos.opengl.IGL.*;
@@ -61,6 +74,13 @@ import static com.bulletphysics.demos.opengl.IGL.*;
  * @author jezek2
  */
 public class ConcaveDemo extends DemoApplication {
+
+	// enable to test serialization of BVH to speedup loading:
+	private static final boolean TEST_SERIALIZATION = false;
+	// set to false to read the BVH from disk (first run the demo once to create the BVH):
+	private static final boolean SERIALIZE_TO_DISK  = true;
+
+	private static final boolean USE_BOX_SHAPE = false;
 
 	// keep the collision shapes, for deletion/cleanup
 	private List<CollisionShape> collisionShapes = new ArrayList<CollisionShape>();
@@ -166,52 +186,42 @@ public class ConcaveDemo extends DemoApplication {
 
 		boolean useQuantizedAabbCompression = true;
 
-		//comment out the next line to read the BVH from disk (first run the demo once to create the BVH)
-		//#define SERIALIZE_TO_DISK 1
-		//#ifdef SERIALIZE_TO_DISK
-		trimeshShape = new BvhTriangleMeshShape(indexVertexArrays, useQuantizedAabbCompression);
-		collisionShapes.add(trimeshShape);
+		if (TEST_SERIALIZATION) {
+			if (SERIALIZE_TO_DISK) {
+				trimeshShape = new BvhTriangleMeshShape(indexVertexArrays, useQuantizedAabbCompression);
+				collisionShapes.add(trimeshShape);
 
-		// TODO: implement BVH serialization
-//		// we can serialize the BVH data 
-//		void* buffer = 0;
-//		int numBytes = trimeshShape->getOptimizedBvh()->calculateSerializeBufferSize();
-//		buffer = btAlignedAlloc(numBytes,16);
-//		bool swapEndian = false;
-//		trimeshShape->getOptimizedBvh()->serialize(buffer,numBytes,swapEndian);
-//		FILE* file = fopen("bvh.bin","wb");
-//		fwrite(buffer,1,numBytes,file);
-//		fclose(file);
-//		btAlignedFree(buffer);
+				// we can serialize the BVH data
+				try {
+					ObjectOutputStream out = new ObjectOutputStream(new GZIPOutputStream(new FileOutputStream(new File("bvh.bin"))));
+					out.writeObject(trimeshShape.getOptimizedBvh());
+					out.close();
+				}
+				catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			else {
+				trimeshShape = new BvhTriangleMeshShape(indexVertexArrays, useQuantizedAabbCompression, false);
 
-//		//#else
-//		trimeshShape  = new btBvhTriangleMeshShape(m_indexVertexArrays,useQuantizedAabbCompression,false);
-//
-//		char* fileName = "bvh.bin";
-//
-//		FILE* file = fopen(fileName,"rb");
-//		int size=0;
-//		btOptimizedBvh* bvh = 0;
-//
-//		if (fseek(file, 0, SEEK_END) || (size = ftell(file)) == EOF || fseek(file, 0, SEEK_SET)) {        /* File operations denied? ok, just close and return failure */
-//			printf("Error: cannot get filesize from %s\n", fileName);
-//			exit(0);
-//		} else
-//		{
-//
-//			fseek(file, 0, SEEK_SET);
-//
-//			int buffersize = size+btOptimizedBvh::getAlignmentSerializationPadding();
-//
-//			void* buffer = btAlignedAlloc(buffersize,16);
-//			int read = fread(buffer,1,size,file);
-//			fclose(file);
-//			bool swapEndian = false;
-//			bvh = btOptimizedBvh::deSerializeInPlace(buffer,buffersize,swapEndian);
-//		}
-//
-//		trimeshShape->setOptimizedBvh(bvh);
-//		#endif
+				OptimizedBvh bvh = null;
+				try {
+					ObjectInputStream in = new ObjectInputStream(new GZIPInputStream(new FileInputStream(new File("bvh.bin"))));
+					bvh = (OptimizedBvh)in.readObject();
+					in.close();
+				}
+				catch (Exception e) {
+					e.printStackTrace();
+				}
+
+				trimeshShape.setOptimizedBvh(bvh);
+				trimeshShape.recalcLocalAabb();
+			}
+		}
+		else {
+			trimeshShape = new BvhTriangleMeshShape(indexVertexArrays, useQuantizedAabbCompression);
+			collisionShapes.add(trimeshShape);
+		}
 
 		CollisionShape groundShape = trimeshShape;
 
@@ -263,13 +273,30 @@ public class ConcaveDemo extends DemoApplication {
 		startTransform.setIdentity();
 		startTransform.origin.set(0f, -2f, 0f);
 
-		CollisionShape colShape = new BoxShape(new Vector3f(1f, 1f, 1f));
+		CollisionShape colShape;
+
+		if (USE_BOX_SHAPE) {
+			colShape = new BoxShape(new Vector3f(1f, 1f, 1f));
+		}
+		else {
+			colShape = new CompoundShape();
+			CollisionShape cylinderShape = new CylinderShapeX(new Vector3f(4, 1, 1));
+			CollisionShape boxShape = new BoxShape(new Vector3f(4f, 1f, 1f));
+			Transform localTransform = new Transform();
+			localTransform.setIdentity();
+			((CompoundShape)colShape).addChildShape(localTransform, boxShape);
+			Quat4f orn = new Quat4f();
+			QuaternionUtil.setEuler(orn, BulletGlobals.SIMD_HALF_PI, 0f, 0f);
+			localTransform.setRotation(orn);
+			((CompoundShape)colShape).addChildShape(localTransform, cylinderShape);
+		}
+
 		collisionShapes.add(colShape);
 
 		{
 			for (i = 0; i < 10; i++) {
 				//btCollisionShape* colShape = new btCapsuleShape(0.5,2.0);//boxShape = new btSphereShape(1.f);
-				startTransform.origin.set(2f * i, 10f, 1f);
+				startTransform.origin.set(2f, 10f + i*2f, 1f);
 				localCreateRigidBody(1f, startTransform, colShape);
 			}
 		}

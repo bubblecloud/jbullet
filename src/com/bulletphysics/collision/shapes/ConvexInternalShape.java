@@ -31,13 +31,13 @@ import cz.advel.stack.Stack;
 import javax.vecmath.Vector3f;
 
 /**
- * ConvexInternalShape carries some additional data, shared by most implementations.
+ * ConvexInternalShape is an internal base class, shared by most convex shape implementations.
  * 
  * @author jezek2
  */
 public abstract class ConvexInternalShape extends ConvexShape {
 
-	//local scaling. collisionMargin is not scaled !
+	// local scaling. collisionMargin is not scaled !
 	protected final Vector3f localScaling = new Vector3f(1f, 1f, 1f);
 	protected final Vector3f implicitShapeDimensions = new Vector3f();
 	protected float collisionMargin = BulletGlobals.CONVEX_DISTANCE_MARGIN;
@@ -95,7 +95,7 @@ public abstract class ConvexInternalShape extends ConvexShape {
 	}
 	
 	public void setLocalScaling(Vector3f scaling) {
-		this.localScaling.set(scaling);
+		localScaling.absolute(scaling);
 	}
 	
 	public Vector3f getLocalScaling(Vector3f out) {

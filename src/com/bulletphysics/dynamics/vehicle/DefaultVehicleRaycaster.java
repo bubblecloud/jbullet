@@ -50,7 +50,7 @@ public class DefaultVehicleRaycaster implements VehicleRaycaster {
 
 		if (rayCallback.hasHit()) {
 			RigidBody body = RigidBody.upcast(rayCallback.collisionObject);
-			if (body != null) {
+			if (body != null && body.hasContactResponse()) {
 				result.hitPointInWorld.set(rayCallback.hitPointWorld);
 				result.hitNormalInWorld.set(rayCallback.hitNormalWorld);
 				result.hitNormalInWorld.normalize();

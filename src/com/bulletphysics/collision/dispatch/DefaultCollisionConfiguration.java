@@ -40,24 +40,24 @@ import static com.bulletphysics.collision.broadphase.BroadphaseNativeType.*;
 public class DefaultCollisionConfiguration extends CollisionConfiguration {
 
 	//default simplex/penetration depth solvers
-	private VoronoiSimplexSolver simplexSolver;
-	private ConvexPenetrationDepthSolver pdSolver;
+	protected VoronoiSimplexSolver simplexSolver;
+	protected ConvexPenetrationDepthSolver pdSolver;
 	
 	//default CreationFunctions, filling the m_doubleDispatch table
-	private CollisionAlgorithmCreateFunc convexConvexCreateFunc;
-	private CollisionAlgorithmCreateFunc convexConcaveCreateFunc;
-	private CollisionAlgorithmCreateFunc swappedConvexConcaveCreateFunc;
-	private CollisionAlgorithmCreateFunc compoundCreateFunc;
-	private CollisionAlgorithmCreateFunc swappedCompoundCreateFunc;
-	private CollisionAlgorithmCreateFunc emptyCreateFunc;
-	private CollisionAlgorithmCreateFunc sphereSphereCF;
-	private CollisionAlgorithmCreateFunc sphereBoxCF;
-	private CollisionAlgorithmCreateFunc boxSphereCF;
-	private CollisionAlgorithmCreateFunc boxBoxCF;
-	private CollisionAlgorithmCreateFunc sphereTriangleCF;
-	private CollisionAlgorithmCreateFunc triangleSphereCF;
-	private CollisionAlgorithmCreateFunc planeConvexCF;
-	private CollisionAlgorithmCreateFunc convexPlaneCF;
+	protected CollisionAlgorithmCreateFunc convexConvexCreateFunc;
+	protected CollisionAlgorithmCreateFunc convexConcaveCreateFunc;
+	protected CollisionAlgorithmCreateFunc swappedConvexConcaveCreateFunc;
+	protected CollisionAlgorithmCreateFunc compoundCreateFunc;
+	protected CollisionAlgorithmCreateFunc swappedCompoundCreateFunc;
+	protected CollisionAlgorithmCreateFunc emptyCreateFunc;
+	protected CollisionAlgorithmCreateFunc sphereSphereCF;
+	protected CollisionAlgorithmCreateFunc sphereBoxCF;
+	protected CollisionAlgorithmCreateFunc boxSphereCF;
+	protected CollisionAlgorithmCreateFunc boxBoxCF;
+	protected CollisionAlgorithmCreateFunc sphereTriangleCF;
+	protected CollisionAlgorithmCreateFunc triangleSphereCF;
+	protected CollisionAlgorithmCreateFunc planeConvexCF;
+	protected CollisionAlgorithmCreateFunc convexPlaneCF;
 	
 	public DefaultCollisionConfiguration() {
 		simplexSolver = new VoronoiSimplexSolver();

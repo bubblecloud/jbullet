@@ -27,8 +27,9 @@ import com.bulletphysics.collision.dispatch.CollisionObject;
 import com.bulletphysics.dynamics.RigidBody;
 
 /**
- * Broadphase handle of {@link CollisionObject} or {@link RigidBody}, contains
- * per-object additional information specific to broadphase collision detection.
+ * BroadphaseProxy is the main class that can be used with the Bullet broadphases.
+ * It stores collision shape type information, collision filter information and
+ * a client object, typically a {@link CollisionObject} or {@link RigidBody}.
  * 
  * @author jezek2
  */

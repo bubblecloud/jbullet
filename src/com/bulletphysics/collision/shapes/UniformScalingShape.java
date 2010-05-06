@@ -29,7 +29,9 @@ import cz.advel.stack.Stack;
 import javax.vecmath.Vector3f;
 
 /**
- * Applies uniform scaling to other {@link ConvexShape}.
+ * UniformScalingShape allows to re-use uniform scaled instances of {@link ConvexShape}
+ * in a memory efficient way. Istead of using {@link UniformScalingShape}, it is better
+ * to use the non-uniform setLocalScaling method on convex shapes that implement it.
  * 
  * @author jezek2
  */

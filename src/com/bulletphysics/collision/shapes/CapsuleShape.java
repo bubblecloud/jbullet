@@ -33,12 +33,16 @@ import javax.vecmath.Matrix3f;
 import javax.vecmath.Vector3f;
 
 /**
- * CapsuleShape represents a capsule around the Y axis.<p>
- * 
- * A more general solution that can represent capsules is the MultiSphereShape.<p>
- * 
- * The total height is <code>height+2*radius</code>, so the height is just the
- * height between the center of each "sphere" of the capsule caps.
+ * CapsuleShape represents a capsule around the Y axis, there is also the
+ * {@link CapsuleShapeX} aligned around the X axis and {@link CapsuleShapeZ} around
+ * the Z axis.<p>
+ *
+ * The total height is height+2*radius, so the height is just the height between
+ * the center of each "sphere" of the capsule caps.<p>
+ *
+ * CapsuleShape is a convex hull of two spheres. The {@link MultiSphereShape} is
+ * a more general collision shape that takes the convex hull of multiple sphere,
+ * so it can also represent a capsule when just using two spheres.
  * 
  * @author jezek2
  */
@@ -162,6 +166,10 @@ public class CapsuleShape extends ConvexInternalShape {
 		halfExtents.set(getRadius(), getRadius(), getRadius());
 		VectorUtil.setCoord(halfExtents, upAxis, getRadius() + getHalfHeight());
 
+		halfExtents.x += getMargin();
+		halfExtents.y += getMargin();
+		halfExtents.z += getMargin();
+
 		Matrix3f abs_b = Stack.alloc(Matrix3f.class);
 		abs_b.set(t.basis);
 		MatrixUtil.absolute(abs_b);
@@ -175,10 +183,6 @@ public class CapsuleShape extends ConvexInternalShape {
 		extent.y = tmp.dot(halfExtents);
 		abs_b.getRow(2, tmp);
 		extent.z = tmp.dot(halfExtents);
-
-		extent.x += getMargin();
-		extent.y += getMargin();
-		extent.z += getMargin();
 
 		aabbMin.sub(center, extent);
 		aabbMax.add(center, extent);

@@ -23,6 +23,7 @@
 
 package com.bulletphysics.collision.dispatch;
 
+import com.bulletphysics.BulletGlobals;
 import java.util.ArrayList;
 import java.util.List;
 import com.bulletphysics.BulletStats;
@@ -208,6 +209,12 @@ public class CollisionWorld {
 		Transform tmpTrans = Stack.alloc(Transform.class);
 
 		colObj.getCollisionShape().getAabb(colObj.getWorldTransform(tmpTrans), minAabb, maxAabb);
+		// need to increase the aabb for contact thresholds
+		Vector3f contactThreshold = Stack.alloc(Vector3f.class);
+		contactThreshold.set(BulletGlobals.getContactBreakingThreshold(), BulletGlobals.getContactBreakingThreshold(), BulletGlobals.getContactBreakingThreshold());
+		minAabb.sub(contactThreshold);
+		maxAabb.add(contactThreshold);
+
 		BroadphaseInterface bp = broadphasePairCache;
 
 		// moving objects should be moderately sized, probably something wrong if not
@@ -355,11 +362,16 @@ public class CollisionWorld {
 						CollisionShape childCollisionShape = compoundShape.getChildShape(i);
 						Transform childWorldTrans = Stack.alloc(colObjWorldTransform);
 						childWorldTrans.mul(childTrans);
+						// replace collision shape so that callback can determine the triangle
+						CollisionShape saveCollisionShape = collisionObject.getCollisionShape();
+						collisionObject.internalSetTemporaryCollisionShape(childCollisionShape);
 						rayTestSingle(rayFromTrans, rayToTrans,
 								collisionObject,
 								childCollisionShape,
 								childWorldTrans,
 								resultCallback);
+						// restore
+						collisionObject.internalSetTemporaryCollisionShape(saveCollisionShape);
 					}
 				}
 			}
@@ -499,11 +511,16 @@ public class CollisionWorld {
 						CollisionShape childCollisionShape = compoundShape.getChildShape(i);
 						Transform childWorldTrans = Stack.alloc(Transform.class);
 						childWorldTrans.mul(colObjWorldTransform, childTrans);
+						// replace collision shape so that callback can determine the triangle
+						CollisionShape saveCollisionShape = collisionObject.getCollisionShape();
+						collisionObject.internalSetTemporaryCollisionShape(childCollisionShape);
 						objectQuerySingle(castShape, convexFromTrans, convexToTrans,
 						                  collisionObject,
 						                  childCollisionShape,
 						                  childWorldTrans,
 						                  resultCallback, allowedPenetration);
+						// restore
+						collisionObject.internalSetTemporaryCollisionShape(saveCollisionShape);
 					}
 				}
 			}

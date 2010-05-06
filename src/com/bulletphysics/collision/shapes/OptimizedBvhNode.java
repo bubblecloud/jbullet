@@ -23,6 +23,7 @@
 
 package com.bulletphysics.collision.shapes;
 
+import java.io.Serializable;
 import javax.vecmath.Vector3f;
 
 /**
@@ -30,7 +31,9 @@ import javax.vecmath.Vector3f;
  * 
  * @author jezek2
  */
-public class OptimizedBvhNode {
+public class OptimizedBvhNode implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 	
 	public final Vector3f aabbMinOrg = new Vector3f();
 	public final Vector3f aabbMaxOrg = new Vector3f();

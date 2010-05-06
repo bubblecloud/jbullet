@@ -30,8 +30,8 @@ import cz.advel.stack.Stack;
 import javax.vecmath.Vector3f;
 
 /**
- * MinkowskiSumShape represents implicit ({@link #localGetSupportingVertex localGetSupportingVertex})
- * based Minkowski sum of two convex implicit shapes.
+ * MinkowskiSumShape is only for advanced users. This shape represents implicit
+ * based minkowski sum of two convex implicit shapes.
  * 
  * @author jezek2
  */

@@ -34,7 +34,8 @@ import com.bulletphysics.dynamics.vehicle.RaycastVehicle;
 import javax.vecmath.Vector3f;
 
 /**
- * DynamicsWorld is base class for several dynamics implementation.
+ * DynamicsWorld is the interface class for several dynamics implementation,
+ * basic, discrete, parallel, and continuous etc.
  * 
  * @author jezek2
  */
@@ -58,8 +59,17 @@ public abstract class DynamicsWorld extends CollisionWorld {
 	}
 
 	/**
-	 * stepSimulation proceeds the simulation over timeStep units.
-	 * if maxSubSteps > 0, it will interpolate time steps.
+	 * Proceeds the simulation over 'timeStep', units in preferably in seconds.<p>
+	 *
+	 * By default, Bullet will subdivide the timestep in constant substeps of each
+	 * 'fixedTimeStep'.<p>
+	 *
+	 * In order to keep the simulation real-time, the maximum number of substeps can
+	 * be clamped to 'maxSubSteps'.<p>
+	 * 
+	 * You can disable subdividing the timestep/substepping by passing maxSubSteps=0
+	 * as second argument to stepSimulation, but in that case you have to keep the
+	 * timeStep constant.
 	 */
 	public abstract int stepSimulation(float timeStep, int maxSubSteps, float fixedTimeStep);
 

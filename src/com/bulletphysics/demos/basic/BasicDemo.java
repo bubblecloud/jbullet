@@ -67,7 +67,7 @@ public class BasicDemo extends DemoApplication {
 	
 	// keep the collision shapes, for deletion/cleanup
 	private List<CollisionShape> collisionShapes = new ArrayList<CollisionShape>();
-	private BroadphaseInterface overlappingPairCache;
+	private BroadphaseInterface broadphase;
 	private CollisionDispatcher dispatcher;
 	private ConstraintSolver solver;
 	private DefaultCollisionConfiguration collisionConfiguration;
@@ -120,14 +120,7 @@ public class BasicDemo extends DemoApplication {
 		// use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
 		dispatcher = new CollisionDispatcher(collisionConfiguration);
 
-		// the maximum size of the collision world. Make sure objects stay within these boundaries
-		// TODO: AxisSweep3
-		// Don't make the world AABB size too large, it will harm simulation quality and performance
-		Vector3f worldAabbMin = new Vector3f(-10000,-10000,-10000);
-		Vector3f worldAabbMax = new Vector3f(10000,10000,10000);
-		//overlappingPairCache = new AxisSweep3(worldAabbMin,worldAabbMax,MAX_PROXIES);
-		//overlappingPairCache = new SimpleBroadphase(MAX_PROXIES);
-		overlappingPairCache = new DbvtBroadphase();
+		broadphase = new DbvtBroadphase();
 
 		// the default constraint solver. For parallel processing you can use a different solver (see Extras/BulletMultiThreaded)
 		SequentialImpulseConstraintSolver sol = new SequentialImpulseConstraintSolver();
@@ -136,8 +129,7 @@ public class BasicDemo extends DemoApplication {
 		// TODO: needed for SimpleDynamicsWorld
 		//sol.setSolverMode(sol.getSolverMode() & ~SolverMode.SOLVER_CACHE_FRIENDLY.getMask());
 		
-		dynamicsWorld = new DiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
-		//dynamicsWorld = new SimpleDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
+		dynamicsWorld = new DiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
 
 		dynamicsWorld.setGravity(new Vector3f(0f, -10f, 0f));
 
@@ -203,15 +195,17 @@ public class BasicDemo extends DemoApplication {
 					for (int j = 0; j < ARRAY_SIZE_Z; j++) {
 						startTransform.origin.set(
 								2f * i + start_x,
-								2f * k + start_y,
+								10f + 2f * k + start_y,
 								2f * j + start_z);
 
 						// using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
 						DefaultMotionState myMotionState = new DefaultMotionState(startTransform);
 						RigidBodyConstructionInfo rbInfo = new RigidBodyConstructionInfo(mass, myMotionState, colShape, localInertia);
 						RigidBody body = new RigidBody(rbInfo);
+						body.setActivationState(RigidBody.ISLAND_SLEEPING);
 
 						dynamicsWorld.addRigidBody(body);
+						body.setActivationState(RigidBody.ISLAND_SLEEPING);
 					}
 				}
 			}

@@ -24,21 +24,22 @@
 package com.bulletphysics.collision.shapes;
 
 import com.bulletphysics.collision.broadphase.BroadphaseNativeType;
+import com.bulletphysics.collision.dispatch.CollisionObject;
 import com.bulletphysics.linearmath.Transform;
 import cz.advel.stack.Stack;
 import javax.vecmath.Vector3f;
 
 /**
- * CollisionShape provides interface for collision shapes that can be shared
- * among CollisionObjects.
+ * CollisionShape class provides an interface for collision shapes that can be
+ * shared among {@link CollisionObject}s.
  * 
  * @author jezek2
  */
 public abstract class CollisionShape {
 
 	//protected final BulletStack stack = BulletStack.get();
-	
-	private Object userPointer;
+
+	protected Object userPointer;
 	
 	///getAabb returns the axis aligned bounding box in the coordinate frame of the given transform t.
 	public abstract void getAabb(Transform t, Vector3f aabbMin, Vector3f aabbMax);

@@ -94,7 +94,7 @@ public class SimulationIslandManager {
 			int i;
 			for (i = 0; i < colWorld.getCollisionObjectArray().size(); i++) {
 				CollisionObject collisionObject = colWorld.getCollisionObjectArray().get(i);
-				if (collisionObject.mergesSimulationIslands()) {
+				if (!collisionObject.isStaticOrKinematicObject()) {
 					collisionObject.setIslandTag(unionFind.find(index));
 					collisionObject.setCompanionId(-1);
 				}

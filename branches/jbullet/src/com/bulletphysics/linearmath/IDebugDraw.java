@@ -23,11 +23,20 @@
 
 package com.bulletphysics.linearmath;
 
+import com.bulletphysics.collision.dispatch.CollisionWorld;
+import com.bulletphysics.dynamics.DynamicsWorld;
 import cz.advel.stack.Stack;
 import javax.vecmath.Vector3f;
 
 /**
- * Base class for visualization of physics world for debugging purposes.
+ * IDebugDraw interface class allows hooking up a debug renderer to visually debug
+ * simulations.<p>
+ * 
+ * Typical use case: create a debug drawer object, and assign it to a {@link CollisionWorld}
+ * or {@link DynamicsWorld} using setDebugDrawer and call debugDrawWorld.<p>
+ * 
+ * A class that implements the IDebugDraw interface has to implement the drawLine
+ * method at a minimum.
  * 
  * @author jezek2
  */

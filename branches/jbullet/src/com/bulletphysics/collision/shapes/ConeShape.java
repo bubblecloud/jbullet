@@ -31,7 +31,9 @@ import cz.advel.stack.Stack;
 import javax.vecmath.Vector3f;
 
 /**
- * ConeShape implements a cone shape, around the Y axis.
+ * ConeShape implements a cone shape primitive, centered around the origin and
+ * aligned with the Y axis. The {@link ConeShapeX} is aligned around the X axis
+ * and {@link ConeShapeZ} around the Z axis.
  * 
  * @author jezek2
  */

@@ -235,12 +235,37 @@ public class RigidBody extends CollisionObject {
 		angularDamping = MiscUtil.GEN_clamped(ang_damping, 0f, 1f);
 	}
 
+	public float getLinearDamping() {
+		return linearDamping;
+	}
+
+	public float getAngularDamping() {
+		return angularDamping;
+	}
+
+	public float getLinearSleepingThreshold() {
+		return linearSleepingThreshold;
+	}
+
+	public float getAngularSleepingThreshold() {
+		return angularSleepingThreshold;
+	}
+
 	/**
 	 * Damps the velocity, using the given linearDamping and angularDamping.
 	 */
 	public void applyDamping(float timeStep) {
-		linearVelocity.scale(MiscUtil.GEN_clamped((1f - timeStep * linearDamping), 0f, 1f));
-		angularVelocity.scale(MiscUtil.GEN_clamped((1f - timeStep * angularDamping), 0f, 1f));
+		// On new damping: see discussion/issue report here: http://code.google.com/p/bullet/issues/detail?id=74
+		// todo: do some performance comparisons (but other parts of the engine are probably bottleneck anyway
+
+		//#define USE_OLD_DAMPING_METHOD 1
+		//#ifdef USE_OLD_DAMPING_METHOD
+		//linearVelocity.scale(MiscUtil.GEN_clamped((1f - timeStep * linearDamping), 0f, 1f));
+		//angularVelocity.scale(MiscUtil.GEN_clamped((1f - timeStep * angularDamping), 0f, 1f));
+		//#else
+		linearVelocity.scale((float)Math.pow(1f - linearDamping, timeStep));
+		angularVelocity.scale((float)Math.pow(1f - angularDamping, timeStep));
+		//#endif
 
 		if (additionalDamping) {
 			// Additional damping can help avoiding lowpass jitter motion, help stability for ragdolls etc.

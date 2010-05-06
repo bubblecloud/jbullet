@@ -24,6 +24,7 @@
 package com.bulletphysics.linearmath;
 
 import cz.advel.stack.Stack;
+import javax.vecmath.Matrix3f;
 import javax.vecmath.Vector3f;
 
 /**
@@ -133,5 +134,66 @@ public class AabbUtil2 {
 		
 		return true;
 	}
-	
+
+	public static void transformAabb(Vector3f halfExtents, float margin, Transform t, Vector3f aabbMinOut, Vector3f aabbMaxOut) {
+		Vector3f halfExtentsWithMargin = Stack.alloc(Vector3f.class);
+		halfExtentsWithMargin.x = halfExtents.x + margin;
+		halfExtentsWithMargin.y = halfExtents.y + margin;
+		halfExtentsWithMargin.z = halfExtents.z + margin;
+
+		Matrix3f abs_b = Stack.alloc(t.basis);
+		MatrixUtil.absolute(abs_b);
+
+		Vector3f tmp = Stack.alloc(Vector3f.class);
+
+		Vector3f center = Stack.alloc(t.origin);
+		Vector3f extent = Stack.alloc(Vector3f.class);
+		abs_b.getRow(0, tmp);
+		extent.x = tmp.dot(halfExtentsWithMargin);
+		abs_b.getRow(1, tmp);
+		extent.y = tmp.dot(halfExtentsWithMargin);
+		abs_b.getRow(2, tmp);
+		extent.z = tmp.dot(halfExtentsWithMargin);
+
+		aabbMinOut.sub(center, extent);
+		aabbMaxOut.add(center, extent);
+	}
+
+	public static void transformAabb(Vector3f localAabbMin, Vector3f localAabbMax, float margin, Transform trans, Vector3f aabbMinOut, Vector3f aabbMaxOut) {
+		assert (localAabbMin.x <= localAabbMax.x);
+		assert (localAabbMin.y <= localAabbMax.y);
+		assert (localAabbMin.z <= localAabbMax.z);
+
+		Vector3f localHalfExtents = Stack.alloc(Vector3f.class);
+		localHalfExtents.sub(localAabbMax, localAabbMin);
+		localHalfExtents.scale(0.5f);
+
+		localHalfExtents.x += margin;
+		localHalfExtents.y += margin;
+		localHalfExtents.z += margin;
+
+		Vector3f localCenter = Stack.alloc(Vector3f.class);
+		localCenter.add(localAabbMax, localAabbMin);
+		localCenter.scale(0.5f);
+
+		Matrix3f abs_b = Stack.alloc(trans.basis);
+		MatrixUtil.absolute(abs_b);
+
+		Vector3f center = Stack.alloc(localCenter);
+		trans.transform(center);
+
+		Vector3f extent = Stack.alloc(Vector3f.class);
+		Vector3f tmp = Stack.alloc(Vector3f.class);
+
+		abs_b.getRow(0, tmp);
+		extent.x = tmp.dot(localHalfExtents);
+		abs_b.getRow(1, tmp);
+		extent.y = tmp.dot(localHalfExtents);
+		abs_b.getRow(2, tmp);
+		extent.z = tmp.dot(localHalfExtents);
+
+		aabbMinOut.sub(center, extent);
+		aabbMaxOut.add(center, extent);
+	}
+
 }

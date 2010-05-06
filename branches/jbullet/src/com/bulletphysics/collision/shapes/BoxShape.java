@@ -24,19 +24,21 @@
 package com.bulletphysics.collision.shapes;
 
 import com.bulletphysics.collision.broadphase.BroadphaseNativeType;
-import com.bulletphysics.linearmath.MatrixUtil;
+import com.bulletphysics.collision.dispatch.CollisionObject;
+import com.bulletphysics.dynamics.RigidBody;
+import com.bulletphysics.linearmath.AabbUtil2;
 import com.bulletphysics.linearmath.ScalarUtil;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.linearmath.VectorUtil;
 import cz.advel.stack.Stack;
-import javax.vecmath.Matrix3f;
 import javax.vecmath.Vector3f;
 import javax.vecmath.Vector4f;
 
 /**
- * BoxShape implements both a feature based (vertex/edge/plane) and implicit
- * ({@link #localGetSupportingVertex localGetSupportingVertex}) box.
- * 
+ * BoxShape is a box primitive around the origin, its sides axis aligned with length
+ * specified by half extents, in local shape coordinates. When used as part of a
+ * {@link CollisionObject} or {@link RigidBody} it will be an oriented box in world space.
+ *
  * @author jezek2
  */
 public class BoxShape extends PolyhedralConvexShape {
@@ -135,28 +137,7 @@ public class BoxShape extends PolyhedralConvexShape {
 
 	@Override
 	public void getAabb(Transform t, Vector3f aabbMin, Vector3f aabbMax) {
-		Vector3f halfExtents = getHalfExtentsWithoutMargin(Stack.alloc(Vector3f.class));
-
-		Matrix3f abs_b = Stack.alloc(t.basis);
-		MatrixUtil.absolute(abs_b);
-
-		Vector3f tmp = Stack.alloc(Vector3f.class);
-
-		Vector3f center = Stack.alloc(t.origin);
-		Vector3f extent = Stack.alloc(Vector3f.class);
-		abs_b.getRow(0, tmp);
-		extent.x = tmp.dot(halfExtents);
-		abs_b.getRow(1, tmp);
-		extent.y = tmp.dot(halfExtents);
-		abs_b.getRow(2, tmp);
-		extent.z = tmp.dot(halfExtents);
-
-		Vector3f margin = Stack.alloc(Vector3f.class);
-		margin.set(getMargin(), getMargin(), getMargin());
-		extent.add(margin);
-
-		aabbMin.sub(center, extent);
-		aabbMax.add(center, extent);
+		AabbUtil2.transformAabb(getHalfExtentsWithoutMargin(Stack.alloc(Vector3f.class)), getMargin(), t, aabbMin, aabbMax);
 	}
 
 	@Override

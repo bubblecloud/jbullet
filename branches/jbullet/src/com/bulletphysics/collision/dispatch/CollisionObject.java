@@ -82,8 +82,8 @@ public class CollisionObject {
 	///Swept sphere radius (0.0 by default), see btConvexConvexAlgorithm::
 	protected float ccdSweptSphereRadius;
 
-	/// Don't do continuous collision detection if square motion (in one step) is less then m_ccdSquareMotionThreshold
-	protected float ccdSquareMotionThreshold;
+	/// Don't do continuous collision detection if the motion (in one step) is less then ccdMotionThreshold
+	protected float ccdMotionThreshold = 0f;
 	/// If some object should have elaborate collision filtering by sub-classes
 	protected boolean checkCollideWith;
 
@@ -226,6 +226,14 @@ public class CollisionObject {
 		this.interpolationWorldTransform.set(interpolationWorldTransform);
 	}
 
+	public void setInterpolationLinearVelocity(Vector3f linvel) {
+		interpolationLinearVelocity.set(linvel);
+	}
+
+	public void setInterpolationAngularVelocity(Vector3f angvel) {
+		interpolationAngularVelocity.set(angvel);
+	}
+
 	public Vector3f getInterpolationLinearVelocity(Vector3f out) {
 		out.set(interpolationLinearVelocity);
 		return out;
@@ -278,13 +286,18 @@ public class CollisionObject {
 		this.ccdSweptSphereRadius = ccdSweptSphereRadius;
 	}
 
-	public float getCcdSquareMotionThreshold() {
-		return ccdSquareMotionThreshold;
+	public float getCcdMotionThreshold() {
+		return ccdMotionThreshold;
 	}
 
-	// Don't do continuous collision detection if square motion (in one step) is less then m_ccdSquareMotionThreshold
-	public void setCcdSquareMotionThreshold(float ccdSquareMotionThreshold) {
-		this.ccdSquareMotionThreshold = ccdSquareMotionThreshold;
+	public float getCcdSquareMotionThreshold() {
+		return ccdMotionThreshold * ccdMotionThreshold;
+	}
+
+	// Don't do continuous collision detection if the motion (in one step) is less then ccdMotionThreshold
+	public void setCcdMotionThreshold(float ccdMotionThreshold) {
+		// JAVA NOTE: fixed bug with usage of ccdMotionThreshold*ccdMotionThreshold
+		this.ccdMotionThreshold = ccdMotionThreshold;
 	}
 
 	public Object getUserPointer() {

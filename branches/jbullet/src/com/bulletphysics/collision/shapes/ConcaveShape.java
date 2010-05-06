@@ -26,11 +26,7 @@ package com.bulletphysics.collision.shapes;
 import javax.vecmath.Vector3f;
 
 /**
- * ConcaveShape provides an abstract class for concave shapes that can produce
- * triangles that overlaps given AABB.<p>
- * 
- * Static triangle mesh, infinite plane, height field/landscapes are examples that
- * implement this abstract class.
+ * ConcaveShape class provides an interface for non-moving (static) concave shapes.
  * 
  * @author jezek2
  */

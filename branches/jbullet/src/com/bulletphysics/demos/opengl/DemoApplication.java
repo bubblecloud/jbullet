@@ -557,6 +557,9 @@ public abstract class DemoApplication {
 			
 			body.setLinearVelocity(linVel);
 			body.setAngularVelocity(new Vector3f(0f, 0f, 0f));
+
+			body.setCcdMotionThreshold(1f);
+			body.setCcdSweptSphereRadius(0.2f);
 		}
 	}
 	

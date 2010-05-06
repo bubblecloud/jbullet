@@ -28,8 +28,9 @@ import java.util.List;
 import javax.vecmath.Vector3f;
 
 /**
- * SimpleBroadphase is a brute force AABB culling broadphase based on O(n^2) AABB checks.
- * Consider using better broadphase implementations like {@link AxisSweep3} or {@link AxisSweep3_32}.
+ * SimpleBroadphase is just a unit-test for {@link AxisSweep3}, {@link AxisSweep3_32},
+ * or {@link DbvtBroadphase}, so use those classes instead. It is a brute force AABB
+ * culling broadphase based on O(n^2) AABB checks.
  * 
  * @author jezek2
  */

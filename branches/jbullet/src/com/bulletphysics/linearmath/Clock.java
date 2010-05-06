@@ -24,7 +24,7 @@
 package com.bulletphysics.linearmath;
 
 /**
- * Basic clock.
+ * Clock is a portable basic clock that measures accurate time in seconds, use for profiling.
  * 
  * @author jezek2
  */

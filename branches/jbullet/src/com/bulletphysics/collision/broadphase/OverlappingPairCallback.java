@@ -24,8 +24,9 @@
 package com.bulletphysics.collision.broadphase;
 
 /**
- * OverlappingPairCallback provides user callback to keep track of overlap between objects, like a collision sensor.
- * 
+ * OverlappingPairCallback class is an additional optional broadphase user callback
+ * for adding/removing overlapping pairs, similar interface to {@link OverlappingPairCache}.
+ *
  * @author jezek2
  */
 public interface OverlappingPairCallback {

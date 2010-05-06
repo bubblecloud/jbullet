@@ -29,6 +29,7 @@ import com.bulletphysics.linearmath.AabbUtil2;
 import com.bulletphysics.linearmath.MiscUtil;
 import com.bulletphysics.linearmath.VectorUtil;
 import cz.advel.stack.Stack;
+import java.io.Serializable;
 import javax.vecmath.Vector3f;
 
 // JAVA NOTE: OptimizedBvh still from 2.66, update it for 2.70b1
@@ -38,7 +39,9 @@ import javax.vecmath.Vector3f;
  * 
  * @author jezek2
  */
-public class OptimizedBvh {
+public class OptimizedBvh implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	//protected final BulletStack stack = BulletStack.get();
 	
@@ -54,7 +57,7 @@ public class OptimizedBvh {
 	// 10 gives the potential for 1024 parts, with at most 2^21 (2097152) (minus one
 	// actually) triangles each (since the sign bit is reserved
 	public static final int MAX_NUM_PARTS_IN_BITS = 10;
-	
+
 	////////////////////////////////////////////////////////////////////////////
 
 	private final List<OptimizedBvhNode> leafNodes = new ArrayList<OptimizedBvhNode>();

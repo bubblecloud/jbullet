@@ -180,17 +180,33 @@ public class ConeTwistConstraint extends TypedConstraint {
 
 		float swing1 = 0f, swing2 = 0f;
 
+		float swx = 0f, swy = 0f;
+		float thresh = 10f;
+		float fact;
+
 		// Get Frame into world space
 		if (swingSpan1 >= 0.05f) {
 			rbAFrame.basis.getColumn(1, b1Axis2);
 			getRigidBodyA().getCenterOfMassTransform(tmpTrans).basis.transform(b1Axis2);
-			swing1 = ScalarUtil.atan2Fast(b2Axis1.dot(b1Axis2), b2Axis1.dot(b1Axis1));
+//			swing1 = ScalarUtil.atan2Fast(b2Axis1.dot(b1Axis2), b2Axis1.dot(b1Axis1));
+			swx = b2Axis1.dot(b1Axis1);
+			swy = b2Axis1.dot(b1Axis2);
+			swing1 = ScalarUtil.atan2Fast(swy, swx);
+			fact = (swy*swy + swx*swx) * thresh * thresh;
+			fact = fact / (fact + 1f);
+			swing1 *= fact;
 		}
 
 		if (swingSpan2 >= 0.05f) {
 			rbAFrame.basis.getColumn(2, b1Axis3);
 			getRigidBodyA().getCenterOfMassTransform(tmpTrans).basis.transform(b1Axis3);
-			swing2 = ScalarUtil.atan2Fast(b2Axis1.dot(b1Axis3), b2Axis1.dot(b1Axis1));
+//			swing2 = ScalarUtil.atan2Fast(b2Axis1.dot(b1Axis3), b2Axis1.dot(b1Axis1));
+			swx = b2Axis1.dot(b1Axis1);
+			swy = b2Axis1.dot(b1Axis3);
+			swing2 = ScalarUtil.atan2Fast(swy, swx);
+			fact = (swy*swy + swx*swx) * thresh * thresh;
+			fact = fact / (fact + 1f);
+			swing2 *= fact;
 		}
 
 		float RMaxAngle1Sq = 1.0f / (swingSpan1 * swingSpan1);

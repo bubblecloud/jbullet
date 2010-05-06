@@ -28,8 +28,10 @@ import com.bulletphysics.collision.dispatch.CollisionObject;
 import com.bulletphysics.collision.narrowphase.PersistentManifold;
 
 /**
- * Dispatcher can be used in combination with broadphase to dispatch overlapping pairs.
- * For example for pairwise collision detection or user callbacks (game logic).
+ * Dispatcher abstract class can be used in combination with broadphase to dispatch
+ * calculations for overlapping pairs. For example for pairwise collision detection,
+ * calculating contact points stored in {@link PersistentManifold} or user callbacks
+ * (game logic).
  * 
  * @author jezek2
  */

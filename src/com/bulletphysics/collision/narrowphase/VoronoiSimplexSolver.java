@@ -36,7 +36,7 @@ import javax.vecmath.Vector3f;
  * 
  * @author jezek2
  */
-public class VoronoiSimplexSolver implements SimplexSolverInterface {
+public class VoronoiSimplexSolver extends SimplexSolverInterface {
 
 	//protected final BulletStack stack = BulletStack.get();
 	protected final ObjectPool<SubSimplexClosestResult> subsimplexResultsPool = ObjectPool.get(SubSimplexClosestResult.class);

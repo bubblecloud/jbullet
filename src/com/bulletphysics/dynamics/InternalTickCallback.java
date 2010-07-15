@@ -29,8 +29,8 @@ package com.bulletphysics.dynamics;
  * @see DynamicsWorld#setInternalTickCallback
  * @author jezek2
  */
-public interface InternalTickCallback {
+public abstract class InternalTickCallback {
 
-	public void internalTick(DynamicsWorld world, float timeStep);
+	public abstract void internalTick(DynamicsWorld world, float timeStep);
 	
 }

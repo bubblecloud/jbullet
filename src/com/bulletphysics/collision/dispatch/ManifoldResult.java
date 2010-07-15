@@ -37,7 +37,7 @@ import javax.vecmath.Vector3f;
  * 
  * @author jezek2
  */
-public class ManifoldResult implements DiscreteCollisionDetectorInterface.Result {
+public class ManifoldResult extends DiscreteCollisionDetectorInterface.Result {
 
 	//protected final BulletStack stack = BulletStack.get();
 	protected final ObjectPool<ManifoldPoint> pointsPool = ObjectPool.get(ManifoldPoint.class);

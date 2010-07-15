@@ -27,8 +27,7 @@
 
 package com.bulletphysics.demos.genericjoint;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.bulletphysics.util.ObjectArrayList;
 import com.bulletphysics.collision.broadphase.BroadphaseInterface;
 import com.bulletphysics.collision.broadphase.DbvtBroadphase;
 import com.bulletphysics.collision.dispatch.CollisionDispatcher;
@@ -53,7 +52,7 @@ import static com.bulletphysics.demos.opengl.IGL.*;
  */
 public class GenericJointDemo extends DemoApplication {
 
-	private List<RagDoll> ragdolls = new ArrayList<RagDoll>();
+	private ObjectArrayList<RagDoll> ragdolls = new ObjectArrayList<RagDoll>();
 
 	public GenericJointDemo(IGL gl) {
 		super(gl);

@@ -28,10 +28,8 @@ package com.bulletphysics.collision.shapes;
 import com.bulletphysics.linearmath.MiscUtil;
 import com.bulletphysics.linearmath.convexhull.*;
 import com.bulletphysics.util.IntArrayList;
+import com.bulletphysics.util.ObjectArrayList;
 import cz.advel.stack.Stack;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import javax.vecmath.Vector3f;
 
 /**
@@ -42,12 +40,12 @@ import javax.vecmath.Vector3f;
  */
 public class ShapeHull {
 
-	protected List<Vector3f> vertices = new ArrayList<Vector3f>();
+	protected ObjectArrayList<Vector3f> vertices = new ObjectArrayList<Vector3f>();
 	protected IntArrayList indices = new IntArrayList();
 	protected int numIndices;
 	protected ConvexShape shape;
 
-	protected List<Vector3f> unitSpherePoints = new ArrayList<Vector3f>();
+	protected ObjectArrayList<Vector3f> unitSpherePoints = new ObjectArrayList<Vector3f>();
 
 	public ShapeHull(ConvexShape shape) {
 		this.shape = shape;
@@ -57,7 +55,7 @@ public class ShapeHull {
 
 		MiscUtil.resize(unitSpherePoints, NUM_UNITSPHERE_POINTS+ConvexShape.MAX_PREFERRED_PENETRATION_DIRECTIONS*2, Vector3f.class);
 		for (int i=0; i<constUnitSpherePoints.size(); i++) {
-			unitSpherePoints.get(i).set(constUnitSpherePoints.get(i));
+			unitSpherePoints.getQuick(i).set(constUnitSpherePoints.getQuick(i));
 		}
 	}
 
@@ -70,17 +68,17 @@ public class ShapeHull {
 			if (numPDA != 0) {
 				for (int i=0; i<numPDA; i++) {
 					shape.getPreferredPenetrationDirection(i, norm);
-					unitSpherePoints.get(numSampleDirections).set(norm);
+					unitSpherePoints.getQuick(numSampleDirections).set(norm);
 					numSampleDirections++;
 				}
 			}
 		}
 
-		List<Vector3f> supportPoints = new ArrayList<Vector3f>();
+		ObjectArrayList<Vector3f> supportPoints = new ObjectArrayList<Vector3f>();
 		MiscUtil.resize(supportPoints, NUM_UNITSPHERE_POINTS + ConvexShape.MAX_PREFERRED_PENETRATION_DIRECTIONS * 2, Vector3f.class);
 
 		for (int i=0; i<numSampleDirections; i++) {
-			shape.localGetSupportingVertex(unitSpherePoints.get(i), supportPoints.get(i));
+			shape.localGetSupportingVertex(unitSpherePoints.getQuick(i), supportPoints.getQuick(i));
 		}
 
 		HullDesc hd = new HullDesc();
@@ -104,7 +102,7 @@ public class ShapeHull {
 		MiscUtil.resize(vertices, hr.numOutputVertices, Vector3f.class);
 
 		for (int i=0; i<hr.numOutputVertices; i++) {
-			vertices.get(i).set(hr.outputVertices.get(i));
+			vertices.getQuick(i).set(hr.outputVertices.getQuick(i));
 		}
 		numIndices = hr.numIndices;
 		MiscUtil.resize(indices, numIndices, 0);
@@ -130,7 +128,7 @@ public class ShapeHull {
 		return numIndices;
 	}
 
-	public List<Vector3f> getVertexPointer() {
+	public ObjectArrayList<Vector3f> getVertexPointer() {
 		return vertices;
 	}
 
@@ -142,7 +140,7 @@ public class ShapeHull {
 	
 	private static int NUM_UNITSPHERE_POINTS = 42;
 	
-	private static List<Vector3f> constUnitSpherePoints = new ArrayList<Vector3f>();
+	private static ObjectArrayList<Vector3f> constUnitSpherePoints = new ObjectArrayList<Vector3f>();
 	
 	static {
 		constUnitSpherePoints.add(new Vector3f(0.000000f, -0.000000f, -1.000000f));
@@ -187,8 +185,6 @@ public class ShapeHull {
 		constUnitSpherePoints.add(new Vector3f(-0.425323f, -0.309011f, 0.850654f));
 		constUnitSpherePoints.add(new Vector3f(-0.425323f, 0.309011f, 0.850654f));
 		constUnitSpherePoints.add(new Vector3f(0.162456f, 0.499995f, 0.850654f));
-
-		constUnitSpherePoints = Collections.unmodifiableList(constUnitSpherePoints);
 	}
 	
 }

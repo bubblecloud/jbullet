@@ -34,8 +34,8 @@ import com.bulletphysics.collision.broadphase.DispatcherInfo;
  * @see CollisionDispatcher#getNearCallback
  * @author jezek2
  */
-public interface NearCallback {
+public abstract class NearCallback {
 
-	public void handleCollision(BroadphasePair collisionPair, CollisionDispatcher dispatcher, DispatcherInfo dispatchInfo);
+	public abstract void handleCollision(BroadphasePair collisionPair, CollisionDispatcher dispatcher, DispatcherInfo dispatchInfo);
 	
 }

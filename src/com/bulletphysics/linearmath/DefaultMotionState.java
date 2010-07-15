@@ -29,7 +29,7 @@ package com.bulletphysics.linearmath;
  * 
  * @author jezek2
  */
-public class DefaultMotionState implements MotionState {
+public class DefaultMotionState extends MotionState {
 
 	/** Current interpolated world transform, used to draw object. */
 	public final Transform graphicsWorldTrans = new Transform();

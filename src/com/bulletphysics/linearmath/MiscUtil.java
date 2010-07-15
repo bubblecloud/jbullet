@@ -24,9 +24,9 @@
 package com.bulletphysics.linearmath;
 
 import java.util.Comparator;
-import java.util.List;
 import com.bulletphysics.util.FloatArrayList;
 import com.bulletphysics.util.IntArrayList;
+import com.bulletphysics.util.ObjectArrayList;
 
 /**
  * Miscellaneous utility functions.
@@ -35,7 +35,7 @@ import com.bulletphysics.util.IntArrayList;
  */
 public class MiscUtil {
 
-	public static int getListCapacityForHash(List<?> list) {
+	public static int getListCapacityForHash(ObjectArrayList<?> list) {
 		return getListCapacityForHash(list.size());
 	}
 	
@@ -51,7 +51,7 @@ public class MiscUtil {
 	 * Ensures valid index in provided list by filling list with provided values
 	 * until the index is valid.
 	 */
-	public static <T> void ensureIndex(List<T> list, int index, T value) {
+	public static <T> void ensureIndex(ObjectArrayList<T> list, int index, T value) {
 		while (list.size() <= index) {
 			list.add(value);
 		}
@@ -87,14 +87,14 @@ public class MiscUtil {
 	 * Resizes list to exact size, filling with new instances of given class type
 	 * when expanding.
 	 */
-	public static <T> void resize(List<T> list, int size, Class<T> valueCls) {
+	public static <T> void resize(ObjectArrayList<T> list, int size, Class<T> valueCls) {
 		try {
 			while (list.size() < size) {
 				list.add(valueCls != null? valueCls.newInstance() : null);
 			}
 
 			while (list.size() > size) {
-				list.remove(list.size() - 1);
+				list.removeQuick(list.size() - 1);
 			}
 		}
 		catch (IllegalAccessException e) {
@@ -121,29 +121,29 @@ public class MiscUtil {
 		return a < lb ? lb : (ub < a ? ub : a);
 	}
 
-	private static <T> void downHeap(List<T> pArr, int k, int n, Comparator<T> comparator) {
+	private static <T> void downHeap(ObjectArrayList<T> pArr, int k, int n, Comparator<T> comparator) {
 		/*  PRE: a[k+1..N] is a heap */
 		/* POST:  a[k..N]  is a heap */
 
-		T temp = pArr.get(k - 1);
+		T temp = pArr.getQuick(k - 1);
 		/* k has child(s) */
 		while (k <= n / 2) {
 			int child = 2 * k;
 
-			if ((child < n) && comparator.compare(pArr.get(child - 1), pArr.get(child)) < 0) {
+			if ((child < n) && comparator.compare(pArr.getQuick(child - 1), pArr.getQuick(child)) < 0) {
 				child++;
 			}
 			/* pick larger child */
-			if (comparator.compare(temp, pArr.get(child - 1)) < 0) {
+			if (comparator.compare(temp, pArr.getQuick(child - 1)) < 0) {
 				/* move child up */
-				pArr.set(k - 1, pArr.get(child - 1));
+				pArr.setQuick(k - 1, pArr.getQuick(child - 1));
 				k = child;
 			}
 			else {
 				break;
 			}
 		}
-		pArr.set(k - 1, temp);
+		pArr.setQuick(k - 1, temp);
 	}
 
 	/**
@@ -151,7 +151,7 @@ public class MiscUtil {
 	 * 
 	 * Implementation from: http://www.csse.monash.edu.au/~lloyd/tildeAlgDS/Sort/Heap/
 	 */
-	public static <T> void heapSort(List<T> list, Comparator<T> comparator) {
+	public static <T> void heapSort(ObjectArrayList<T> list, Comparator<T> comparator) {
 		/* sort a[0..N-1],  N.B. 0 to N-1 */
 		int k;
 		int n = list.size();
@@ -169,32 +169,32 @@ public class MiscUtil {
 		}
 	}
 
-	private static <T> void swap(List<T> list, int index0, int index1) {
-		T temp = list.get(index0);
-		list.set(index0, list.get(index1));
-		list.set(index1, temp);
+	private static <T> void swap(ObjectArrayList<T> list, int index0, int index1) {
+		T temp = list.getQuick(index0);
+		list.setQuick(index0, list.getQuick(index1));
+		list.setQuick(index1, temp);
 	}
 	
 	/**
 	 * Sorts list using quick sort.<p>
 	 */
-	public static <T> void quickSort(List<T> list, Comparator<T> comparator) {
+	public static <T> void quickSort(ObjectArrayList<T> list, Comparator<T> comparator) {
 		// don't sort 0 or 1 elements
 		if (list.size() > 1) {
 			quickSortInternal(list, comparator, 0, list.size() - 1);
 		}
 	}
 
-	private static <T> void quickSortInternal(List<T> list, Comparator<T> comparator, int lo, int hi) {
+	private static <T> void quickSortInternal(ObjectArrayList<T> list, Comparator<T> comparator, int lo, int hi) {
 		// lo is the lower index, hi is the upper index
 		// of the region of array a that is to be sorted
 		int i = lo, j = hi;
-		T x = list.get((lo + hi) / 2);
+		T x = list.getQuick((lo + hi) / 2);
 
 		// partition
 		do {
-			while (comparator.compare(list.get(i), x) < 0) i++;
-			while (comparator.compare(x, list.get(j)) < 0) j--;
+			while (comparator.compare(list.getQuick(i), x) < 0) i++;
+			while (comparator.compare(x, list.getQuick(j)) < 0) j--;
 			
 			if (i <= j) {
 				swap(list, i, j);

@@ -23,11 +23,10 @@
 
 package com.bulletphysics.collision.shapes;
 
-import java.util.ArrayList;
-import java.util.List;
 import com.bulletphysics.BulletGlobals;
 import com.bulletphysics.collision.broadphase.BroadphaseNativeType;
 import com.bulletphysics.linearmath.VectorUtil;
+import com.bulletphysics.util.ObjectArrayList;
 import cz.advel.stack.Stack;
 import javax.vecmath.Vector3f;
 
@@ -40,7 +39,7 @@ import javax.vecmath.Vector3f;
  */
 public class ConvexHullShape extends PolyhedralConvexShape {
 
-	private final List<Vector3f> points = new ArrayList<Vector3f>();
+	private final ObjectArrayList<Vector3f> points = new ObjectArrayList<Vector3f>();
 	
 	/**
 	 * TODO: This constructor optionally takes in a pointer to points. Each point is assumed to be 3 consecutive float (x,y,z), the striding defines the number of bytes between each point, in memory.
@@ -48,11 +47,11 @@ public class ConvexHullShape extends PolyhedralConvexShape {
 	 * ConvexHullShape make an internal copy of the points.
 	 */
 	// TODO: make better constuctors (ByteBuffer, etc.)
-	public ConvexHullShape(List<Vector3f> points) {
+	public ConvexHullShape(ObjectArrayList<Vector3f> points) {
 		// JAVA NOTE: rewritten
 		
 		for (int i=0; i<points.size(); i++) {
-			this.points.add(new Vector3f(points.get(i)));
+			this.points.add(new Vector3f(points.getQuick(i)));
 		}
 		
 		recalcLocalAabb();
@@ -69,7 +68,7 @@ public class ConvexHullShape extends PolyhedralConvexShape {
 		recalcLocalAabb();
 	}
 
-	public List<Vector3f> getPoints() {
+	public ObjectArrayList<Vector3f> getPoints() {
 		return points;
 	}
 
@@ -96,7 +95,7 @@ public class ConvexHullShape extends PolyhedralConvexShape {
 
 		Vector3f vtx = Stack.alloc(Vector3f.class);
 		for (int i = 0; i < points.size(); i++) {
-			VectorUtil.mul(vtx, points.get(i), localScaling);
+			VectorUtil.mul(vtx, points.getQuick(i), localScaling);
 
 			newDot = vec.dot(vtx);
 			if (newDot > maxDot) {
@@ -124,7 +123,7 @@ public class ConvexHullShape extends PolyhedralConvexShape {
 		}
 		Vector3f vtx = Stack.alloc(Vector3f.class);
 		for (int i = 0; i < points.size(); i++) {
-			VectorUtil.mul(vtx, points.get(i), localScaling);
+			VectorUtil.mul(vtx, points.getQuick(i), localScaling);
 
 			for (int j = 0; j < numVectors; j++) {
 				Vector3f vec = vectors[j];
@@ -174,13 +173,13 @@ public class ConvexHullShape extends PolyhedralConvexShape {
 	public void getEdge(int i, Vector3f pa, Vector3f pb) {
 		int index0 = i % points.size();
 		int index1 = (i + 1) % points.size();
-		VectorUtil.mul(pa, points.get(index0), localScaling);
-		VectorUtil.mul(pb, points.get(index1), localScaling);
+		VectorUtil.mul(pa, points.getQuick(index0), localScaling);
+		VectorUtil.mul(pb, points.getQuick(index1), localScaling);
 	}
 
 	@Override
 	public void getVertex(int i, Vector3f vtx) {
-		VectorUtil.mul(vtx, points.get(i), localScaling);
+		VectorUtil.mul(vtx, points.getQuick(i), localScaling);
 	}
 
 	@Override

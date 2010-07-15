@@ -23,10 +23,9 @@
 
 package com.bulletphysics.collision.dispatch;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
 import com.bulletphysics.linearmath.MiscUtil;
+import com.bulletphysics.util.ObjectArrayList;
+import java.util.Comparator;
 
 /**
  * UnionFind calculates connected subsets. Implements weighted Quick Union with
@@ -38,7 +37,7 @@ public class UnionFind {
 	
 	// Optimization: could use short ints instead of ints (halving memory, would limit the number of rigid bodies to 64k, sounds reasonable).
 
-	private final List<Element> elements = new ArrayList<Element>();
+	private final ObjectArrayList<Element> elements = new ObjectArrayList<Element>();
 	
 	/**
 	 * This is a special operation, destroying the content of UnionFind.
@@ -49,8 +48,8 @@ public class UnionFind {
 		int numElements = elements.size();
 
 		for (int i = 0; i < numElements; i++) {
-			elements.get(i).id = find(i);
-			elements.get(i).sz = i;
+			elements.getQuick(i).id = find(i);
+			elements.getQuick(i).sz = i;
 		}
 
 		// Sort the vector using predicate and std::sort
@@ -66,8 +65,8 @@ public class UnionFind {
 		allocate(N);
 
 		for (int i = 0; i < N; i++) {
-			elements.get(i).id = i;
-			elements.get(i).sz = 1;
+			elements.getQuick(i).id = i;
+			elements.getQuick(i).sz = 1;
 		}
 	}
 
@@ -76,11 +75,11 @@ public class UnionFind {
 	}
 
 	public boolean isRoot(int x) {
-		return (x == elements.get(x).id);
+		return (x == elements.getQuick(x).id);
 	}
 
 	public Element getElement(int index) {
-		return elements.get(index);
+		return elements.getQuick(index);
 	}
 
 	public void allocate(int N) {
@@ -112,8 +111,8 @@ public class UnionFind {
 		//	m_elements[j].m_id = i; m_elements[i].m_sz += m_elements[j].m_sz; 
 		//}
 		//#else
-		elements.get(i).id = j;
-		elements.get(j).sz += elements.get(i).sz;
+		elements.getQuick(i).id = j;
+		elements.getQuick(j).sz += elements.getQuick(i).sz;
 		//#endif //USE_PATH_COMPRESSION
 	}
 
@@ -121,13 +120,13 @@ public class UnionFind {
 		//assert(x < m_N);
 		//assert(x >= 0);
 
-		while (x != elements.get(x).id) {
+		while (x != elements.getQuick(x).id) {
 			// not really a reason not to use path compression, and it flattens the trees/improves find performance dramatically
 
 			//#ifdef USE_PATH_COMPRESSION
-			elements.get(x).id = elements.get(elements.get(x).id).id;
+			elements.getQuick(x).id = elements.getQuick(elements.getQuick(x).id).id;
 			//#endif //
-			x = elements.get(x).id;
+			x = elements.getQuick(x).id;
 			//assert(x < m_N);
 			//assert(x >= 0);
 		}

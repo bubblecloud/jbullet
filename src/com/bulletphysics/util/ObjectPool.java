@@ -23,7 +23,6 @@
 
 package com.bulletphysics.util;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,7 +34,7 @@ import java.util.Map;
 public class ObjectPool<T> {
 	
 	private Class<T> cls;
-	private ArrayList<T> list = new ArrayList<T>();
+	private ObjectArrayList<T> list = new ObjectArrayList<T>();
 	
 	public ObjectPool(Class<T> cls) {
 		this.cls = cls;
@@ -60,7 +59,7 @@ public class ObjectPool<T> {
 	 */
 	public T get() {
 		if (list.size() > 0) {
-			return list.remove(list.size() - 1);
+			return list.removeQuick(list.size() - 1);
 		}
 		else {
 			return create();

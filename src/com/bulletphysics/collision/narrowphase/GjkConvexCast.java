@@ -36,7 +36,7 @@ import javax.vecmath.Vector3f;
  * 
  * @author jezek2
  */
-public class GjkConvexCast implements ConvexCast {
+public class GjkConvexCast extends ConvexCast {
 
 	//protected final BulletStack stack = BulletStack.get();
 	protected final ObjectPool<ClosestPointInput> pointInputsPool = ObjectPool.get(ClosestPointInput.class);

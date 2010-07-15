@@ -23,9 +23,7 @@
 
 package com.bulletphysics.collision.dispatch;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import com.bulletphysics.util.ObjectPool;
 import com.bulletphysics.collision.broadphase.BroadphaseNativeType;
 import com.bulletphysics.collision.broadphase.BroadphasePair;
@@ -36,6 +34,7 @@ import com.bulletphysics.collision.broadphase.DispatcherInfo;
 import com.bulletphysics.collision.broadphase.OverlapCallback;
 import com.bulletphysics.collision.broadphase.OverlappingPairCache;
 import com.bulletphysics.collision.narrowphase.PersistentManifold;
+import com.bulletphysics.util.ObjectArrayList;
 
 /**
  * CollisionDispatcher supports algorithms that handle ConvexConvex and ConvexConcave collision pairs.
@@ -49,7 +48,7 @@ public class CollisionDispatcher extends Dispatcher {
 
 	private static final int MAX_BROADPHASE_COLLISION_TYPES = BroadphaseNativeType.MAX_BROADPHASE_COLLISION_TYPES.ordinal();
 	private int count = 0;
-	private final List<PersistentManifold> manifoldsPtr = new ArrayList<PersistentManifold>();
+	private final ObjectArrayList<PersistentManifold> manifoldsPtr = new ObjectArrayList<PersistentManifold>();
 	private boolean useIslands = true;
 	private boolean staticWarningReported = false;
 	private ManifoldResult defaultManifoldResult;
@@ -117,7 +116,6 @@ public class CollisionDispatcher extends Dispatcher {
 	public void freeCollisionAlgorithm(CollisionAlgorithm algo) {
 		CollisionAlgorithmCreateFunc createFunc = algo.internalGetCreateFunc();
 		algo.internalSetCreateFunc(null);
-        if(createFunc!=null)
 		createFunc.releaseCollisionAlgorithm(algo);
 		algo.destroy();
 	}
@@ -167,8 +165,8 @@ public class CollisionDispatcher extends Dispatcher {
 		int findIndex = manifold.index1a;
 		assert (findIndex < manifoldsPtr.size());
 		Collections.swap(manifoldsPtr, findIndex, manifoldsPtr.size()-1);
-		manifoldsPtr.get(findIndex).index1a = findIndex;
-		manifoldsPtr.remove(manifoldsPtr.size()-1);
+		manifoldsPtr.getQuick(findIndex).index1a = findIndex;
+		manifoldsPtr.removeQuick(manifoldsPtr.size()-1);
 
 		manifoldsPool.release(manifold);
 		/*
@@ -225,7 +223,7 @@ public class CollisionDispatcher extends Dispatcher {
 		return hasResponse;
 	}
 
-	private static class CollisionPairCallback implements OverlapCallback {
+	private static class CollisionPairCallback extends OverlapCallback {
 		private DispatcherInfo dispatchInfo;
 		private CollisionDispatcher dispatcher;
 
@@ -257,11 +255,11 @@ public class CollisionDispatcher extends Dispatcher {
 
 	@Override
 	public PersistentManifold getManifoldByIndexInternal(int index) {
-		return manifoldsPtr.get(index);
+		return manifoldsPtr.getQuick(index);
 	}
 
 	@Override
-	public List<PersistentManifold> getInternalManifoldPointer() {
+	public ObjectArrayList<PersistentManifold> getInternalManifoldPointer() {
 		return manifoldsPtr;
 	}
 	

@@ -23,10 +23,9 @@
 
 package com.bulletphysics.demos.concave;
 
+import com.bulletphysics.util.ObjectArrayList;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.ArrayList;
-import java.util.List;
 import com.bulletphysics.BulletGlobals;
 import com.bulletphysics.BulletStats;
 import com.bulletphysics.ContactAddedCallback;
@@ -83,7 +82,7 @@ public class ConcaveDemo extends DemoApplication {
 	private static final boolean USE_BOX_SHAPE = false;
 
 	// keep the collision shapes, for deletion/cleanup
-	private List<CollisionShape> collisionShapes = new ArrayList<CollisionShape>();
+	private ObjectArrayList<CollisionShape> collisionShapes = new ObjectArrayList<CollisionShape>();
 	private TriangleIndexVertexArray indexVertexArrays;
 	private BroadphaseInterface broadphase;
 	private CollisionDispatcher dispatcher;
@@ -381,7 +380,7 @@ public class ConcaveDemo extends DemoApplication {
 		return restitution0 * restitution1;
 	}
 	
-	private static class CustomMaterialCombinerCallback implements ContactAddedCallback {
+	private static class CustomMaterialCombinerCallback extends ContactAddedCallback {
 		public boolean contactAdded(ManifoldPoint cp, CollisionObject colObj0, int partId0, int index0, CollisionObject colObj1, int partId1, int index1) {
 			float friction0 = colObj0.getFriction();
 			float friction1 = colObj1.getFriction();

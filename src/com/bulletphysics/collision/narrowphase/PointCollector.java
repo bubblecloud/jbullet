@@ -29,7 +29,7 @@ import javax.vecmath.Vector3f;
  *
  * @author jezek2
  */
-public class PointCollector implements DiscreteCollisionDetectorInterface.Result {
+public class PointCollector extends DiscreteCollisionDetectorInterface.Result {
 
 	public final Vector3f normalOnBInWorld = new Vector3f();
 	public final Vector3f pointInWorld = new Vector3f();

@@ -25,8 +25,6 @@ package com.bulletphysics.demos.vehicle;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.ArrayList;
-import java.util.List;
 import com.bulletphysics.collision.broadphase.BroadphaseInterface;
 import com.bulletphysics.collision.broadphase.DbvtBroadphase;
 import com.bulletphysics.collision.dispatch.CollisionDispatcher;
@@ -53,6 +51,7 @@ import com.bulletphysics.dynamics.vehicle.VehicleRaycaster;
 import com.bulletphysics.dynamics.vehicle.VehicleTuning;
 import com.bulletphysics.dynamics.vehicle.WheelInfo;
 import com.bulletphysics.linearmath.Transform;
+import com.bulletphysics.util.ObjectArrayList;
 import javax.vecmath.Vector3f;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
@@ -112,7 +111,7 @@ public class VehicleDemo extends DemoApplication {
 	////////////////////////////////////////////////////////////////////////////
 	
 	public RigidBody carChassis;
-	public List<CollisionShape> collisionShapes = new ArrayList<CollisionShape>();
+	public ObjectArrayList<CollisionShape> collisionShapes = new ObjectArrayList<CollisionShape>();
 	public BroadphaseInterface overlappingPairCache;
 	public CollisionDispatcher dispatcher;
 	public ConstraintSolver constraintSolver;

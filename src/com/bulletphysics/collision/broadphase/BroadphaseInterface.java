@@ -30,23 +30,23 @@ import javax.vecmath.Vector3f;
  * 
  * @author jezek2
  */
-public interface BroadphaseInterface {
+public abstract class BroadphaseInterface {
 
-	public BroadphaseProxy createProxy(Vector3f aabbMin, Vector3f aabbMax, BroadphaseNativeType shapeType, Object userPtr, short collisionFilterGroup, short collisionFilterMask, Dispatcher dispatcher, Object multiSapProxy);
+	public abstract BroadphaseProxy createProxy(Vector3f aabbMin, Vector3f aabbMax, BroadphaseNativeType shapeType, Object userPtr, short collisionFilterGroup, short collisionFilterMask, Dispatcher dispatcher, Object multiSapProxy);
 
-	public void destroyProxy(BroadphaseProxy proxy, Dispatcher dispatcher);
+	public abstract void destroyProxy(BroadphaseProxy proxy, Dispatcher dispatcher);
 
-	public void setAabb(BroadphaseProxy proxy, Vector3f aabbMin, Vector3f aabbMax, Dispatcher dispatcher);
+	public abstract void setAabb(BroadphaseProxy proxy, Vector3f aabbMin, Vector3f aabbMax, Dispatcher dispatcher);
 
 	///calculateOverlappingPairs is optional: incremental algorithms (sweep and prune) might do it during the set aabb
-	public void calculateOverlappingPairs(Dispatcher dispatcher);
+	public abstract void calculateOverlappingPairs(Dispatcher dispatcher);
 
-	public OverlappingPairCache getOverlappingPairCache();
+	public abstract OverlappingPairCache getOverlappingPairCache();
 	
 	///getAabb returns the axis aligned bounding box in the 'global' coordinate frame
 	///will add some transform later
-	public void getBroadphaseAabb(Vector3f aabbMin, Vector3f aabbMax);
+	public abstract void getBroadphaseAabb(Vector3f aabbMin, Vector3f aabbMax);
 
-	public void printStats();
+	public abstract void printStats();
 	
 }

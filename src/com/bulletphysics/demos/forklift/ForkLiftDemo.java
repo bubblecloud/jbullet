@@ -23,6 +23,7 @@
 
 package com.bulletphysics.demos.forklift;
 
+import com.bulletphysics.util.ObjectArrayList;
 import com.bulletphysics.collision.broadphase.BroadphaseInterface;
 import com.bulletphysics.collision.broadphase.DbvtBroadphase;
 import com.bulletphysics.collision.dispatch.CollisionDispatcher;
@@ -56,8 +57,6 @@ import com.bulletphysics.linearmath.Transform;
 import java.awt.event.KeyEvent;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.ArrayList;
-import java.util.List;
 import javax.vecmath.Vector3f;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
@@ -143,7 +142,7 @@ public class ForkLiftDemo extends DemoApplication {
 
 	//----------------------------
 
-	public List<CollisionShape> collisionShapes = new ArrayList<CollisionShape>();
+	public ObjectArrayList<CollisionShape> collisionShapes = new ObjectArrayList<CollisionShape>();
 	public BroadphaseInterface overlappingPairCache;
 	public CollisionDispatcher dispatcher;
 	public ConstraintSolver constraintSolver;

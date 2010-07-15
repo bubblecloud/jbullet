@@ -33,9 +33,9 @@ import javax.vecmath.Vector3f;
  * 
  * @author jezek2
  */
-public interface ConvexPenetrationDepthSolver {
+public abstract class ConvexPenetrationDepthSolver {
 
-	public boolean calcPenDepth(SimplexSolverInterface simplexSolver,
+	public abstract boolean calcPenDepth(SimplexSolverInterface simplexSolver,
 			ConvexShape convexA, ConvexShape convexB,
 			Transform transA, Transform transB,
 			Vector3f v, Vector3f pa, Vector3f pb,

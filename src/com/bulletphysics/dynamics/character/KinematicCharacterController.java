@@ -36,8 +36,7 @@ import com.bulletphysics.dynamics.ActionInterface;
 import com.bulletphysics.linearmath.IDebugDraw;
 import com.bulletphysics.linearmath.Transform;
 import cz.advel.stack.Stack;
-import java.util.ArrayList;
-import java.util.List;
+import com.bulletphysics.util.ObjectArrayList;
 import javax.vecmath.Vector3f;
 
 /**
@@ -51,7 +50,7 @@ import javax.vecmath.Vector3f;
  *
  * @author tomrbryn
  */
-public class KinematicCharacterController implements ActionInterface {
+public class KinematicCharacterController extends ActionInterface {
 
 	protected float halfHeight;
 
@@ -89,7 +88,7 @@ public class KinematicCharacterController implements ActionInterface {
 	protected Vector3f targetPosition = new Vector3f();
 
 	// keep track of the contact manifolds
-	List<PersistentManifold> manifoldArray = new ArrayList<PersistentManifold>();
+	ObjectArrayList<PersistentManifold> manifoldArray = new ObjectArrayList<PersistentManifold>();
 
 	protected boolean touchingContact;
 	protected Vector3f touchingNormal = new Vector3f();

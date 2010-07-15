@@ -23,8 +23,6 @@
 
 package com.bulletphysics.dynamics.constraintsolver;
 
-import java.util.ArrayList;
-import java.util.List;
 import com.bulletphysics.BulletGlobals;
 import com.bulletphysics.BulletStats;
 import com.bulletphysics.ContactDestroyedCallback;
@@ -39,6 +37,7 @@ import com.bulletphysics.linearmath.MiscUtil;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.linearmath.TransformUtil;
 import com.bulletphysics.util.IntArrayList;
+import com.bulletphysics.util.ObjectArrayList;
 import cz.advel.stack.Stack;
 import cz.advel.stack.StaticAlloc;
 import javax.vecmath.Matrix3f;
@@ -76,9 +75,9 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
 	private final ObjectPool<SolverConstraint> constraintsPool = ObjectPool.get(SolverConstraint.class);
 	private final ObjectPool<JacobianEntry> jacobiansPool = ObjectPool.get(JacobianEntry.class);
 	
-	private final List<SolverBody> tmpSolverBodyPool = new ArrayList<SolverBody>();
-	private final List<SolverConstraint> tmpSolverConstraintPool = new ArrayList<SolverConstraint>();
-	private final List<SolverConstraint> tmpSolverFrictionConstraintPool = new ArrayList<SolverConstraint>();
+	private final ObjectArrayList<SolverBody> tmpSolverBodyPool = new ObjectArrayList<SolverBody>();
+	private final ObjectArrayList<SolverConstraint> tmpSolverConstraintPool = new ObjectArrayList<SolverConstraint>();
+	private final ObjectArrayList<SolverConstraint> tmpSolverFrictionConstraintPool = new ObjectArrayList<SolverConstraint>();
 	private final IntArrayList orderTmpConstraintPool = new IntArrayList();
 	private final IntArrayList orderFrictionConstraintPool = new IntArrayList();
 	
@@ -409,7 +408,7 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
 		solverConstraint.jacDiagABInv = denom;
 	}
 	
-	public float solveGroupCacheFriendlySetup(List<CollisionObject> bodies, int numBodies, List<PersistentManifold> manifoldPtr, int manifold_offset, int numManifolds, List<TypedConstraint> constraints, int constraints_offset, int numConstraints, ContactSolverInfo infoGlobal, IDebugDraw debugDrawer/*,btStackAlloc* stackAlloc*/) {
+	public float solveGroupCacheFriendlySetup(ObjectArrayList<CollisionObject> bodies, int numBodies, ObjectArrayList<PersistentManifold> manifoldPtr, int manifold_offset, int numManifolds, ObjectArrayList<TypedConstraint> constraints, int constraints_offset, int numConstraints, ContactSolverInfo infoGlobal, IDebugDraw debugDrawer/*,btStackAlloc* stackAlloc*/) {
 		BulletStats.pushProfile("solveGroupCacheFriendlySetup");
 		try {
 
@@ -504,7 +503,7 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
 					Matrix3f tmpMat = Stack.alloc(Matrix3f.class);
 					
 					for (i = 0; i < numManifolds; i++) {
-						manifold = manifoldPtr.get(manifold_offset+i);
+						manifold = manifoldPtr.getQuick(manifold_offset+i);
 						colObj0 = (CollisionObject) manifold.getBody0();
 						colObj1 = (CollisionObject) manifold.getBody1();
 
@@ -669,11 +668,11 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
 										solverConstraint.appliedImpulse = cp.appliedImpulse * infoGlobal.warmstartingFactor;
 										if (rb0 != null) {
 											tmp.scale(rb0.getInvMass(), solverConstraint.contactNormal);
-											tmpSolverBodyPool.get(solverConstraint.solverBodyIdA).internalApplyImpulse(tmp, solverConstraint.angularComponentA, solverConstraint.appliedImpulse);
+											tmpSolverBodyPool.getQuick(solverConstraint.solverBodyIdA).internalApplyImpulse(tmp, solverConstraint.angularComponentA, solverConstraint.appliedImpulse);
 										}
 										if (rb1 != null) {
 											tmp.scale(rb1.getInvMass(), solverConstraint.contactNormal);
-											tmpSolverBodyPool.get(solverConstraint.solverBodyIdB).internalApplyImpulse(tmp, solverConstraint.angularComponentB, -solverConstraint.appliedImpulse);
+											tmpSolverBodyPool.getQuick(solverConstraint.solverBodyIdB).internalApplyImpulse(tmp, solverConstraint.angularComponentB, -solverConstraint.appliedImpulse);
 										}
 									}
 									else {
@@ -712,16 +711,16 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
 									}
 
 									{
-										SolverConstraint frictionConstraint1 = tmpSolverFrictionConstraintPool.get(solverConstraint.frictionIndex);
+										SolverConstraint frictionConstraint1 = tmpSolverFrictionConstraintPool.getQuick(solverConstraint.frictionIndex);
 										if ((infoGlobal.solverMode & SolverMode.SOLVER_USE_WARMSTARTING) != 0) {
 											frictionConstraint1.appliedImpulse = cp.appliedImpulseLateral1 * infoGlobal.warmstartingFactor;
 											if (rb0 != null) {
 												tmp.scale(rb0.getInvMass(), frictionConstraint1.contactNormal);
-												tmpSolverBodyPool.get(solverConstraint.solverBodyIdA).internalApplyImpulse(tmp, frictionConstraint1.angularComponentA, frictionConstraint1.appliedImpulse);
+												tmpSolverBodyPool.getQuick(solverConstraint.solverBodyIdA).internalApplyImpulse(tmp, frictionConstraint1.angularComponentA, frictionConstraint1.appliedImpulse);
 											}
 											if (rb1 != null) {
 												tmp.scale(rb1.getInvMass(), frictionConstraint1.contactNormal);
-												tmpSolverBodyPool.get(solverConstraint.solverBodyIdB).internalApplyImpulse(tmp, frictionConstraint1.angularComponentB, -frictionConstraint1.appliedImpulse);
+												tmpSolverBodyPool.getQuick(solverConstraint.solverBodyIdB).internalApplyImpulse(tmp, frictionConstraint1.angularComponentB, -frictionConstraint1.appliedImpulse);
 											}
 										}
 										else {
@@ -729,16 +728,16 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
 										}
 									}
 									{
-										SolverConstraint frictionConstraint2 = tmpSolverFrictionConstraintPool.get(solverConstraint.frictionIndex + 1);
+										SolverConstraint frictionConstraint2 = tmpSolverFrictionConstraintPool.getQuick(solverConstraint.frictionIndex + 1);
 										if ((infoGlobal.solverMode & SolverMode.SOLVER_USE_WARMSTARTING) != 0) {
 											frictionConstraint2.appliedImpulse = cp.appliedImpulseLateral2 * infoGlobal.warmstartingFactor;
 											if (rb0 != null) {
 												tmp.scale(rb0.getInvMass(), frictionConstraint2.contactNormal);
-												tmpSolverBodyPool.get(solverConstraint.solverBodyIdA).internalApplyImpulse(tmp, frictionConstraint2.angularComponentA, frictionConstraint2.appliedImpulse);
+												tmpSolverBodyPool.getQuick(solverConstraint.solverBodyIdA).internalApplyImpulse(tmp, frictionConstraint2.angularComponentA, frictionConstraint2.appliedImpulse);
 											}
 											if (rb1 != null) {
 												tmp.scale(rb1.getInvMass(), frictionConstraint2.contactNormal);
-												tmpSolverBodyPool.get(solverConstraint.solverBodyIdB).internalApplyImpulse(tmp, frictionConstraint2.angularComponentB, -frictionConstraint2.appliedImpulse);
+												tmpSolverBodyPool.getQuick(solverConstraint.solverBodyIdB).internalApplyImpulse(tmp, frictionConstraint2.angularComponentB, -frictionConstraint2.appliedImpulse);
 											}
 										}
 										else {
@@ -757,7 +756,7 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
 			{
 				int j;
 				for (j = 0; j < numConstraints; j++) {
-					TypedConstraint constraint = constraints.get(constraints_offset+j);
+					TypedConstraint constraint = constraints.getQuick(constraints_offset+j);
 					constraint.buildJacobian();
 				}
 			}
@@ -787,7 +786,7 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
 		}
 	}
 	
-	public float solveGroupCacheFriendlyIterations(List<CollisionObject> bodies, int numBodies, List<PersistentManifold> manifoldPtr, int manifold_offset, int numManifolds, List<TypedConstraint> constraints, int constraints_offset, int numConstraints, ContactSolverInfo infoGlobal, IDebugDraw debugDrawer/*,btStackAlloc* stackAlloc*/) {
+	public float solveGroupCacheFriendlyIterations(ObjectArrayList<CollisionObject> bodies, int numBodies, ObjectArrayList<PersistentManifold> manifoldPtr, int manifold_offset, int numManifolds, ObjectArrayList<TypedConstraint> constraints, int constraints_offset, int numConstraints, ContactSolverInfo infoGlobal, IDebugDraw debugDrawer/*,btStackAlloc* stackAlloc*/) {
 		BulletStats.pushProfile("solveGroupCacheFriendlyIterations");
 		try {
 			int numConstraintPool = tmpSolverConstraintPool.size();
@@ -818,32 +817,32 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
 					}
 
 					for (j = 0; j < numConstraints; j++) {
-						TypedConstraint constraint = constraints.get(constraints_offset+j);
+						TypedConstraint constraint = constraints.getQuick(constraints_offset+j);
 						// todo: use solver bodies, so we don't need to copy from/to btRigidBody
 
 						if ((constraint.getRigidBodyA().getIslandTag() >= 0) && (constraint.getRigidBodyA().getCompanionId() >= 0)) {
-							tmpSolverBodyPool.get(constraint.getRigidBodyA().getCompanionId()).writebackVelocity();
+							tmpSolverBodyPool.getQuick(constraint.getRigidBodyA().getCompanionId()).writebackVelocity();
 						}
 						if ((constraint.getRigidBodyB().getIslandTag() >= 0) && (constraint.getRigidBodyB().getCompanionId() >= 0)) {
-							tmpSolverBodyPool.get(constraint.getRigidBodyB().getCompanionId()).writebackVelocity();
+							tmpSolverBodyPool.getQuick(constraint.getRigidBodyB().getCompanionId()).writebackVelocity();
 						}
 
 						constraint.solveConstraint(infoGlobal.timeStep);
 
 						if ((constraint.getRigidBodyA().getIslandTag() >= 0) && (constraint.getRigidBodyA().getCompanionId() >= 0)) {
-							tmpSolverBodyPool.get(constraint.getRigidBodyA().getCompanionId()).readVelocity();
+							tmpSolverBodyPool.getQuick(constraint.getRigidBodyA().getCompanionId()).readVelocity();
 						}
 						if ((constraint.getRigidBodyB().getIslandTag() >= 0) && (constraint.getRigidBodyB().getCompanionId() >= 0)) {
-							tmpSolverBodyPool.get(constraint.getRigidBodyB().getCompanionId()).readVelocity();
+							tmpSolverBodyPool.getQuick(constraint.getRigidBodyB().getCompanionId()).readVelocity();
 						}
 					}
 
 					{
 						int numPoolConstraints = tmpSolverConstraintPool.size();
 						for (j = 0; j < numPoolConstraints; j++) {
-							SolverConstraint solveManifold = tmpSolverConstraintPool.get(orderTmpConstraintPool.get(j));
-							resolveSingleCollisionCombinedCacheFriendly(tmpSolverBodyPool.get(solveManifold.solverBodyIdA),
-									tmpSolverBodyPool.get(solveManifold.solverBodyIdB), solveManifold, infoGlobal);
+							SolverConstraint solveManifold = tmpSolverConstraintPool.getQuick(orderTmpConstraintPool.get(j));
+							resolveSingleCollisionCombinedCacheFriendly(tmpSolverBodyPool.getQuick(solveManifold.solverBodyIdA),
+									tmpSolverBodyPool.getQuick(solveManifold.solverBodyIdB), solveManifold, infoGlobal);
 						}
 					}
 
@@ -851,13 +850,13 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
 						int numFrictionPoolConstraints = tmpSolverFrictionConstraintPool.size();
 
 						for (j = 0; j < numFrictionPoolConstraints; j++) {
-							SolverConstraint solveManifold = tmpSolverFrictionConstraintPool.get(orderFrictionConstraintPool.get(j));
+							SolverConstraint solveManifold = tmpSolverFrictionConstraintPool.getQuick(orderFrictionConstraintPool.get(j));
 							
-							float totalImpulse = tmpSolverConstraintPool.get(solveManifold.frictionIndex).appliedImpulse +
-									tmpSolverConstraintPool.get(solveManifold.frictionIndex).appliedPushImpulse;
+							float totalImpulse = tmpSolverConstraintPool.getQuick(solveManifold.frictionIndex).appliedImpulse +
+									tmpSolverConstraintPool.getQuick(solveManifold.frictionIndex).appliedPushImpulse;
 							
-							resolveSingleFrictionCacheFriendly(tmpSolverBodyPool.get(solveManifold.solverBodyIdA),
-									tmpSolverBodyPool.get(solveManifold.solverBodyIdB), solveManifold, infoGlobal,
+							resolveSingleFrictionCacheFriendly(tmpSolverBodyPool.getQuick(solveManifold.solverBodyIdA),
+									tmpSolverBodyPool.getQuick(solveManifold.solverBodyIdB), solveManifold, infoGlobal,
 									totalImpulse);
 						}
 					}
@@ -869,10 +868,10 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
 							int numPoolConstraints = tmpSolverConstraintPool.size();
 							int j;
 							for (j = 0; j < numPoolConstraints; j++) {
-								SolverConstraint solveManifold = tmpSolverConstraintPool.get(orderTmpConstraintPool.get(j));
+								SolverConstraint solveManifold = tmpSolverConstraintPool.getQuick(orderTmpConstraintPool.get(j));
 
-								resolveSplitPenetrationImpulseCacheFriendly(tmpSolverBodyPool.get(solveManifold.solverBodyIdA),
-										tmpSolverBodyPool.get(solveManifold.solverBodyIdB), solveManifold, infoGlobal);
+								resolveSplitPenetrationImpulseCacheFriendly(tmpSolverBodyPool.getQuick(solveManifold.solverBodyIdA),
+										tmpSolverBodyPool.getQuick(solveManifold.solverBodyIdB), solveManifold, infoGlobal);
 							}
 						}
 					}
@@ -886,33 +885,33 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
 		}
 	}
 
-	public float solveGroupCacheFriendly(List<CollisionObject> bodies, int numBodies, List<PersistentManifold> manifoldPtr, int manifold_offset, int numManifolds, List<TypedConstraint> constraints, int constraints_offset, int numConstraints, ContactSolverInfo infoGlobal, IDebugDraw debugDrawer/*,btStackAlloc* stackAlloc*/) {
+	public float solveGroupCacheFriendly(ObjectArrayList<CollisionObject> bodies, int numBodies, ObjectArrayList<PersistentManifold> manifoldPtr, int manifold_offset, int numManifolds, ObjectArrayList<TypedConstraint> constraints, int constraints_offset, int numConstraints, ContactSolverInfo infoGlobal, IDebugDraw debugDrawer/*,btStackAlloc* stackAlloc*/) {
 		solveGroupCacheFriendlySetup(bodies, numBodies, manifoldPtr, manifold_offset, numManifolds, constraints, constraints_offset, numConstraints, infoGlobal, debugDrawer/*, stackAlloc*/);
 		solveGroupCacheFriendlyIterations(bodies, numBodies, manifoldPtr, manifold_offset, numManifolds, constraints, constraints_offset, numConstraints, infoGlobal, debugDrawer/*, stackAlloc*/);
 		
 		int numPoolConstraints = tmpSolverConstraintPool.size();
 		for (int j=0; j<numPoolConstraints; j++) {
 
-			SolverConstraint solveManifold = tmpSolverConstraintPool.get(j);
+			SolverConstraint solveManifold = tmpSolverConstraintPool.getQuick(j);
 			ManifoldPoint pt = (ManifoldPoint) solveManifold.originalContactPoint;
 			assert (pt != null);
 			pt.appliedImpulse = solveManifold.appliedImpulse;
-			pt.appliedImpulseLateral1 = tmpSolverFrictionConstraintPool.get(solveManifold.frictionIndex).appliedImpulse;
-			pt.appliedImpulseLateral1 = tmpSolverFrictionConstraintPool.get(solveManifold.frictionIndex + 1).appliedImpulse;
+			pt.appliedImpulseLateral1 = tmpSolverFrictionConstraintPool.getQuick(solveManifold.frictionIndex).appliedImpulse;
+			pt.appliedImpulseLateral1 = tmpSolverFrictionConstraintPool.getQuick(solveManifold.frictionIndex + 1).appliedImpulse;
 
 			// do a callback here?
 		}
 
 		if (infoGlobal.splitImpulse) {
 			for (int i=0; i<tmpSolverBodyPool.size(); i++) {
-				tmpSolverBodyPool.get(i).writebackVelocity(infoGlobal.timeStep);
-				bodiesPool.release(tmpSolverBodyPool.get(i));
+				tmpSolverBodyPool.getQuick(i).writebackVelocity(infoGlobal.timeStep);
+				bodiesPool.release(tmpSolverBodyPool.getQuick(i));
 			}
 		}
 		else {
 			for (int i=0; i<tmpSolverBodyPool.size(); i++) {
-				tmpSolverBodyPool.get(i).writebackVelocity();
-				bodiesPool.release(tmpSolverBodyPool.get(i));
+				tmpSolverBodyPool.getQuick(i).writebackVelocity();
+				bodiesPool.release(tmpSolverBodyPool.getQuick(i));
 			}
 		}
 
@@ -930,12 +929,12 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
 		tmpSolverBodyPool.clear();
 		
 		for (int i=0; i<tmpSolverConstraintPool.size(); i++) {
-			constraintsPool.release(tmpSolverConstraintPool.get(i));
+			constraintsPool.release(tmpSolverConstraintPool.getQuick(i));
 		}
 		tmpSolverConstraintPool.clear();
 		
 		for (int i=0; i<tmpSolverFrictionConstraintPool.size(); i++) {
-			constraintsPool.release(tmpSolverFrictionConstraintPool.get(i));
+			constraintsPool.release(tmpSolverFrictionConstraintPool.getQuick(i));
 		}
 		tmpSolverFrictionConstraintPool.clear();
 
@@ -946,7 +945,7 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
 	 * Sequentially applies impulses.
 	 */
 	@Override
-	public float solveGroup(List<CollisionObject> bodies, int numBodies, List<PersistentManifold> manifoldPtr, int manifold_offset, int numManifolds, List<TypedConstraint> constraints, int constraints_offset, int numConstraints, ContactSolverInfo infoGlobal, IDebugDraw debugDrawer, Dispatcher dispatcher) {
+	public float solveGroup(ObjectArrayList<CollisionObject> bodies, int numBodies, ObjectArrayList<PersistentManifold> manifoldPtr, int manifold_offset, int numManifolds, ObjectArrayList<TypedConstraint> constraints, int constraints_offset, int numConstraints, ContactSolverInfo infoGlobal, IDebugDraw debugDrawer, Dispatcher dispatcher) {
 		BulletStats.pushProfile("solveGroup");
 		try {
 			// TODO: solver cache friendly
@@ -967,10 +966,10 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
 			{
 				short j;
 				for (j = 0; j < numManifolds; j++) {
-					PersistentManifold manifold = manifoldPtr.get(manifold_offset+j);
+					PersistentManifold manifold = manifoldPtr.getQuick(manifold_offset+j);
 					prepareConstraints(manifold, info, debugDrawer);
 
-					for (short p = 0; p < manifoldPtr.get(manifold_offset+j).getNumContacts(); p++) {
+					for (short p = 0; p < manifoldPtr.getQuick(manifold_offset+j).getNumContacts(); p++) {
 						gOrder[totalPoints].manifoldIndex = j;
 						gOrder[totalPoints].pointIndex = p;
 						totalPoints++;
@@ -981,7 +980,7 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
 			{
 				int j;
 				for (j = 0; j < numConstraints; j++) {
-					TypedConstraint constraint = constraints.get(constraints_offset+j);
+					TypedConstraint constraint = constraints.getQuick(constraints_offset+j);
 					constraint.buildJacobian();
 				}
 			}
@@ -1004,18 +1003,18 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
 					}
 
 					for (j = 0; j < numConstraints; j++) {
-						TypedConstraint constraint = constraints.get(constraints_offset+j);
+						TypedConstraint constraint = constraints.getQuick(constraints_offset+j);
 						constraint.solveConstraint(info.timeStep);
 					}
 
 					for (j = 0; j < totalPoints; j++) {
-						PersistentManifold manifold = manifoldPtr.get(manifold_offset+gOrder[j].manifoldIndex);
+						PersistentManifold manifold = manifoldPtr.getQuick(manifold_offset+gOrder[j].manifoldIndex);
 						solve((RigidBody) manifold.getBody0(),
 								(RigidBody) manifold.getBody1(), manifold.getContactPoint(gOrder[j].pointIndex), info, iteration, debugDrawer);
 					}
 
 					for (j = 0; j < totalPoints; j++) {
-						PersistentManifold manifold = manifoldPtr.get(manifold_offset+gOrder[j].manifoldIndex);
+						PersistentManifold manifold = manifoldPtr.getQuick(manifold_offset+gOrder[j].manifoldIndex);
 						solveFriction((RigidBody) manifold.getBody0(),
 								(RigidBody) manifold.getBody1(), manifold.getContactPoint(gOrder[j].pointIndex), info, iteration, debugDrawer);
 					}

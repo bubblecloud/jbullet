@@ -63,8 +63,8 @@ public class PairCachingGhostObject extends GhostObject {
 		assert (otherObject != null);
 		int index = overlappingObjects.indexOf(otherObject);
 		if (index != -1) {
-			overlappingObjects.set(index, overlappingObjects.get(overlappingObjects.size()-1));
-			overlappingObjects.remove(overlappingObjects.size()-1);
+			overlappingObjects.setQuick(index, overlappingObjects.getQuick(overlappingObjects.size()-1));
+			overlappingObjects.removeQuick(overlappingObjects.size()-1);
 			hashPairCache.removeOverlappingPair(actualThisProxy, otherProxy, dispatcher);
 		}
 	}

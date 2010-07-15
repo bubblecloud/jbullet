@@ -23,8 +23,7 @@
 
 package com.bulletphysics.demos.basic;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.bulletphysics.util.ObjectArrayList;
 import com.bulletphysics.collision.broadphase.BroadphaseInterface;
 import com.bulletphysics.collision.broadphase.DbvtBroadphase;
 import com.bulletphysics.collision.dispatch.CollisionDispatcher;
@@ -66,7 +65,7 @@ public class BasicDemo extends DemoApplication {
 	private static final int START_POS_Z = -3;
 	
 	// keep the collision shapes, for deletion/cleanup
-	private List<CollisionShape> collisionShapes = new ArrayList<CollisionShape>();
+	private ObjectArrayList<CollisionShape> collisionShapes = new ObjectArrayList<CollisionShape>();
 	private BroadphaseInterface broadphase;
 	private CollisionDispatcher dispatcher;
 	private ConstraintSolver solver;

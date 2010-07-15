@@ -32,12 +32,12 @@ import javax.vecmath.Vector3f;
  * 
  * @author jezek2
  */
-public interface ConvexCast {
+public abstract class ConvexCast {
 
 	/**
 	 * Cast a convex against another convex object.
 	 */
-	public boolean calcTimeOfImpact(Transform fromA, Transform toA, Transform fromB, Transform toB, CastResult result);
+	public abstract boolean calcTimeOfImpact(Transform fromA, Transform toA, Transform fromB, Transform toB, CastResult result);
 	
 	////////////////////////////////////////////////////////////////////////////
 	

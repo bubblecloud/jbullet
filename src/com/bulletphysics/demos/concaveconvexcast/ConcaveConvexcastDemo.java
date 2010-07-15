@@ -23,10 +23,9 @@
 
 package com.bulletphysics.demos.concaveconvexcast;
 
+import com.bulletphysics.util.ObjectArrayList;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.ArrayList;
-import java.util.List;
 import com.bulletphysics.BulletStats;
 import com.bulletphysics.collision.broadphase.BroadphaseInterface;
 import com.bulletphysics.collision.broadphase.DbvtBroadphase;
@@ -58,7 +57,7 @@ import static com.bulletphysics.demos.opengl.IGL.*;
 public class ConcaveConvexcastDemo extends DemoApplication {
 
 	// keep the collision shapes, for deletion/cleanup
-	private List<CollisionShape> collisionShapes = new ArrayList<CollisionShape>();
+	private ObjectArrayList<CollisionShape> collisionShapes = new ObjectArrayList<CollisionShape>();
 	private TriangleIndexVertexArray indexVertexArrays;
 	private BroadphaseInterface broadphase;
 	private CollisionDispatcher dispatcher;

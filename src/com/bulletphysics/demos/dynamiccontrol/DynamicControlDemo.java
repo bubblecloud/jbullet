@@ -24,8 +24,6 @@
 
 package com.bulletphysics.demos.dynamiccontrol;
 
-import java.util.ArrayList;
-import java.util.List;
 import com.bulletphysics.BulletGlobals;
 import com.bulletphysics.collision.broadphase.BroadphaseInterface;
 import com.bulletphysics.collision.broadphase.DbvtBroadphase;
@@ -43,6 +41,7 @@ import com.bulletphysics.dynamics.constraintsolver.ConstraintSolver;
 import com.bulletphysics.dynamics.constraintsolver.HingeConstraint;
 import com.bulletphysics.dynamics.constraintsolver.SequentialImpulseConstraintSolver;
 import com.bulletphysics.linearmath.Transform;
+import com.bulletphysics.util.ObjectArrayList;
 import javax.vecmath.Vector3f;
 import org.lwjgl.LWJGLException;
 import static com.bulletphysics.demos.opengl.IGL.*;
@@ -57,7 +56,7 @@ public class DynamicControlDemo extends DemoApplication {
 	private float cyclePeriod; // in milliseconds
 	private float muscleStrength;
 	
-	private List<TestRig> rigs = new ArrayList<TestRig>();
+	private ObjectArrayList<TestRig> rigs = new ObjectArrayList<TestRig>();
 	
 	public DynamicControlDemo(IGL gl) {
 		super(gl);
@@ -128,7 +127,7 @@ public class DynamicControlDemo extends DemoApplication {
 		//
 		for (int r=0; r<rigs.size(); r++) {
 			for (int i=0; i<2*TestRig.NUM_LEGS; i++) {
-				HingeConstraint hingeC = (HingeConstraint)(rigs.get(r).getJoints()[i]);
+				HingeConstraint hingeC = (HingeConstraint)(rigs.getQuick(r).getJoints()[i]);
 				float curAngle = hingeC.getHingeAngle();
 
 				float targetPercent = ((int)(time / 1000) % (int)(cyclePeriod)) / cyclePeriod;
@@ -147,7 +146,7 @@ public class DynamicControlDemo extends DemoApplication {
 		}
 
 		for (int i=2; i>=0; i--) {
-			CollisionObject obj = dynamicsWorld.getCollisionObjectArray().get(i);
+			CollisionObject obj = dynamicsWorld.getCollisionObjectArray().getQuick(i);
 			RigidBody body = RigidBody.upcast(obj);
 			drawFrame(body.getWorldTransform(new Transform()));
 		}

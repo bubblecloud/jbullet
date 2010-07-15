@@ -29,8 +29,8 @@ package com.bulletphysics;
  * @see BulletGlobals#setContactDestroyedCallback
  * @author jezek2
  */
-public interface ContactDestroyedCallback {
+public abstract class ContactDestroyedCallback {
 
-	public boolean contactDestroyed(Object userPersistentData);
+	public abstract boolean contactDestroyed(Object userPersistentData);
 	
 }

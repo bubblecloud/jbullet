@@ -44,9 +44,9 @@ import com.bulletphysics.extras.gimpact.BoxCollision.AABB;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.linearmath.VectorUtil;
 import com.bulletphysics.util.IntArrayList;
+import com.bulletphysics.util.ObjectArrayList;
 import com.bulletphysics.util.ObjectPool;
 import cz.advel.stack.Stack;
-import java.util.List;
 import javax.vecmath.Vector3f;
 import javax.vecmath.Vector4f;
 
@@ -667,7 +667,7 @@ public class GImpactCollisionAlgorithm extends CollisionAlgorithm {
 	}
 
 	@Override
-	public void getAllContactManifolds(List<PersistentManifold> manifoldArray) {
+	public void getAllContactManifolds(ObjectArrayList<PersistentManifold> manifoldArray) {
 		if (manifoldPtr != null) {
 			manifoldArray.add(manifoldPtr);
 		}

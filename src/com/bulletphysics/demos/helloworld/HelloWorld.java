@@ -38,8 +38,7 @@ import com.bulletphysics.dynamics.RigidBodyConstructionInfo;
 import com.bulletphysics.dynamics.constraintsolver.SequentialImpulseConstraintSolver;
 import com.bulletphysics.linearmath.DefaultMotionState;
 import com.bulletphysics.linearmath.Transform;
-import java.util.ArrayList;
-import java.util.List;
+import com.bulletphysics.util.ObjectArrayList;
 import javax.vecmath.Vector3f;
 
 /**
@@ -88,7 +87,7 @@ public class HelloWorld
 		// keep track of the shapes, we release memory at exit.
 		// make sure to re-use collision shapes among rigid bodies whenever
 		// possible!
-		List<CollisionShape> collisionShapes = new ArrayList<CollisionShape>();
+		ObjectArrayList<CollisionShape> collisionShapes = new ObjectArrayList<CollisionShape>();
 
 		collisionShapes.add(groundShape);
 
@@ -163,7 +162,7 @@ public class HelloWorld
 			// print positions of all objects
 			for (int j=dynamicsWorld.getNumCollisionObjects()-1; j>=0; j--)
 			{
-				CollisionObject obj = dynamicsWorld.getCollisionObjectArray().get(j);
+				CollisionObject obj = dynamicsWorld.getCollisionObjectArray().getQuick(j);
 				RigidBody body = RigidBody.upcast(obj);
 				if (body != null && body.getMotionState() != null) {
 					Transform trans = new Transform();

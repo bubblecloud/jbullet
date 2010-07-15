@@ -29,9 +29,8 @@ import com.bulletphysics.collision.shapes.ConvexShape;
 import com.bulletphysics.linearmath.AabbUtil2;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.linearmath.TransformUtil;
+import com.bulletphysics.util.ObjectArrayList;
 import cz.advel.stack.Stack;
-import java.util.ArrayList;
-import java.util.List;
 import javax.vecmath.Quat4f;
 import javax.vecmath.Vector3f;
 
@@ -44,7 +43,7 @@ import javax.vecmath.Vector3f;
  */
 public class GhostObject extends CollisionObject {
 
-	protected List<CollisionObject> overlappingObjects = new ArrayList<CollisionObject>();
+	protected ObjectArrayList<CollisionObject> overlappingObjects = new ObjectArrayList<CollisionObject>();
 
 	public GhostObject() {
 		this.internalType = CollisionObjectType.GHOST_OBJECT;
@@ -74,8 +73,8 @@ public class GhostObject extends CollisionObject {
 		
 		int index = overlappingObjects.indexOf(otherObject);
 		if (index != -1) {
-			overlappingObjects.set(index, overlappingObjects.get(overlappingObjects.size()-1));
-			overlappingObjects.remove(overlappingObjects.size()-1);
+			overlappingObjects.set(index, overlappingObjects.getQuick(overlappingObjects.size()-1));
+			overlappingObjects.removeQuick(overlappingObjects.size()-1);
 		}
 	}
 
@@ -105,7 +104,7 @@ public class GhostObject extends CollisionObject {
 		// go over all objects, and if the ray intersects their aabb + cast shape aabb,
 		// do a ray-shape query using convexCaster (CCD)
 		for (int i=0; i<overlappingObjects.size(); i++) {
-			CollisionObject collisionObject = overlappingObjects.get(i);
+			CollisionObject collisionObject = overlappingObjects.getQuick(i);
 
 			// only perform raycast if filterMask matches
 			if (resultCallback.needsCollision(collisionObject.getBroadphaseHandle())) {
@@ -139,7 +138,7 @@ public class GhostObject extends CollisionObject {
 		Transform tmpTrans = Stack.alloc(Transform.class);
 
 		for (int i=0; i<overlappingObjects.size(); i++) {
-			CollisionObject collisionObject = overlappingObjects.get(i);
+			CollisionObject collisionObject = overlappingObjects.getQuick(i);
 			
 			// only perform raycast if filterMask matches
 			if (resultCallback.needsCollision(collisionObject.getBroadphaseHandle())) {
@@ -157,10 +156,10 @@ public class GhostObject extends CollisionObject {
 	}
 
 	public CollisionObject getOverlappingObject(int index) {
-		return overlappingObjects.get(index);
+		return overlappingObjects.getQuick(index);
 	}
 
-	public List<CollisionObject> getOverlappingPairs() {
+	public ObjectArrayList<CollisionObject> getOverlappingPairs() {
 		return overlappingObjects;
 	}
 

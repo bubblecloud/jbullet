@@ -30,9 +30,9 @@ import com.bulletphysics.collision.broadphase.DispatcherInfo;
 import com.bulletphysics.collision.narrowphase.PersistentManifold;
 import com.bulletphysics.collision.shapes.SphereShape;
 import com.bulletphysics.linearmath.Transform;
+import com.bulletphysics.util.ObjectArrayList;
 import com.bulletphysics.util.ObjectPool;
 import cz.advel.stack.Stack;
-import java.util.List;
 import javax.vecmath.Vector3f;
 
 /**
@@ -137,7 +137,7 @@ public class SphereSphereCollisionAlgorithm extends CollisionAlgorithm {
 	}
 
 	@Override
-	public void getAllContactManifolds(List<PersistentManifold> manifoldArray) {
+	public void getAllContactManifolds(ObjectArrayList<PersistentManifold> manifoldArray) {
 		if (manifoldPtr != null && ownManifold) {
 			manifoldArray.add(manifoldPtr);
 		}

@@ -35,7 +35,7 @@ import javax.vecmath.Vector3f;
  *
  * @author jezek2
  */
-class GImpactTriangleCallback implements TriangleCallback {
+class GImpactTriangleCallback extends TriangleCallback {
 
 	public GImpactCollisionAlgorithm algorithm;
 	public CollisionObject body0;

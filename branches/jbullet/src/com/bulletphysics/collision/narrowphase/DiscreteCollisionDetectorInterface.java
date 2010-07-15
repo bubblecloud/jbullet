@@ -39,11 +39,11 @@ import javax.vecmath.Vector3f;
  */
 public abstract class DiscreteCollisionDetectorInterface {
 
-	public interface Result {
+	public static abstract class Result {
 		///setShapeIdentifiers provides experimental support for per-triangle material / custom material combiner
-		public void setShapeIdentifiers(int partId0, int index0, int partId1, int index1);
+		public abstract void setShapeIdentifiers(int partId0, int index0, int partId1, int index1);
 
-		public void addContactPoint(Vector3f normalOnBInWorld, Vector3f pointInWorld, float depth);
+		public abstract void addContactPoint(Vector3f normalOnBInWorld, Vector3f pointInWorld, float depth);
 	}
 	
 	public static class ClosestPointInput {

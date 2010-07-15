@@ -30,7 +30,7 @@ import java.util.RandomAccess;
  *
  * @author jezek2
  */
-public class ObjectArrayList<T> extends AbstractList<T> implements RandomAccess {
+public final class ObjectArrayList<T> extends AbstractList<T> implements RandomAccess {
 
 	private T[] array;
 	private int size;
@@ -53,6 +53,29 @@ public class ObjectArrayList<T> extends AbstractList<T> implements RandomAccess 
 		array[size++] = value;
 		return true;
 	}
+
+	@Override
+	public void add(int index, T value) {
+		if (size == array.length) {
+			expand();
+		}
+
+		int num = size - index;
+		if (num > 0) {
+			System.arraycopy(array, index, array, index+1, num);
+		}
+
+		array[index] = value;
+		size++;
+	}
+
+	@Override
+	public T remove(int index) {
+		T prev = array[index];
+		System.arraycopy(array, index+1, array, index, size-index-1);
+		size--;
+		return prev;
+    }
 	
 	@SuppressWarnings("unchecked")
 	private void expand() {
@@ -61,8 +84,7 @@ public class ObjectArrayList<T> extends AbstractList<T> implements RandomAccess 
 		array = newArray;
 	}
 
-	@Override
-	public T remove(int index) {
+	public T removeQuick(int index) {
 		if (index >= size) throw new IndexOutOfBoundsException();
 		T old = array[index];
 		System.arraycopy(array, index+1, array, index, size - index - 1);
@@ -75,12 +97,20 @@ public class ObjectArrayList<T> extends AbstractList<T> implements RandomAccess 
 		return array[index];
 	}
 
+	public T getQuick(int index) {
+		return array[index];
+	}
+
 	@Override
 	public T set(int index, T value) {
 		if (index >= size) throw new IndexOutOfBoundsException();
 		T old = array[index];
 		array[index] = value;
 		return old;
+	}
+
+	public void setQuick(int index, T value) {
+		array[index] = value;
 	}
 
 	public int size() {
@@ -98,8 +128,10 @@ public class ObjectArrayList<T> extends AbstractList<T> implements RandomAccess 
 
 	@Override
 	public int indexOf(Object o) {
-		for (int i=0; i<size; i++) {
-			if (o == null? array[i] == null : o.equals(array[i])) {
+		int _size = size;
+		T[] _array = array;
+		for (int i=0; i<_size; i++) {
+			if (o == null? _array[i] == null : o.equals(_array[i])) {
 				return i;
 			}
 		}

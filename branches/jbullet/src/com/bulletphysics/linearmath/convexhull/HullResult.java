@@ -24,8 +24,7 @@
 package com.bulletphysics.linearmath.convexhull;
 
 import com.bulletphysics.util.IntArrayList;
-import java.util.ArrayList;
-import java.util.List;
+import com.bulletphysics.util.ObjectArrayList;
 import javax.vecmath.Vector3f;
 
 /**
@@ -46,7 +45,7 @@ public class HullResult {
 	public int numOutputVertices = 0;
 	
 	/** Array of vertices. */
-	public final List<Vector3f> outputVertices = new ArrayList<Vector3f>();
+	public final ObjectArrayList<Vector3f> outputVertices = new ObjectArrayList<Vector3f>();
 	
 	/** Number of faces produced. */
 	public int numFaces = 0;

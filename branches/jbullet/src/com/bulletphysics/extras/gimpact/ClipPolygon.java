@@ -30,7 +30,7 @@ package com.bulletphysics.extras.gimpact;
 import com.bulletphysics.BulletGlobals;
 import com.bulletphysics.linearmath.VectorUtil;
 import com.bulletphysics.util.ArrayPool;
-import java.util.List;
+import com.bulletphysics.util.ObjectArrayList;
 import javax.vecmath.Vector3f;
 import javax.vecmath.Vector4f;
 
@@ -55,16 +55,16 @@ class ClipPolygon {
 	/**
 	 * This function calcs the distance from a 3D plane.
 	 */
-	public static void plane_clip_polygon_collect(Vector3f point0, Vector3f point1, float dist0, float dist1, List<Vector3f> clipped, int[] clipped_count) {
+	public static void plane_clip_polygon_collect(Vector3f point0, Vector3f point1, float dist0, float dist1, ObjectArrayList<Vector3f> clipped, int[] clipped_count) {
 		boolean _prevclassif = (dist0 > BulletGlobals.SIMD_EPSILON);
 		boolean _classif = (dist1 > BulletGlobals.SIMD_EPSILON);
 		if (_classif != _prevclassif) {
 			float blendfactor = -dist0 / (dist1 - dist0);
-			vec_blend(clipped.get(clipped_count[0]), point0, point1, blendfactor);
+			vec_blend(clipped.getQuick(clipped_count[0]), point0, point1, blendfactor);
 			clipped_count[0]++;
 		}
 		if (!_classif) {
-			clipped.get(clipped_count[0]).set(point1);
+			clipped.getQuick(clipped_count[0]).set(point1);
 			clipped_count[0]++;
 		}
 	}
@@ -74,25 +74,25 @@ class ClipPolygon {
 	 * 
 	 * @return The count of the clipped counts
 	 */
-	public static int plane_clip_polygon(Vector4f plane, List<Vector3f> polygon_points, int polygon_point_count, List<Vector3f> clipped) {
+	public static int plane_clip_polygon(Vector4f plane, ObjectArrayList<Vector3f> polygon_points, int polygon_point_count, ObjectArrayList<Vector3f> clipped) {
 		ArrayPool<int[]> intArrays = ArrayPool.get(int.class);
 
 		int[] clipped_count = intArrays.getFixed(1);
 		clipped_count[0] = 0;
 
 		// clip first point
-		float firstdist = distance_point_plane(plane, polygon_points.get(0));
+		float firstdist = distance_point_plane(plane, polygon_points.getQuick(0));
 		if (!(firstdist > BulletGlobals.SIMD_EPSILON)) {
-			clipped.get(clipped_count[0]).set(polygon_points.get(0));
+			clipped.getQuick(clipped_count[0]).set(polygon_points.getQuick(0));
 			clipped_count[0]++;
 		}
 
 		float olddist = firstdist;
 		for (int i=1; i<polygon_point_count; i++) {
-			float dist = distance_point_plane(plane, polygon_points.get(i));
+			float dist = distance_point_plane(plane, polygon_points.getQuick(i));
 
 			plane_clip_polygon_collect(
-					polygon_points.get(i - 1), polygon_points.get(i),
+					polygon_points.getQuick(i - 1), polygon_points.getQuick(i),
 					olddist,
 					dist,
 					clipped,
@@ -105,7 +105,7 @@ class ClipPolygon {
 		// RETURN TO FIRST point
 
 		plane_clip_polygon_collect(
-				polygon_points.get(polygon_point_count - 1), polygon_points.get(0),
+				polygon_points.getQuick(polygon_point_count - 1), polygon_points.getQuick(0),
 				olddist,
 				firstdist,
 				clipped,
@@ -122,7 +122,7 @@ class ClipPolygon {
 	 * @param clipped must be an array of 16 points.
 	 * @return the count of the clipped counts
 	 */
-	public static int plane_clip_triangle(Vector4f plane, Vector3f point0, Vector3f point1, Vector3f point2, List<Vector3f> clipped) {
+	public static int plane_clip_triangle(Vector4f plane, Vector3f point0, Vector3f point1, Vector3f point2, ObjectArrayList<Vector3f> clipped) {
 		ArrayPool<int[]> intArrays = ArrayPool.get(int.class);
 
 		int[] clipped_count = intArrays.getFixed(1);
@@ -131,7 +131,7 @@ class ClipPolygon {
 		// clip first point0
 		float firstdist = distance_point_plane(plane, point0);
 		if (!(firstdist > BulletGlobals.SIMD_EPSILON)) {
-			clipped.get(clipped_count[0]).set(point0);
+			clipped.getQuick(clipped_count[0]).set(point0);
 			clipped_count[0]++;
 		}
 

@@ -29,12 +29,12 @@ package com.bulletphysics.collision.broadphase;
  *
  * @author jezek2
  */
-public interface OverlappingPairCallback {
+public abstract class OverlappingPairCallback {
 
-	public BroadphasePair addOverlappingPair(BroadphaseProxy proxy0, BroadphaseProxy proxy1);
+	public abstract BroadphasePair addOverlappingPair(BroadphaseProxy proxy0, BroadphaseProxy proxy1);
 
-	public Object removeOverlappingPair(BroadphaseProxy proxy0, BroadphaseProxy proxy1, Dispatcher dispatcher);
+	public abstract Object removeOverlappingPair(BroadphaseProxy proxy0, BroadphaseProxy proxy1, Dispatcher dispatcher);
 
-	public void removeOverlappingPairsContainingProxy(BroadphaseProxy proxy0, Dispatcher dispatcher);
+	public abstract void removeOverlappingPairsContainingProxy(BroadphaseProxy proxy0, Dispatcher dispatcher);
 	
 }

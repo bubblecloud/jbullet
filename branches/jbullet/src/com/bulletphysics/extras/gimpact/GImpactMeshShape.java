@@ -33,9 +33,8 @@ import com.bulletphysics.collision.shapes.StridingMeshInterface;
 import com.bulletphysics.collision.shapes.TriangleCallback;
 import com.bulletphysics.extras.gimpact.BoxCollision.AABB;
 import com.bulletphysics.linearmath.Transform;
+import com.bulletphysics.util.ObjectArrayList;
 import cz.advel.stack.Stack;
-import java.util.ArrayList;
-import java.util.List;
 import javax.vecmath.Vector3f;
 
 /**
@@ -44,7 +43,7 @@ import javax.vecmath.Vector3f;
  */
 public class GImpactMeshShape extends GImpactShapeInterface {
 	
-	protected List<GImpactMeshShapePart> mesh_parts = new ArrayList<GImpactMeshShapePart>();
+	protected ObjectArrayList<GImpactMeshShapePart> mesh_parts = new ObjectArrayList<GImpactMeshShapePart>();
 
 	public GImpactMeshShape(StridingMeshInterface meshInterface) {
 		buildMeshParts(meshInterface);
@@ -55,7 +54,7 @@ public class GImpactMeshShape extends GImpactShapeInterface {
 	}
 
 	public GImpactMeshShapePart getMeshPart(int index) {
-		return mesh_parts.get(index);
+		return mesh_parts.getQuick(index);
 	}
 
 	@Override
@@ -64,7 +63,7 @@ public class GImpactMeshShape extends GImpactShapeInterface {
 
 		int i = mesh_parts.size();
 		while ((i--) != 0) {
-			GImpactMeshShapePart part = mesh_parts.get(i);
+			GImpactMeshShapePart part = mesh_parts.getQuick(i);
 			part.setLocalScaling(scaling);
 		}
 
@@ -77,7 +76,7 @@ public class GImpactMeshShape extends GImpactShapeInterface {
 
 		int i = mesh_parts.size();
 		while ((i--) != 0) {
-			GImpactMeshShapePart part = mesh_parts.get(i);
+			GImpactMeshShapePart part = mesh_parts.getQuick(i);
 			part.setMargin(margin);
 		}
 
@@ -88,7 +87,7 @@ public class GImpactMeshShape extends GImpactShapeInterface {
 	public void postUpdate() {
 		int i = mesh_parts.size();
 		while ((i--) != 0) {
-			GImpactMeshShapePart part = mesh_parts.get(i);
+			GImpactMeshShapePart part = mesh_parts.getQuick(i);
 			part.postUpdate();
 		}
 
@@ -216,7 +215,7 @@ public class GImpactMeshShape extends GImpactShapeInterface {
 	public void processAllTriangles(TriangleCallback callback, Vector3f aabbMin, Vector3f aabbMax) {
 		int i = mesh_parts.size();
 		while ((i--) != 0) {
-			mesh_parts.get(i).processAllTriangles(callback, aabbMin, aabbMax);
+			mesh_parts.getQuick(i).processAllTriangles(callback, aabbMin, aabbMax);
 		}
 	}
 	
@@ -234,8 +233,8 @@ public class GImpactMeshShape extends GImpactShapeInterface {
 		localAABB.invalidate();
 		int i = mesh_parts.size();
 		while ((i--) != 0) {
-			mesh_parts.get(i).updateBound();
-			localAABB.merge(mesh_parts.get(i).getLocalBox(tmpAABB));
+			mesh_parts.getQuick(i).updateBound();
+			localAABB.merge(mesh_parts.getQuick(i).getLocalBox(tmpAABB));
 		}
 	}
 

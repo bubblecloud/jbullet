@@ -41,7 +41,7 @@ import javax.vecmath.Vector3f;
  * 
  * @author jezek2
  */
-class ConvexTriangleCallback implements TriangleCallback {
+class ConvexTriangleCallback extends TriangleCallback {
 
 	//protected final BulletStack stack = BulletStack.get();
 	

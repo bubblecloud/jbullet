@@ -23,6 +23,7 @@
 
 package com.bulletphysics.demos.opengl;
 
+import com.bulletphysics.util.ObjectArrayList;
 import com.bulletphysics.collision.broadphase.BroadphaseNativeType;
 import com.bulletphysics.collision.shapes.BoxShape;
 import com.bulletphysics.collision.shapes.CollisionShape;
@@ -42,7 +43,6 @@ import com.bulletphysics.linearmath.TransformUtil;
 import com.bulletphysics.linearmath.VectorUtil;
 import com.bulletphysics.util.IntArrayList;
 import com.bulletphysics.util.ObjectPool;
-import java.util.List;
 import javax.vecmath.Vector3f;
 //import static org.lwjgl.opengl.GL11.*;
 //import static org.lwjgl.opengl.glu.GLU.*;
@@ -292,7 +292,7 @@ public class GLShapeDrawer {
 								{
 									int index = 0;
 									IntArrayList idx = hull.getIndexPointer();
-									List<Vector3f> vtx = hull.getVertexPointer();
+									ObjectArrayList<Vector3f> vtx = hull.getVertexPointer();
 
 									gl.glBegin (gl.GL_TRIANGLES);
 
@@ -312,9 +312,9 @@ public class GLShapeDrawer {
 											index2 < hull.numVertices () &&
 											index3 < hull.numVertices ());
 
-										Vector3f v1 = vtx.get(index1);
-										Vector3f v2 = vtx.get(index2);
-										Vector3f v3 = vtx.get(index3);
+										Vector3f v1 = vtx.getQuick(index1);
+										Vector3f v2 = vtx.getQuick(index2);
+										Vector3f v3 = vtx.getQuick(index3);
 										tmp1.sub(v3, v1);
 										tmp2.sub(v2, v1);
 										normal.cross(tmp1, tmp2);
@@ -475,7 +475,7 @@ public class GLShapeDrawer {
 		public int dlist; // OpenGL display list	
 	}
 	
-	private static class GlDisplaylistDrawcallback implements TriangleCallback {
+	private static class GlDisplaylistDrawcallback extends TriangleCallback {
 		private IGL gl;
 		
 		private final Vector3f diff1 = new Vector3f();
@@ -527,7 +527,7 @@ public class GLShapeDrawer {
 		}
 	}
 	
-	private static class GlDrawcallback implements TriangleCallback {
+	private static class GlDrawcallback extends TriangleCallback {
 		private IGL gl;
 		public boolean wireframe = false;
 
@@ -562,7 +562,7 @@ public class GLShapeDrawer {
 		}
 	}
 	
-	private static class TriangleGlDrawcallback implements InternalTriangleIndexCallback {
+	private static class TriangleGlDrawcallback extends InternalTriangleIndexCallback {
 		private IGL gl;
 
 		public TriangleGlDrawcallback(IGL gl) {

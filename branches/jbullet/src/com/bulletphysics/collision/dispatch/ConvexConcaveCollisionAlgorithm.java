@@ -36,9 +36,9 @@ import com.bulletphysics.collision.shapes.TriangleCallback;
 import com.bulletphysics.collision.shapes.TriangleShape;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.linearmath.VectorUtil;
+import com.bulletphysics.util.ObjectArrayList;
 import com.bulletphysics.util.ObjectPool;
 import cz.advel.stack.Stack;
-import java.util.List;
 import javax.vecmath.Vector3f;
 
 /**
@@ -161,7 +161,7 @@ public class ConvexConcaveCollisionAlgorithm extends CollisionAlgorithm {
 	}
 
 	@Override
-	public void getAllContactManifolds(List<PersistentManifold> manifoldArray) {
+	public void getAllContactManifolds(ObjectArrayList<PersistentManifold> manifoldArray) {
 		if (btConvexTriangleCallback.manifoldPtr != null) {
 			manifoldArray.add(btConvexTriangleCallback.manifoldPtr);
 		}
@@ -173,7 +173,7 @@ public class ConvexConcaveCollisionAlgorithm extends CollisionAlgorithm {
 	
 	////////////////////////////////////////////////////////////////////////////
 	
-	private static class LocalTriangleSphereCastCallback implements TriangleCallback {
+	private static class LocalTriangleSphereCastCallback extends TriangleCallback {
 		public final Transform ccdSphereFromTrans = new Transform();
 		public final Transform ccdSphereToTrans = new Transform();
 		public final Transform meshTransform = new Transform();

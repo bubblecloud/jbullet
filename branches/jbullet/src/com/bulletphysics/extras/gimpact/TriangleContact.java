@@ -29,7 +29,7 @@ package com.bulletphysics.extras.gimpact;
 
 import com.bulletphysics.BulletGlobals;
 import com.bulletphysics.util.ArrayPool;
-import java.util.List;
+import com.bulletphysics.util.ObjectArrayList;
 import javax.vecmath.Vector3f;
 import javax.vecmath.Vector4f;
 
@@ -75,14 +75,14 @@ public class TriangleContact {
 	/**
 	 * Classify points that are closer.
 	 */
-	public void merge_points(Vector4f plane, float margin, List<Vector3f> points, int point_count) {
+	public void merge_points(Vector4f plane, float margin, ObjectArrayList<Vector3f> points, int point_count) {
 		this.point_count = 0;
 		penetration_depth = -1000.0f;
 
 		int[] point_indices = intArrays.getFixed(MAX_TRI_CLIPPING);
 
 		for (int _k = 0; _k < point_count; _k++) {
-			float _dist = -ClipPolygon.distance_point_plane(plane, points.get(_k)) + margin;
+			float _dist = -ClipPolygon.distance_point_plane(plane, points.getQuick(_k)) + margin;
 
 			if (_dist >= 0.0f) {
 				if (_dist > penetration_depth) {
@@ -98,7 +98,7 @@ public class TriangleContact {
 		}
 
 		for (int _k = 0; _k < this.point_count; _k++) {
-			this.points[_k].set(points.get(point_indices[_k]));
+			this.points[_k].set(points.getQuick(point_indices[_k]));
 		}
 		
 		intArrays.release(point_indices);

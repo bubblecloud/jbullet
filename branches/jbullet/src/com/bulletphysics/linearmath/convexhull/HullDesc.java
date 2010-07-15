@@ -23,7 +23,7 @@
 
 package com.bulletphysics.linearmath.convexhull;
 
-import java.util.List;
+import com.bulletphysics.util.ObjectArrayList;
 import javax.vecmath.Vector3f;
 
 /**
@@ -40,7 +40,7 @@ public class HullDesc {
 	public int vcount = 0;
 	
 	/** Array of vertices. */
-	public List<Vector3f> vertices;
+	public ObjectArrayList<Vector3f> vertices;
 	
 	/** Stride of each vertex, in bytes. */
 	int vertexStride = 3*4;       
@@ -57,11 +57,11 @@ public class HullDesc {
 	public HullDesc() {
 	}
 
-	public HullDesc(int flag, int vcount, List<Vector3f> vertices) {
+	public HullDesc(int flag, int vcount, ObjectArrayList<Vector3f> vertices) {
 		this(flag, vcount, vertices, 3*4);
 	}
 	
-	public HullDesc(int flag, int vcount, List<Vector3f> vertices, int stride) {
+	public HullDesc(int flag, int vcount, ObjectArrayList<Vector3f> vertices, int stride) {
 		this.flags = flag;
 		this.vcount = vcount;
 		this.vertices = vertices;

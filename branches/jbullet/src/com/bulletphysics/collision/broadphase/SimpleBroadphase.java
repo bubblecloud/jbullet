@@ -23,8 +23,7 @@
 
 package com.bulletphysics.collision.broadphase;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.bulletphysics.util.ObjectArrayList;
 import javax.vecmath.Vector3f;
 
 /**
@@ -34,9 +33,9 @@ import javax.vecmath.Vector3f;
  * 
  * @author jezek2
  */
-public class SimpleBroadphase implements BroadphaseInterface {
+public class SimpleBroadphase extends BroadphaseInterface {
 
-	private final List<SimpleBroadphaseProxy> handles = new ArrayList<SimpleBroadphaseProxy>();
+	private final ObjectArrayList<SimpleBroadphaseProxy> handles = new ObjectArrayList<SimpleBroadphaseProxy>();
 	private int maxHandles;						// max number of handles
 	private OverlappingPairCache pairCache;
 	private boolean ownsPairCache;
@@ -87,9 +86,9 @@ public class SimpleBroadphase implements BroadphaseInterface {
 
 	public void calculateOverlappingPairs(Dispatcher dispatcher) {
 		for (int i=0; i<handles.size(); i++) {
-			SimpleBroadphaseProxy proxy0 = handles.get(i);
+			SimpleBroadphaseProxy proxy0 = handles.getQuick(i);
 			for (int j=0; j<handles.size(); j++) {
-				SimpleBroadphaseProxy proxy1 = handles.get(j);
+				SimpleBroadphaseProxy proxy1 = handles.getQuick(j);
 				if (proxy0 == proxy1) continue;
 				
 				if (aabbOverlap(proxy0, proxy1)) {

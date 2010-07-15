@@ -32,7 +32,7 @@ import com.bulletphysics.collision.broadphase.DispatcherInfo;
  * 
  * @author jezek2
  */
-public class DefaultNearCallback implements NearCallback {
+public class DefaultNearCallback extends NearCallback {
 
 	private final ManifoldResult contactPointResult = new ManifoldResult();
 

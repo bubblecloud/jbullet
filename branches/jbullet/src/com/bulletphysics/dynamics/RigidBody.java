@@ -23,8 +23,6 @@
 
 package com.bulletphysics.dynamics;
 
-import java.util.ArrayList;
-import java.util.List;
 import com.bulletphysics.BulletGlobals;
 import com.bulletphysics.collision.broadphase.BroadphaseProxy;
 import com.bulletphysics.collision.dispatch.CollisionFlags;
@@ -37,6 +35,7 @@ import com.bulletphysics.linearmath.MiscUtil;
 import com.bulletphysics.linearmath.MotionState;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.linearmath.TransformUtil;
+import com.bulletphysics.util.ObjectArrayList;
 import cz.advel.stack.Stack;
 import cz.advel.stack.StaticAlloc;
 import javax.vecmath.Matrix3f;
@@ -99,7 +98,7 @@ public class RigidBody extends CollisionObject {
 	private MotionState optionalMotionState;
 
 	// keep track of typed constraints referencing this rigid body
-	private final List<TypedConstraint> constraintRefs = new ArrayList<TypedConstraint>();
+	private final ObjectArrayList<TypedConstraint> constraintRefs = new ObjectArrayList<TypedConstraint>();
 
 	// for experimental overriding of friction/contact solver func
 	public int contactSolverType;
@@ -596,7 +595,7 @@ public class RigidBody extends CollisionObject {
 		}
 
 		for (int i = 0; i < constraintRefs.size(); ++i) {
-			TypedConstraint c = constraintRefs.get(i);
+			TypedConstraint c = constraintRefs.getQuick(i);
 			if (c.getRigidBodyA() == otherRb || c.getRigidBodyB() == otherRb) {
 				return false;
 			}
@@ -620,7 +619,7 @@ public class RigidBody extends CollisionObject {
 	}
 
 	public TypedConstraint getConstraintRef(int index) {
-		return constraintRefs.get(index);
+		return constraintRefs.getQuick(index);
 	}
 
 	public int getNumConstraintRefs() {

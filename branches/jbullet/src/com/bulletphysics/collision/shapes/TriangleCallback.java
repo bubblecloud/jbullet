@@ -35,8 +35,8 @@ import javax.vecmath.Vector3f;
  * 
  * @author jezek2
  */
-public interface TriangleCallback {
+public abstract class TriangleCallback {
 
-	public void processTriangle(Vector3f[] triangle, int partId, int triangleIndex);
+	public abstract void processTriangle(Vector3f[] triangle, int partId, int triangleIndex);
 	
 }

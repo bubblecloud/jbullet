@@ -32,10 +32,10 @@ import com.bulletphysics.linearmath.IDebugDraw;
  *
  * @author tomrbryn
  */
-public interface ActionInterface {
+public abstract class ActionInterface {
 
-	public void updateAction(CollisionWorld collisionWorld, float deltaTimeStep);
+	public abstract void updateAction(CollisionWorld collisionWorld, float deltaTimeStep);
 
-	public void debugDraw(IDebugDraw debugDrawer);
+	public abstract void debugDraw(IDebugDraw debugDrawer);
 
 }

@@ -23,8 +23,6 @@
 
 package com.bulletphysics.util;
 
-import java.util.ArrayList;
-
 /**
  * Stack-based object pool, see the example for usage. You must use the {@link #returning}
  * method for returning stack-allocated instance.<p>
@@ -50,7 +48,7 @@ import java.util.ArrayList;
  */
 public abstract class StackList<T> {
 
-	private final ArrayList<T> list = new ArrayList<T>();
+	private final ObjectArrayList<T> list = new ObjectArrayList<T>();
 	private T returnObj;
 	
 	private int[] stack = new int[512];
@@ -96,7 +94,7 @@ public abstract class StackList<T> {
 			expand();
 		}
 		
-		return list.get(pos++);
+		return list.getQuick(pos++);
 	}
 	
 	/**

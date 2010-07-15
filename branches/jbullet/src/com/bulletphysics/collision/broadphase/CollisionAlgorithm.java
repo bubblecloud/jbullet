@@ -27,7 +27,7 @@ import com.bulletphysics.collision.dispatch.CollisionAlgorithmCreateFunc;
 import com.bulletphysics.collision.dispatch.CollisionObject;
 import com.bulletphysics.collision.dispatch.ManifoldResult;
 import com.bulletphysics.collision.narrowphase.PersistentManifold;
-import java.util.List;
+import com.bulletphysics.util.ObjectArrayList;
 
 /**
  * Collision algorithm for handling narrowphase or midphase collision detection
@@ -57,7 +57,7 @@ public abstract class CollisionAlgorithm {
 
 	public abstract float calculateTimeOfImpact(CollisionObject body0, CollisionObject body1, DispatcherInfo dispatchInfo, ManifoldResult resultOut);
 	
-	public abstract void getAllContactManifolds(List<PersistentManifold> manifoldArray);
+	public abstract void getAllContactManifolds(ObjectArrayList<PersistentManifold> manifoldArray);
 	
 	public final void internalSetCreateFunc(CollisionAlgorithmCreateFunc func) {
 		createFunc = func;

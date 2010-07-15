@@ -34,7 +34,7 @@ import javax.vecmath.Vector3f;
  *
  * @author jezek2
  */
-public abstract class TriangleConvexcastCallback implements TriangleCallback {
+public abstract class TriangleConvexcastCallback extends TriangleCallback {
 
 	public ConvexShape convexShape;
 	public final Transform convexShapeFrom = new Transform();

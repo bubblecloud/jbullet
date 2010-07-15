@@ -477,7 +477,7 @@ public abstract class DemoApplication {
 			case Keyboard.KEY_END: {
 				int numObj = getDynamicsWorld().getNumCollisionObjects();
 				if (numObj != 0) {
-					CollisionObject obj = getDynamicsWorld().getCollisionObjectArray().get(numObj - 1);
+					CollisionObject obj = getDynamicsWorld().getCollisionObjectArray().getQuick(numObj - 1);
 
 					getDynamicsWorld().removeCollisionObject(obj);
 					RigidBody body = RigidBody.upcast(obj);
@@ -892,7 +892,7 @@ public abstract class DemoApplication {
 			int numObjects = dynamicsWorld.getNumCollisionObjects();
 			wireColor.set(1f, 0f, 0f);
 			for (int i = 0; i < numObjects; i++) {
-				CollisionObject colObj = dynamicsWorld.getCollisionObjectArray().get(i);
+				CollisionObject colObj = dynamicsWorld.getCollisionObjectArray().getQuick(i);
 				RigidBody body = RigidBody.upcast(colObj);
 
 				if (body != null && body.getMotionState() != null) {
@@ -1122,7 +1122,7 @@ public abstract class DemoApplication {
 		}
 
 		for (int i = 0; i < numObjects; i++) {
-			CollisionObject colObj = dynamicsWorld.getCollisionObjectArray().get(i);
+			CollisionObject colObj = dynamicsWorld.getCollisionObjectArray().getQuick(i);
 			RigidBody body = RigidBody.upcast(colObj);
 			if (body != null) {
 				if (body.getMotionState() != null) {

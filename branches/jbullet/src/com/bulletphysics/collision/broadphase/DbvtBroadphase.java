@@ -25,15 +25,15 @@
 
 package com.bulletphysics.collision.broadphase;
 
+import com.bulletphysics.util.ObjectArrayList;
 import cz.advel.stack.Stack;
-import java.util.List;
 import javax.vecmath.Vector3f;
 
 /**
  *
  * @author jezek2
  */
-public class DbvtBroadphase implements BroadphaseInterface {
+public class DbvtBroadphase extends BroadphaseInterface {
 
 	public static final float DBVT_BP_MARGIN = 0.05f;
 
@@ -129,10 +129,10 @@ public class DbvtBroadphase implements BroadphaseInterface {
 		// clean up:
 		{
 			//SPC(m_profiling.m_cleanup);
-			List<BroadphasePair> pairs = paircache.getOverlappingPairArray();
+			ObjectArrayList<BroadphasePair> pairs = paircache.getOverlappingPairArray();
 			if (pairs.size() > 0) {
 				for (int i=0, ni=pairs.size(); i<ni; i++) {
-					BroadphasePair p = pairs.get(i);
+					BroadphasePair p = pairs.getQuick(i);
 					DbvtProxy pa = (DbvtProxy) p.pProxy0;
 					DbvtProxy pb = (DbvtProxy) p.pProxy1;
 					if (!DbvtAabbMm.Intersect(pa.aabb, pb.aabb)) {

@@ -35,7 +35,7 @@ import com.bulletphysics.collision.broadphase.OverlappingPairCallback;
  *
  * @author tomrbryn
  */
-public class GhostPairCallback implements OverlappingPairCallback {
+public class GhostPairCallback extends OverlappingPairCallback {
 
 	public BroadphasePair addOverlappingPair(BroadphaseProxy proxy0, BroadphaseProxy proxy1) {
 		CollisionObject colObj0 = (CollisionObject)proxy0.clientObject;

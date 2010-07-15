@@ -23,9 +23,8 @@
 
 package com.bulletphysics.demos.character;
 
+import com.bulletphysics.util.ObjectArrayList;
 import com.bulletphysics.collision.broadphase.AxisSweep3;
-import java.util.ArrayList;
-import java.util.List;
 import com.bulletphysics.collision.broadphase.BroadphaseInterface;
 import com.bulletphysics.collision.broadphase.CollisionFilterGroups;
 import com.bulletphysics.collision.dispatch.CollisionDispatcher;
@@ -78,7 +77,7 @@ public class CharacterDemo extends DemoApplication {
 	private float characterScale = 2f;
 	
 	// keep the collision shapes, for deletion/cleanup
-	public List<CollisionShape> collisionShapes = new ArrayList<CollisionShape>();
+	public ObjectArrayList<CollisionShape> collisionShapes = new ObjectArrayList<CollisionShape>();
 	public BroadphaseInterface overlappingPairCache;
 	public CollisionDispatcher dispatcher;
 	public ConstraintSolver constraintSolver;
@@ -322,7 +321,7 @@ public class CharacterDemo extends DemoApplication {
 	
 	private class BspToBulletConverter extends BspConverter {
 		@Override
-		public void addConvexVerticesCollider(List<Vector3f> vertices) {
+		public void addConvexVerticesCollider(ObjectArrayList<Vector3f> vertices) {
 			if (vertices.size() > 0) {
 				float mass = 0f;
 				Transform startTransform = new Transform();

@@ -23,12 +23,11 @@
 
 package com.bulletphysics.demos.bsp;
 
+import com.bulletphysics.util.ObjectArrayList;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
 import javax.vecmath.Vector3f;
 
 /**
@@ -41,7 +40,7 @@ public abstract class BspConverter {
 		BufferedReader r = new BufferedReader(new InputStreamReader(in, "UTF-8"));
 		String s;
 		
-		List<Vector3f> vertices = new ArrayList<Vector3f>();
+		ObjectArrayList<Vector3f> vertices = new ObjectArrayList<Vector3f>();
 		while ((s = r.readLine()) != null) {
 			int count = Integer.parseInt(s);
 			vertices.clear();
@@ -58,6 +57,6 @@ public abstract class BspConverter {
 		r.close();
 	}
 	
-	public abstract void addConvexVerticesCollider(List<Vector3f> vertices);
+	public abstract void addConvexVerticesCollider(ObjectArrayList<Vector3f> vertices);
 	
 }

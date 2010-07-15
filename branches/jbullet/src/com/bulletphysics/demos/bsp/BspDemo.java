@@ -23,8 +23,7 @@
 
 package com.bulletphysics.demos.bsp;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.bulletphysics.util.ObjectArrayList;
 import com.bulletphysics.collision.broadphase.BroadphaseInterface;
 import com.bulletphysics.collision.broadphase.DbvtBroadphase;
 import com.bulletphysics.collision.dispatch.CollisionDispatcher;
@@ -54,7 +53,7 @@ public class BspDemo extends DemoApplication {
 	private static final float EXTRA_HEIGHT      = -20f;
 	
 	// keep the collision shapes, for deletion/cleanup
-	public List<CollisionShape> collisionShapes = new ArrayList<CollisionShape>();
+	public ObjectArrayList<CollisionShape> collisionShapes = new ObjectArrayList<CollisionShape>();
 	public BroadphaseInterface broadphase;
 	public CollisionDispatcher dispatcher;
 	public ConstraintSolver solver;
@@ -133,7 +132,7 @@ public class BspDemo extends DemoApplication {
 	
 	private class BspToBulletConverter extends BspConverter {
 		@Override
-		public void addConvexVerticesCollider(List<Vector3f> vertices) {
+		public void addConvexVerticesCollider(ObjectArrayList<Vector3f> vertices) {
 			if (vertices.size() > 0) {
 				float mass = 0f;
 				Transform startTransform = new Transform();

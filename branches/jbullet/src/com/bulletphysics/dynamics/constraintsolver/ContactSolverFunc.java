@@ -31,8 +31,8 @@ import com.bulletphysics.dynamics.RigidBody;
  * 
  * @author jezek2
  */
-public interface ContactSolverFunc {
+public abstract class ContactSolverFunc {
 
-	public float resolveContact(RigidBody body1, RigidBody body2, ManifoldPoint contactPoint, ContactSolverInfo info);
+	public abstract float resolveContact(RigidBody body1, RigidBody body2, ManifoldPoint contactPoint, ContactSolverInfo info);
 	
 }

@@ -32,7 +32,7 @@ import javax.vecmath.Vector3f;
  *
  * @author jezek2
  */
-public abstract class TriangleRaycastCallback implements TriangleCallback {
+public abstract class TriangleRaycastCallback extends TriangleCallback {
 	
 	//protected final BulletStack stack = BulletStack.get();
 

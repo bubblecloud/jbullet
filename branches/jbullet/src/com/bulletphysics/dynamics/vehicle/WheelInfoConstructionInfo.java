@@ -36,6 +36,7 @@ public class WheelInfoConstructionInfo {
 	public final Vector3f wheelAxleCS = new Vector3f();
 	public float suspensionRestLength;
 	public float maxSuspensionTravelCm;
+	public float maxSuspensionForce;
 	public float wheelRadius;
 	
 	public float suspensionStiffness;

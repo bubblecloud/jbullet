@@ -46,6 +46,7 @@ public class WheelInfo {
 	public final Vector3f wheelAxleCS = new Vector3f(); // const or modified by steering
 	public float suspensionRestLength1; // const
 	public float maxSuspensionTravelCm;
+	public float maxSuspensionForce;
 	public float wheelsRadius; // const
 	public float suspensionStiffness; // const
 	public float wheelsDampingCompression; // const
@@ -73,6 +74,7 @@ public class WheelInfo {
 	public WheelInfo(WheelInfoConstructionInfo ci) {
 		suspensionRestLength1 = ci.suspensionRestLength;
 		maxSuspensionTravelCm = ci.maxSuspensionTravelCm;
+                maxSuspensionForce = ci.maxSuspensionForce;
 
 		wheelsRadius = ci.wheelRadius;
 		suspensionStiffness = ci.suspensionStiffness;

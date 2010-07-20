@@ -325,9 +325,8 @@ public class RaycastVehicle extends TypedConstraint {
 
 			float suspensionForce = wheel.wheelsSuspensionForce;
 
-			float gMaxSuspensionForce = 6000f;
-			if (suspensionForce > gMaxSuspensionForce) {
-				suspensionForce = gMaxSuspensionForce;
+			if (suspensionForce > wheel.maxSuspensionForce) {
+				suspensionForce = wheel.maxSuspensionForce;
 			}
 			Vector3f impulse = Stack.alloc(Vector3f.class);
 			impulse.scale(suspensionForce * step, wheel.raycastInfo.contactNormalWS);
@@ -626,7 +625,7 @@ public class RaycastVehicle extends TypedConstraint {
 					Vector3f sideImp = Stack.alloc(Vector3f.class);
 					sideImp.scale(sideImpulse.get(wheel), axle.getQuick(wheel));
 
-					rel_pos.z *= wheel_info.rollInfluence;
+					rel_pos.y *= wheel_info.rollInfluence;
 					chassisBody.applyImpulse(sideImp, rel_pos);
 
 					// apply friction impulse on the ground

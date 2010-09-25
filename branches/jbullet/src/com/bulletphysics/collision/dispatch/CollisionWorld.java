@@ -380,10 +380,10 @@ public class CollisionWorld {
 	private static class BridgeTriangleConvexcastCallback extends TriangleConvexcastCallback {
 		public ConvexResultCallback resultCallback;
 		public CollisionObject collisionObject;
-		public TriangleMeshShape triangleMesh;
+		public ConcaveShape triangleMesh;
 		public boolean normalInWorldSpace;
 
-		public BridgeTriangleConvexcastCallback(ConvexShape castShape, Transform from, Transform to, ConvexResultCallback resultCallback, CollisionObject collisionObject, TriangleMeshShape triangleMesh, Transform triangleToWorld) {
+		public BridgeTriangleConvexcastCallback(ConvexShape castShape, Transform from, Transform to, ConvexResultCallback resultCallback, CollisionObject collisionObject, ConcaveShape triangleMesh, Transform triangleToWorld) {
 			super(castShape, from, to, triangleToWorld, triangleMesh.getMargin());
 			this.resultCallback = resultCallback;
 			this.collisionObject = collisionObject;
@@ -467,7 +467,7 @@ public class CollisionWorld {
 					triangleMesh.performConvexcast(tccb, convexFromLocal, convexToLocal, boxMinLocal, boxMaxLocal);
 				}
 				else {
-					BvhTriangleMeshShape triangleMesh = (BvhTriangleMeshShape)collisionShape;
+					ConcaveShape triangleMesh = (ConcaveShape)collisionShape;
 					Transform worldTocollisionObject = Stack.alloc(Transform.class);
 					worldTocollisionObject.inverse(colObjWorldTransform);
 

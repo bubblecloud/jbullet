@@ -551,8 +551,8 @@ public class KinematicCharacterController extends ActionInterface {
 
 			if (callback.hasHit()) {
 				// we moved only a fraction
-				Vector3f hitDistanceVec = Stack.alloc(Vector3f.class);
-				hitDistanceVec.sub(callback.hitPointWorld, currentPosition);
+				//Vector3f hitDistanceVec = Stack.alloc(Vector3f.class);
+				//hitDistanceVec.sub(callback.hitPointWorld, currentPosition);
 				//float hitDistance = hitDistanceVec.length();
 
 				// if the distance is farther than the collision margin, move
@@ -677,7 +677,7 @@ public class KinematicCharacterController extends ActionInterface {
 			} else {
 				//need to transform normal into worldspace
 				hitNormalWorld = Stack.alloc(Vector3f.class);
-				hitCollisionObject.getWorldTransform(Stack.alloc(Transform.class)).basis.transform(convexResult.hitNormalLocal, hitNormalWorld);
+				convexResult.hitCollisionObject.getWorldTransform(Stack.alloc(Transform.class)).basis.transform(convexResult.hitNormalLocal, hitNormalWorld);
 			}
 
 			float dotUp = up.dot(hitNormalWorld);

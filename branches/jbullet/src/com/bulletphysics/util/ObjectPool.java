@@ -59,7 +59,7 @@ public class ObjectPool<T> {
 	 */
 	public T get() {
 		if (list.size() > 0) {
-			return list.removeQuick(list.size() - 1);
+			return list.remove(list.size() - 1);
 		}
 		else {
 			return create();

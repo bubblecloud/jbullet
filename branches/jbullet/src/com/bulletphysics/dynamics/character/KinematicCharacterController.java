@@ -35,8 +35,8 @@ import com.bulletphysics.collision.shapes.ConvexShape;
 import com.bulletphysics.dynamics.ActionInterface;
 import com.bulletphysics.linearmath.IDebugDraw;
 import com.bulletphysics.linearmath.Transform;
-import cz.advel.stack.Stack;
 import com.bulletphysics.util.ObjectArrayList;
+import cz.advel.stack.Stack;
 import javax.vecmath.Vector3f;
 
 /**
@@ -47,13 +47,19 @@ import javax.vecmath.Vector3f;
  *
  * Interaction between KinematicCharacterController and dynamic rigid bodies
  * needs to be explicity implemented by the user.
- *
+ * 
  * @author tomrbryn
  */
 public class KinematicCharacterController extends ActionInterface {
 
-	protected float halfHeight;
+	private static Vector3f[] upAxisDirection = new Vector3f[] {
+		new Vector3f(1.0f, 0.0f, 0.0f),
+		new Vector3f(0.0f, 1.0f, 0.0f),
+		new Vector3f(0.0f, 0.0f, 1.0f),
+	};
 
+	protected float halfHeight;
+	
 	protected PairCachingGhostObject ghostObject;
 
 	// is also in ghostObject, but it needs to be convex, so we store it here
@@ -62,16 +68,16 @@ public class KinematicCharacterController extends ActionInterface {
 
 	protected float verticalVelocity;
 	protected float verticalOffset;
-
+	
 	protected float fallSpeed;
 	protected float jumpSpeed;
 	protected float maxJumpHeight;
-
-	protected float maxSlopeRadians; // Slope angle that is set (used for returning the exact value)
+	
+	protected float maxSlopeRadians; // Slope angle that is set (used for returning the exact value) 
 	protected float maxSlopeCosine; // Cosine equivalent of m_maxSlopeRadians (calculated once when set, for optimization)
 
 	protected float gravity;
-
+	
 	protected float turnAngle;
 
 	protected float stepHeight;
@@ -94,7 +100,7 @@ public class KinematicCharacterController extends ActionInterface {
 	protected Vector3f touchingNormal = new Vector3f();
 
 	protected boolean wasOnGround;
-
+	
 	protected boolean useGhostObjectSweepTest;
 	protected boolean useWalkDirection;
 	protected float velocityTimeInterval;
@@ -202,7 +208,7 @@ public class KinematicCharacterController extends ActionInterface {
 		targetPosition.set(currentPosition);
 		//printf("m_targetPosition=%f,%f,%f\n",m_targetPosition[0],m_targetPosition[1],m_targetPosition[2]);
 	}
-
+	
 	public void playerStep(CollisionWorld collisionWorld, float dt) {
 		//printf("playerStep(): ");
 		//printf("  dt = %f", dt);
@@ -212,9 +218,9 @@ public class KinematicCharacterController extends ActionInterface {
 			//printf("\n");
 			return; // no motion
 		}
-
+		
 		wasOnGround = onGround();
-
+		
 		// Update fall velocity.
 		verticalVelocity -= gravity * dt;
 		if(verticalVelocity > 0.0 && verticalVelocity > jumpSpeed)
@@ -265,7 +271,7 @@ public class KinematicCharacterController extends ActionInterface {
 	public void setFallSpeed(float fallSpeed) {
 		this.fallSpeed = fallSpeed;
 	}
-
+	
 	public void setJumpSpeed(float jumpSpeed) {
 		this.jumpSpeed = jumpSpeed;
 	}
@@ -273,14 +279,14 @@ public class KinematicCharacterController extends ActionInterface {
 	public void setMaxJumpHeight(float maxJumpHeight) {
 		this.maxJumpHeight = maxJumpHeight;
 	}
-
+	
 	public boolean canJump() {
 		return onGround();
 	}
-
+	
 	public void jump() {
 		if (!canJump()) return;
-
+		
 		verticalVelocity = jumpSpeed;
 
 		//#if 0
@@ -293,24 +299,24 @@ public class KinematicCharacterController extends ActionInterface {
 		//m_rigidBody->applyCentralImpulse (up * magnitude);
 		//#endif
 	}
-
+	
 	public void setGravity(float gravity) {
 		this.gravity = gravity;
 	}
-
+	
 	public float getGravity() {
 		return gravity;
 	}
-
+	
 	public void setMaxSlope(float slopeRadians) {
 		maxSlopeRadians = slopeRadians;
 		maxSlopeCosine = (float)Math.cos((float)slopeRadians);
 	}
-
+	
 	public float getMaxSlope() {
 		return maxSlopeRadians;
 	}
-
+	
 	public boolean onGround() {
 		return verticalVelocity == 0.0f && verticalOffset == 0.0f;
 	}
@@ -323,15 +329,6 @@ public class KinematicCharacterController extends ActionInterface {
 			out.set(0, 0, 0);
 		}
 		return out;
-	}
-
-	private static Vector3f[] getUpAxisDirections() {
-		Vector3f[] upAxisDirection = new Vector3f[] {
-			new Vector3f(1.0f, 0.0f, 0.0f),
-			new Vector3f(0.0f, 1.0f, 0.0f),
-			new Vector3f(0.0f, 0.0f, 1.0f),
-		};
-		return upAxisDirection;
 	}
 
 	/**
@@ -382,14 +379,14 @@ public class KinematicCharacterController extends ActionInterface {
 		for (int i=0; i<ghostObject.getOverlappingPairCache().getNumOverlappingPairs(); i++) {
 			manifoldArray.clear();
 
-			BroadphasePair collisionPair = ghostObject.getOverlappingPairCache().getOverlappingPairArray().get(i);
+			BroadphasePair collisionPair = ghostObject.getOverlappingPairCache().getOverlappingPairArray().getQuick(i);
 
 			if (collisionPair.algorithm != null) {
 				collisionPair.algorithm.getAllContactManifolds(manifoldArray);
 			}
 
 			for (int j=0; j<manifoldArray.size(); j++) {
-				PersistentManifold manifold = manifoldArray.get(j);
+				PersistentManifold manifold = manifoldArray.getQuick(j);
 				float directionSign = manifold.getBody0() == ghostObject? -1.0f : 1.0f;
 				for (int p=0; p<manifold.getNumContacts(); p++) {
 					ManifoldPoint pt = manifold.getContactPoint(p);
@@ -414,7 +411,7 @@ public class KinematicCharacterController extends ActionInterface {
 				//manifold->clearManifold();
 			}
 		}
-
+		
 		Transform newTrans = ghostObject.getWorldTransform(Stack.alloc(Transform.class));
 		newTrans.origin.set(currentPosition);
 		ghostObject.setWorldTransform(newTrans);
@@ -424,23 +421,23 @@ public class KinematicCharacterController extends ActionInterface {
 
 		return penetration;
 	}
-
+	
 	protected void stepUp(CollisionWorld world) {
 		// phase 1: up
 		Transform start = Stack.alloc(Transform.class);
 		Transform end = Stack.alloc(Transform.class);
-		targetPosition.scaleAdd(stepHeight + (verticalOffset > 0.0?verticalOffset:0.0f), getUpAxisDirections()[upAxis], currentPosition);
+		targetPosition.scaleAdd(stepHeight + (verticalOffset > 0.0?verticalOffset:0.0f), upAxisDirection[upAxis], currentPosition);
 
 		start.setIdentity ();
 		end.setIdentity ();
 
 		/* FIXME: Handle penetration properly */
-		start.origin.scaleAdd(convexShape.getMargin() + addedMargin, getUpAxisDirections()[upAxis], currentPosition);
+		start.origin.scaleAdd(convexShape.getMargin() + addedMargin, upAxisDirection[upAxis], currentPosition);
 		end.origin.set(targetPosition);
-
+		
 		// Find only sloped/flat surface hits, avoid wall and ceiling hits...
-		Vector3f up = getUpAxisDirections()[upAxis];
-		up.scale(-1f);
+		Vector3f up = Stack.alloc(Vector3f.class);
+		up.scale(-1f, upAxisDirection[upAxis]);
 		KinematicClosestNotMeConvexResultCallback callback = new KinematicClosestNotMeConvexResultCallback(ghostObject, up, 0.0f);
 		callback.collisionFilterGroup = getGhostObject().getBroadphaseHandle().collisionFilterGroup;
 		callback.collisionFilterMask = getGhostObject().getBroadphaseHandle().collisionFilterMask;
@@ -531,7 +528,7 @@ public class KinematicCharacterController extends ActionInterface {
 			start.origin.set(currentPosition);
 			end.origin.set(targetPosition);
 
-			KinematicClosestNotMeConvexResultCallback callback = new KinematicClosestNotMeConvexResultCallback(ghostObject, getUpAxisDirections()[upAxis], -1.0f);
+			KinematicClosestNotMeConvexResultCallback callback = new KinematicClosestNotMeConvexResultCallback(ghostObject, upAxisDirection[upAxis], -1.0f);
 			callback.collisionFilterGroup = getGhostObject().getBroadphaseHandle().collisionFilterGroup;
 			callback.collisionFilterMask = getGhostObject().getBroadphaseHandle().collisionFilterMask;
 
@@ -551,8 +548,8 @@ public class KinematicCharacterController extends ActionInterface {
 
 			if (callback.hasHit()) {
 				// we moved only a fraction
-				//Vector3f hitDistanceVec = Stack.alloc(Vector3f.class);
-				//hitDistanceVec.sub(callback.hitPointWorld, currentPosition);
+				Vector3f hitDistanceVec = Stack.alloc(Vector3f.class);
+				hitDistanceVec.sub(callback.hitPointWorld, currentPosition);
 				//float hitDistance = hitDistanceVec.length();
 
 				// if the distance is farther than the collision margin, move
@@ -595,10 +592,10 @@ public class KinematicCharacterController extends ActionInterface {
 		// phase 3: down
 		float additionalDownStep = (wasOnGround /*&& !onGround()*/) ? stepHeight : 0.0f;
 		Vector3f step_drop = Stack.alloc(Vector3f.class);
-		step_drop.scale(currentStepOffset + additionalDownStep, getUpAxisDirections()[upAxis]);
+		step_drop.scale(currentStepOffset + additionalDownStep, upAxisDirection[upAxis]);
 		float downVelocity = (additionalDownStep == 0.0f && verticalVelocity<0.0f?-verticalVelocity:0.0f) * dt;
 		Vector3f gravity_drop = Stack.alloc(Vector3f.class);
-		gravity_drop.scale(downVelocity, getUpAxisDirections()[upAxis]);
+		gravity_drop.scale(downVelocity, upAxisDirection[upAxis]);
 		targetPosition.sub(step_drop);
 		targetPosition.sub(gravity_drop);
 
@@ -608,7 +605,7 @@ public class KinematicCharacterController extends ActionInterface {
 		start.origin.set(currentPosition);
 		end.origin.set(targetPosition);
 
-		KinematicClosestNotMeConvexResultCallback callback = new KinematicClosestNotMeConvexResultCallback(ghostObject, getUpAxisDirections()[upAxis], maxSlopeCosine);
+		KinematicClosestNotMeConvexResultCallback callback = new KinematicClosestNotMeConvexResultCallback(ghostObject, upAxisDirection[upAxis], maxSlopeCosine);
 		callback.collisionFilterGroup = getGhostObject().getBroadphaseHandle().collisionFilterGroup;
 		callback.collisionFilterMask = getGhostObject().getBroadphaseHandle().collisionFilterMask;
 
@@ -670,7 +667,7 @@ public class KinematicCharacterController extends ActionInterface {
 			if (convexResult.hitCollisionObject == me) {
 				return 1.0f;
 			}
-
+			
 			Vector3f hitNormalWorld;
 			if (normalInWorldSpace) {
 				hitNormalWorld = convexResult.hitNormalLocal;
@@ -679,7 +676,7 @@ public class KinematicCharacterController extends ActionInterface {
 				hitNormalWorld = Stack.alloc(Vector3f.class);
 				convexResult.hitCollisionObject.getWorldTransform(Stack.alloc(Transform.class)).basis.transform(convexResult.hitNormalLocal, hitNormalWorld);
 			}
-
+			
 			float dotUp = up.dot(hitNormalWorld);
 			if (dotUp < minSlopeDot) {
 				return 1.0f;
@@ -688,5 +685,5 @@ public class KinematicCharacterController extends ActionInterface {
 			return super.addSingleResult(convexResult, normalInWorldSpace);
 		}
 	}
-
+	
 }

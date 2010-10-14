@@ -82,7 +82,7 @@ public class ArrayPool<T> {
 		if (index < 0) {
 			return create(length);
 		}
-		return (T)list.removeQuick(index);
+		return (T)list.remove(index);
 	}
 
 	/**
@@ -99,13 +99,13 @@ public class ArrayPool<T> {
 		if (index < 0) {
 			index = -index - 1;
 			if (index < list.size()) {
-				return (T)list.removeQuick(index);
+				return (T)list.remove(index);
 			}
 			else {
 				return create(length);
 			}
 		}
-		return (T)list.removeQuick(index);
+		return (T)list.remove(index);
 	}
 	
 	/**

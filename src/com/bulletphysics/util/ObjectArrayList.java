@@ -23,6 +23,10 @@
 
 package com.bulletphysics.util;
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.AbstractList;
 import java.util.RandomAccess;
 
@@ -30,7 +34,7 @@ import java.util.RandomAccess;
  *
  * @author jezek2
  */
-public final class ObjectArrayList<T> extends AbstractList<T> implements RandomAccess {
+public final class ObjectArrayList<T> extends AbstractList<T> implements RandomAccess, Externalizable {
 
 	private T[] array;
 	private int size;
@@ -71,8 +75,10 @@ public final class ObjectArrayList<T> extends AbstractList<T> implements RandomA
 
 	@Override
 	public T remove(int index) {
+		if (index < 0 || index >= size) throw new IndexOutOfBoundsException();
 		T prev = array[index];
 		System.arraycopy(array, index+1, array, index, size-index-1);
+		array[size-1] = null;
 		size--;
 		return prev;
     }
@@ -84,12 +90,10 @@ public final class ObjectArrayList<T> extends AbstractList<T> implements RandomA
 		array = newArray;
 	}
 
-	public T removeQuick(int index) {
-		if (index >= size) throw new IndexOutOfBoundsException();
-		T old = array[index];
+	public void removeQuick(int index) {
 		System.arraycopy(array, index+1, array, index, size - index - 1);
+		array[size-1] = null;
 		size--;
-		return old;
 	}
 
 	public T get(int index) {
@@ -136,6 +140,23 @@ public final class ObjectArrayList<T> extends AbstractList<T> implements RandomA
 			}
 		}
 		return -1;
+	}
+
+	public void writeExternal(ObjectOutput out) throws IOException {
+		out.writeInt(size);
+		for (int i=0; i<size; i++) {
+			out.writeObject(array[i]);
+		}
+	}
+
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+		size = in.readInt();
+		int cap = 16;
+		while (cap < size) cap <<= 1;
+		array = (T[])new Object[cap];
+		for (int i=0; i<size; i++) {
+			array[i] = (T)in.readObject();
+		}
 	}
 	
 }

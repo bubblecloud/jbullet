@@ -247,7 +247,7 @@ public class Dbvt {
 			ObjectArrayList<sStkNN> stack = new ObjectArrayList<sStkNN>(DOUBLE_STACKSIZE);
 			stack.add(new sStkNN(root0, root1));
 			do {
-				sStkNN p = stack.removeQuick(stack.size() - 1);
+				sStkNN p = stack.remove(stack.size() - 1);
 				if (p.a == p.b) {
 					if (p.a.isinternal()) {
 						stack.add(new sStkNN(p.a.childs[0], p.a.childs[0]));
@@ -289,7 +289,7 @@ public class Dbvt {
 			ObjectArrayList<sStkNN> stack = new ObjectArrayList<sStkNN>(DOUBLE_STACKSIZE);
 			stack.add(new sStkNN(root0, root1));
 			do {
-				sStkNN p = stack.removeQuick(stack.size() - 1);
+				sStkNN p = stack.remove(stack.size() - 1);
 				if (p.a == p.b) {
 					if (p.a.isinternal()) {
 						stack.add(new sStkNN(p.a.childs[0], p.a.childs[0]));
@@ -338,7 +338,7 @@ public class Dbvt {
 			ObjectArrayList<Node> stack = new ObjectArrayList<Node>(SIMPLE_STACKSIZE);
 			stack.add(root);
 			do {
-				Node n = stack.removeQuick(stack.size() - 1);
+				Node n = stack.remove(stack.size() - 1);
 				if (DbvtAabbMm.Intersect(n.volume, volume)) {
 					if (n.isinternal()) {
 						stack.add(n.childs[0]);
@@ -364,7 +364,7 @@ public class Dbvt {
 			ObjectArrayList<Node> stack = new ObjectArrayList<Node>(SIMPLE_STACKSIZE);
 			stack.add(root);
 			do {
-				Node node = stack.removeQuick(stack.size() - 1);
+				Node node = stack.remove(stack.size() - 1);
 				if (DbvtAabbMm.Intersect(node.volume, origin, invdir, signs)) {
 					if (node.isinternal()) {
 						stack.add(node.childs[0]);
@@ -393,7 +393,7 @@ public class Dbvt {
 			}
 			stack.add(new sStkNP(root, 0));
 			do {
-				sStkNP se = stack.removeQuick(stack.size() - 1);
+				sStkNP se = stack.remove(stack.size() - 1);
 				boolean out = false;
 				for (int i = 0, j = 1; (!out) && (i < count); ++i, j <<= 1) {
 					if (0 == (se.mask & j)) {
@@ -525,7 +525,7 @@ public class Dbvt {
 			ObjectArrayList<Node> stack = new ObjectArrayList<Node>(SIMPLE_STACKSIZE);
 			stack.add(root);
 			do {
-				Node n = stack.removeQuick(stack.size() - 1);
+				Node n = stack.remove(stack.size() - 1);
 				if (policy.Descent(n)) {
 					if (n.isinternal()) {
 						stack.add(n.childs[0]);

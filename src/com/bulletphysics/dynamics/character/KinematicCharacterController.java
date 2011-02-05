@@ -100,6 +100,7 @@ public class KinematicCharacterController extends ActionInterface {
 	protected Vector3f touchingNormal = new Vector3f();
 
 	protected boolean wasOnGround;
+	protected boolean wasJumping;
 	
 	protected boolean useGhostObjectSweepTest;
 	protected boolean useWalkDirection;
@@ -125,11 +126,12 @@ public class KinematicCharacterController extends ActionInterface {
 		this.velocityTimeInterval = 0.0f;
 		this.verticalVelocity = 0.0f;
 		this.verticalOffset = 0.0f;
-		this.gravity = 9.8f; // 1G acceleration
+		this.gravity = 9.8f *3; // 1G acceleration
 		this.fallSpeed = 55.0f; // Terminal velocity of a sky diver in m/s.
 		this.jumpSpeed = 10.0f; // ?
 		this.wasOnGround = false;
-		setMaxSlope((float)((50.0f/180.0f) * Math.PI));
+                this.wasJumping=false;
+		setMaxSlope((float)((45.0f/180.0f) * Math.PI));
 	}
 
 	private PairCachingGhostObject getGhostObject() {
@@ -288,6 +290,7 @@ public class KinematicCharacterController extends ActionInterface {
 		if (!canJump()) return;
 		
 		verticalVelocity = jumpSpeed;
+                wasJumping = true;
 
 		//#if 0
 		//currently no jumping.
@@ -438,7 +441,7 @@ public class KinematicCharacterController extends ActionInterface {
 		// Find only sloped/flat surface hits, avoid wall and ceiling hits...
 		Vector3f up = Stack.alloc(Vector3f.class);
 		up.scale(-1f, upAxisDirection[upAxis]);
-		KinematicClosestNotMeConvexResultCallback callback = new KinematicClosestNotMeConvexResultCallback(ghostObject, up, 0.0f);
+		KinematicClosestNotMeConvexResultCallback callback = new KinematicClosestNotMeConvexResultCallback(ghostObject, up, 0.7071f);
 		callback.collisionFilterGroup = getGhostObject().getBroadphaseHandle().collisionFilterGroup;
 		callback.collisionFilterMask = getGhostObject().getBroadphaseHandle().collisionFilterMask;
 
@@ -450,11 +453,14 @@ public class KinematicCharacterController extends ActionInterface {
 		}
 
 		if (callback.hasHit()) {
+                    // Only modify the position if the hit was a slope and not a wall or ceiling.
+                    if(callback.hitNormalWorld.dot(upAxisDirection[upAxis]) > 0.0){
 			// we moved up only a fraction of the step height
 			currentStepOffset = stepHeight * callback.closestHitFraction;
 			currentPosition.interpolate(currentPosition, targetPosition, callback.closestHitFraction);
 			verticalVelocity = 0.0f;
 			verticalOffset = 0.0f;
+                    }
 		}
 		else {
 			currentStepOffset = stepHeight;
@@ -516,19 +522,22 @@ public class KinematicCharacterController extends ActionInterface {
 		float distance2 = distance2Vec.lengthSquared();
 		//printf("distance2=%f\n",distance2);
 
-		/*if (touchingContact) {
+		if (touchingContact) {
 			if (normalizedDirection.dot(touchingNormal) > 0.0f) {
 				updateTargetPositionBasedOnCollision(touchingNormal);
 			}
-		}*/
+		}
 
 		int maxIter = 10;
 
 		while (fraction > 0.01f && maxIter-- > 0) {
 			start.origin.set(currentPosition);
 			end.origin.set(targetPosition);
+                        Vector3f sweepDirNegative = Stack.alloc(Vector3f.class);
+                        sweepDirNegative.sub(currentPosition, targetPosition);
 
-			KinematicClosestNotMeConvexResultCallback callback = new KinematicClosestNotMeConvexResultCallback(ghostObject, upAxisDirection[upAxis], -1.0f);
+			KinematicClosestNotMeConvexResultCallback callback = new KinematicClosestNotMeConvexResultCallback(ghostObject, sweepDirNegative, -1.0f);
+
 			callback.collisionFilterGroup = getGhostObject().getBroadphaseHandle().collisionFilterGroup;
 			callback.collisionFilterMask = getGhostObject().getBroadphaseHandle().collisionFilterMask;
 
@@ -550,7 +559,7 @@ public class KinematicCharacterController extends ActionInterface {
 				// we moved only a fraction
 				Vector3f hitDistanceVec = Stack.alloc(Vector3f.class);
 				hitDistanceVec.sub(callback.hitPointWorld, currentPosition);
-				//float hitDistance = hitDistanceVec.length();
+//				float hitDistance = hitDistanceVec.length();
 
 				// if the distance is farther than the collision margin, move
 				//if (hitDistance > addedMargin) {
@@ -590,14 +599,24 @@ public class KinematicCharacterController extends ActionInterface {
 		Transform end = Stack.alloc(Transform.class);
 
 		// phase 3: down
-		float additionalDownStep = (wasOnGround /*&& !onGround()*/) ? stepHeight : 0.0f;
-		Vector3f step_drop = Stack.alloc(Vector3f.class);
-		step_drop.scale(currentStepOffset + additionalDownStep, upAxisDirection[upAxis]);
-		float downVelocity = (additionalDownStep == 0.0f && verticalVelocity<0.0f?-verticalVelocity:0.0f) * dt;
-		Vector3f gravity_drop = Stack.alloc(Vector3f.class);
-		gravity_drop.scale(downVelocity, upAxisDirection[upAxis]);
+//		float additionalDownStep = (wasOnGround /*&& !onGround()*/) ? stepHeight : 0.0f;
+//		Vector3f step_drop = Stack.alloc(Vector3f.class);
+//		step_drop.scale(currentStepOffset + additionalDownStep, upAxisDirection[upAxis]);
+//		float downVelocity = (additionalDownStep == 0.0f && verticalVelocity<0.0f?-verticalVelocity:0.0f) * dt;
+//		Vector3f gravity_drop = Stack.alloc(Vector3f.class);
+//		gravity_drop.scale(downVelocity, upAxisDirection[upAxis]);
+//		targetPosition.sub(step_drop);
+//		targetPosition.sub(gravity_drop);
+                
+                float downVelocity = (verticalVelocity<0.0f?-verticalVelocity:0.0f) * dt;
+                if(downVelocity > 0.0 && downVelocity < stepHeight
+			&& (wasOnGround || !wasJumping))
+		{
+			downVelocity = stepHeight;
+		}
+                Vector3f step_drop = Stack.alloc(Vector3f.class);
+                step_drop.scale(currentStepOffset + downVelocity, upAxisDirection[upAxis]);
 		targetPosition.sub(step_drop);
-		targetPosition.sub(gravity_drop);
 
 		start.setIdentity ();
 		end.setIdentity ();
@@ -621,6 +640,7 @@ public class KinematicCharacterController extends ActionInterface {
 			currentPosition.interpolate(currentPosition, targetPosition, callback.closestHitFraction);
 			verticalVelocity = 0.0f;
 			verticalOffset = 0.0f;
+                        wasJumping = false;
 		}
 		else {
 			// we dropped the full height

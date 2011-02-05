@@ -383,7 +383,10 @@ public class KinematicCharacterController extends ActionInterface {
 			manifoldArray.clear();
 
 			BroadphasePair collisionPair = ghostObject.getOverlappingPairCache().getOverlappingPairArray().getQuick(i);
-
+                        //XXX: added no contact response
+                        if (!((CollisionObject)collisionPair.pProxy0.clientObject).hasContactResponse()
+                                 || !((CollisionObject)collisionPair.pProxy1.clientObject).hasContactResponse())
+                                 continue;
 			if (collisionPair.algorithm != null) {
 				collisionPair.algorithm.getAllContactManifolds(manifoldArray);
 			}
@@ -684,7 +687,10 @@ public class KinematicCharacterController extends ActionInterface {
 
 		@Override
 		public float addSingleResult(CollisionWorld.LocalConvexResult convexResult, boolean normalInWorldSpace) {
-			if (convexResult.hitCollisionObject == me) {
+                        //XXX: no contact response
+                        if (!convexResult.hitCollisionObject.hasContactResponse())
+                           return 1.0f;
+                        if (convexResult.hitCollisionObject == me) {
 				return 1.0f;
 			}
 			

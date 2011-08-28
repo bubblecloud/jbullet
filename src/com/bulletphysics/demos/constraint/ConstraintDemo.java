@@ -7,7 +7,6 @@ package com.bulletphysics.demos.constraint;
 import com.bulletphysics.linearmath.IDebugDraw;
 import com.bulletphysics.linearmath.VectorUtil;
 import javax.vecmath.Matrix3f;
-import quicktime.qd3d.math.Matrix3x3;
 import com.bulletphysics.linearmath.MatrixUtil;
 import com.bulletphysics.dynamics.constraintsolver.Generic6DofConstraint;
 import com.bulletphysics.dynamics.constraintsolver.TypedConstraint;
@@ -453,8 +452,8 @@ public class ConstraintDemo extends DemoApplication {
                 pGen6DOFSpring.setLinearUpperLimit(new Vector3f(5.f, 0.f, 0.f));
                 pGen6DOFSpring.setLinearLowerLimit(new Vector3f(-5.f, 0.f, 0.f));
 
-                pGen6DOFSpring.setAngularLowerLimit(new Vector3f(0.f, 0.f, -1.5f));
-                pGen6DOFSpring.setAngularUpperLimit(new Vector3f(0.f, 0.f, 1.5f));
+//                pGen6DOFSpring.setAngularLowerLimit(new Vector3f(0.f, 0.f, -1.5f));
+//                pGen6DOFSpring.setAngularUpperLimit(new Vector3f(0.f, 0.f, 1.5f));
 
                 dynamicsWorld.addConstraint(pGen6DOFSpring, true);
                 // pGen6DOFSpring.setDbgDrawSize(5.f);      // @PORT_ISSUE constraint debugging not yet implemented
@@ -462,10 +461,10 @@ public class ConstraintDemo extends DemoApplication {
                 pGen6DOFSpring.enableSpring(0, true);
                 pGen6DOFSpring.setStiffness(0, 39.478f);
                 pGen6DOFSpring.setDamping(0, 0.5f);
-                pGen6DOFSpring.enableSpring(5, true);
-                pGen6DOFSpring.setStiffness(5, 39.478f);
-                pGen6DOFSpring.setDamping(5, 0.3f);
-                pGen6DOFSpring.setEquilibriumPoint();
+//                pGen6DOFSpring.enableSpring(5, true);
+//                pGen6DOFSpring.setStiffness(5, 39.478f);
+//                pGen6DOFSpring.setDamping(5, 0.3f);
+//                pGen6DOFSpring.setEquilibriumPoint();
             }
         }
 

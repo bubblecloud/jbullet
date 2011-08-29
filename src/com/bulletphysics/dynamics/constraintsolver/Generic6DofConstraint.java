@@ -46,7 +46,7 @@ import javax.vecmath.Vector3f;
 
 */
 /**
- * Generic6DofConstraint between two rigidbodies each with a pivot point that descibes
+ * Generic6DofConstraint between two rigid bodies each with a pivot point that describes
  * the axis location in local space.<p>
  * 
  * Generic6DofConstraint can leave any of the 6 degree of freedom "free" or "locked".
@@ -54,9 +54,8 @@ import javax.vecmath.Vector3f;
  * 
  * <ul>
  * <li>For linear limits, use {@link #setLinearUpperLimit}, {@link #setLinearLowerLimit}.
- * You can set the parameters with the {@link TranslationalLimitMotor} structure accsesible
- * through the {@link #getTranslationalLimitMotor} method.
- * At this moment translational motors are not supported. May be in the future.</li>
+ * You can set the parameters with the {@link TranslationalLimitMotor} structure accessible
+ * through the {@link #getTranslationalLimitMotor} method. </li>
  * 
  * <li>For angular limits, use the {@link RotationalLimitMotor} structure for configuring
  * the limit. This is accessible through {@link #getRotationalLimitMotor} method,
@@ -252,25 +251,6 @@ public class Generic6DofConstraint extends TypedConstraint {
 
                 calculateLinearInfo();            
 		calculateAngleInfo();
-
-
-              // PORT_ISSUE : for adding offset
-//            if(m_useOffsetForConstraintFrame)
-//            {	//  get weight factors depending on masses
-//                    btScalar miA = getRigidBodyA().getInvMass();
-//                    btScalar miB = getRigidBodyB().getInvMass();
-//                    m_hasStaticBody = (miA < SIMD_EPSILON) || (miB < SIMD_EPSILON);
-//                    btScalar miS = miA + miB;
-//                    if(miS > btScalar(0.f))
-//                    {
-//                            m_factA = miB / miS;
-//                    }
-//                    else
-//                    {
-//                            m_factA = btScalar(0.5f);
-//                    }
-//                    m_factB = btScalar(1.0f) - m_factA;
-//            }
 
 	}
 	

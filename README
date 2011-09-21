@@ -1,9 +1,13 @@
-If anyone in the community is interested in using Translational Motors, the Spring Constraint (Generic6DofSpringConstraint) and the ConstraintDemo in JBullet, you can pull my fork of JBullet from:
+If anyone in the community is interested in using Translational Motors, 
+the Spring Constraint (Generic6DofSpringConstraint) and the ConstraintDemo in JBullet, 
+you can pull my fork of JBullet from:
 https://github.com/affogato/JBullet-QIntBio-Fork
 
 This was added for use in a cellular simulation project called QIntBio.
 
-The spring constraint was added to Bullet _after_ the major refactoring of the constraint solver in revision 1542 involving SIMD support. The translational motor and the way the spring constraint uses it to simulate the effect of a spring, is written for the newer software design (with getInfo() functions and optimised SIMD functions).
+The spring constraint was added to Bullet _after_ the major refactoring of the constraint solver in revision 1542 
+involving SIMD support. The translational motor and the way the spring constraint uses it to simulate the effect 
+of a spring, is written for the newer software design (with getInfo() functions and optimised SIMD functions).
 Therefore, there was no code to solve the linear spring constraint, that can be ported in a straightforward manner.
 
 New code was written following the old template.

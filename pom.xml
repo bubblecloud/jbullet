@@ -4,7 +4,7 @@
     <groupId>org.bubblecloud.jbullet</groupId>
     <artifactId>jbullet</artifactId>
     <version>2.72.2.2-SNAPSHOT</version>
-    <packaging>pom</packaging>
+    <packaging>jar</packaging>
 
     <scm>
         <url>https://github.com/bubblecloud/jbullet.git</url>

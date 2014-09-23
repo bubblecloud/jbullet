@@ -23,7 +23,7 @@
 
 package com.bulletphysics.collision.narrowphase;
 
-import com.bulletphysics.util.ObjectPool;
+
 import com.bulletphysics.linearmath.VectorUtil;
 
 
@@ -38,9 +38,6 @@ import javax.vecmath.Vector3f;
  */
 public class VoronoiSimplexSolver extends SimplexSolverInterface {
 
-	//protected final BulletStack stack = BulletStack.get();
-	protected final ObjectPool<SubSimplexClosestResult> subsimplexResultsPool = ObjectPool.get(SubSimplexClosestResult.class);
-	
 	private static final int VORONOI_SIMPLEX_MAX_VERTS = 5;
 	
 	private static final int VERTA = 0;
@@ -427,7 +424,7 @@ public class VoronoiSimplexSolver extends SimplexSolverInterface {
 	
 
 	public boolean closestPtPointTetrahedron(Vector3f p, Vector3f a, Vector3f b, Vector3f c, Vector3f d, SubSimplexClosestResult finalResult) {
-		SubSimplexClosestResult tempResult = subsimplexResultsPool.get();
+		SubSimplexClosestResult tempResult = new SubSimplexClosestResult();
 		tempResult.reset();
 		try {
 			Vector3f tmp = new Vector3f();
@@ -586,7 +583,6 @@ public class VoronoiSimplexSolver extends SimplexSolverInterface {
 			return true;
 		}
 		finally {
-			subsimplexResultsPool.release(tempResult);
 		}
 	}
 	

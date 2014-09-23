@@ -24,7 +24,7 @@
 package com.bulletphysics.collision.dispatch;
 
 import com.bulletphysics.BulletGlobals;
-import com.bulletphysics.util.ObjectPool;
+
 import com.bulletphysics.collision.narrowphase.DiscreteCollisionDetectorInterface;
 import com.bulletphysics.collision.narrowphase.ManifoldPoint;
 import com.bulletphysics.collision.narrowphase.PersistentManifold;
@@ -37,9 +37,6 @@ import javax.vecmath.Vector3f;
  * @author jezek2
  */
 public class ManifoldResult extends DiscreteCollisionDetectorInterface.Result {
-
-	//protected final BulletStack stack = BulletStack.get();
-	protected final ObjectPool<ManifoldPoint> pointsPool = ObjectPool.get(ManifoldPoint.class);
 	
 	private PersistentManifold manifoldPtr;
 
@@ -107,7 +104,7 @@ public class ManifoldResult extends DiscreteCollisionDetectorInterface.Result {
 			rootTransB.invXform(pointInWorld, localB);
 		}
 
-		ManifoldPoint newPt = pointsPool.get();
+		ManifoldPoint newPt =new ManifoldPoint();
 		newPt.init(localA, localB, normalOnBInWorld, depth);
 
 		newPt.positionWorldOnA.set(pointA);
@@ -144,7 +141,6 @@ public class ManifoldResult extends DiscreteCollisionDetectorInterface.Result {
 			BulletGlobals.getContactAddedCallback().contactAdded(manifoldPtr.getContactPoint(insertIndex), obj0, partId0, index0, obj1, partId1, index1);
 		}
 
-		pointsPool.release(newPt);
 	}
 
 	///User can override this material combiner by implementing gContactAddedCallback and setting body0->m_collisionFlags |= btCollisionObject::customMaterialCallback;

@@ -37,7 +37,7 @@ import com.bulletphysics.collision.shapes.TriangleShape;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.linearmath.VectorUtil;
 import com.bulletphysics.util.ObjectArrayList;
-import com.bulletphysics.util.ObjectPool;
+
 
 import javax.vecmath.Vector3f;
 
@@ -220,34 +220,30 @@ public class ConvexConcaveCollisionAlgorithm extends CollisionAlgorithm {
 	////////////////////////////////////////////////////////////////////////////
 
 	public static class CreateFunc extends CollisionAlgorithmCreateFunc {
-		private final ObjectPool<ConvexConcaveCollisionAlgorithm> pool = ObjectPool.get(ConvexConcaveCollisionAlgorithm.class);
 
 		@Override
 		public CollisionAlgorithm createCollisionAlgorithm(CollisionAlgorithmConstructionInfo ci, CollisionObject body0, CollisionObject body1) {
-			ConvexConcaveCollisionAlgorithm algo = pool.get();
+			ConvexConcaveCollisionAlgorithm algo = new ConvexConcaveCollisionAlgorithm();
 			algo.init(ci, body0, body1, false);
 			return algo;
 		}
 
 		@Override
 		public void releaseCollisionAlgorithm(CollisionAlgorithm algo) {
-			pool.release((ConvexConcaveCollisionAlgorithm)algo);
 		}
 	}
 	
 	public static class SwappedCreateFunc extends CollisionAlgorithmCreateFunc {
-		private final ObjectPool<ConvexConcaveCollisionAlgorithm> pool = ObjectPool.get(ConvexConcaveCollisionAlgorithm.class);
-		
+
 		@Override
 		public CollisionAlgorithm createCollisionAlgorithm(CollisionAlgorithmConstructionInfo ci, CollisionObject body0, CollisionObject body1) {
-			ConvexConcaveCollisionAlgorithm algo = pool.get();
+			ConvexConcaveCollisionAlgorithm algo = new ConvexConcaveCollisionAlgorithm();
 			algo.init(ci, body0, body1, true);
 			return algo;
 		}
 
 		@Override
 		public void releaseCollisionAlgorithm(CollisionAlgorithm algo) {
-			pool.release((ConvexConcaveCollisionAlgorithm)algo);
 		}
 	}
 	

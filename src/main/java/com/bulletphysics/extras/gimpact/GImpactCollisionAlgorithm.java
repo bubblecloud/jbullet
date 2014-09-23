@@ -45,7 +45,7 @@ import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.linearmath.VectorUtil;
 import com.bulletphysics.util.IntArrayList;
 import com.bulletphysics.util.ObjectArrayList;
-import com.bulletphysics.util.ObjectPool;
+
 
 import javax.vecmath.Vector3f;
 import javax.vecmath.Vector4f;
@@ -691,18 +691,17 @@ public class GImpactCollisionAlgorithm extends CollisionAlgorithm {
 	}
 	
 	public static class CreateFunc extends CollisionAlgorithmCreateFunc {
-		private final ObjectPool<GImpactCollisionAlgorithm> pool = ObjectPool.get(GImpactCollisionAlgorithm.class);
-		
+
 		@Override
 		public CollisionAlgorithm createCollisionAlgorithm(CollisionAlgorithmConstructionInfo ci, CollisionObject body0, CollisionObject body1) {
-			GImpactCollisionAlgorithm algo = pool.get();
+			GImpactCollisionAlgorithm algo =new GImpactCollisionAlgorithm();
 			algo.init(ci, body0, body1);
 			return algo;
 		}
 
 		@Override
 		public void releaseCollisionAlgorithm(CollisionAlgorithm algo) {
-			pool.release((GImpactCollisionAlgorithm)algo);
+
 		}
 	}
 	

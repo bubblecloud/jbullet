@@ -31,7 +31,7 @@ import com.bulletphysics.collision.shapes.CollisionShape;
 import com.bulletphysics.collision.shapes.CompoundShape;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.util.ObjectArrayList;
-import com.bulletphysics.util.ObjectPool;
+
 
 
 /**
@@ -184,34 +184,32 @@ public class CompoundCollisionAlgorithm extends CollisionAlgorithm {
 	////////////////////////////////////////////////////////////////////////////
 	
 	public static class CreateFunc extends CollisionAlgorithmCreateFunc {
-		private final ObjectPool<CompoundCollisionAlgorithm> pool = ObjectPool.get(CompoundCollisionAlgorithm.class);
 
 		@Override
 		public CollisionAlgorithm createCollisionAlgorithm(CollisionAlgorithmConstructionInfo ci, CollisionObject body0, CollisionObject body1) {
-			CompoundCollisionAlgorithm algo = pool.get();
+			CompoundCollisionAlgorithm algo = new CompoundCollisionAlgorithm();
 			algo.init(ci, body0, body1, false);
 			return algo;
 		}
 
 		@Override
 		public void releaseCollisionAlgorithm(CollisionAlgorithm algo) {
-			pool.release((CompoundCollisionAlgorithm)algo);
+
 		}
 	};
 	
 	public static class SwappedCreateFunc extends CollisionAlgorithmCreateFunc {
-		private final ObjectPool<CompoundCollisionAlgorithm> pool = ObjectPool.get(CompoundCollisionAlgorithm.class);
 
 		@Override
 		public CollisionAlgorithm createCollisionAlgorithm(CollisionAlgorithmConstructionInfo ci, CollisionObject body0, CollisionObject body1) {
-			CompoundCollisionAlgorithm algo = pool.get();
+			CompoundCollisionAlgorithm algo = new CompoundCollisionAlgorithm();
 			algo.init(ci, body0, body1, true);
 			return algo;
 		}
 
 		@Override
 		public void releaseCollisionAlgorithm(CollisionAlgorithm algo) {
-			pool.release((CompoundCollisionAlgorithm)algo);
+
 		}
 	};
 

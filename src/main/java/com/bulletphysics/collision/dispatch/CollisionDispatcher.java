@@ -24,7 +24,7 @@
 package com.bulletphysics.collision.dispatch;
 
 import java.util.Collections;
-import com.bulletphysics.util.ObjectPool;
+
 import com.bulletphysics.collision.broadphase.BroadphaseNativeType;
 import com.bulletphysics.collision.broadphase.BroadphasePair;
 import com.bulletphysics.collision.broadphase.CollisionAlgorithm;
@@ -43,8 +43,6 @@ import com.bulletphysics.util.ObjectArrayList;
  * @author jezek2
  */
 public class CollisionDispatcher extends Dispatcher {
-	
-	protected final ObjectPool<PersistentManifold> manifoldsPool = ObjectPool.get(PersistentManifold.class);
 
 	private static final int MAX_BROADPHASE_COLLISION_TYPES = BroadphaseNativeType.MAX_BROADPHASE_COLLISION_TYPES.ordinal();
 	private int count = 0;
@@ -145,7 +143,7 @@ public class CollisionDispatcher extends Dispatcher {
 		m_manifoldsPtr.push_back(manifold);
 		*/
 		
-		PersistentManifold manifold = manifoldsPool.get();
+		PersistentManifold manifold = new PersistentManifold();
 		manifold.init(body0,body1,0);
 		
 		manifold.index1a = manifoldsPtr.size();
@@ -168,17 +166,6 @@ public class CollisionDispatcher extends Dispatcher {
 		manifoldsPtr.getQuick(findIndex).index1a = findIndex;
 		manifoldsPtr.removeQuick(manifoldsPtr.size()-1);
 
-		manifoldsPool.release(manifold);
-		/*
-		manifold->~btPersistentManifold();
-		if (m_persistentManifoldPoolAllocator->validPtr(manifold))
-		{
-			m_persistentManifoldPoolAllocator->freeMemory(manifold);
-		} else
-		{
-			btAlignedFree(manifold);
-		}
-		*/
 	}
 
 	@Override

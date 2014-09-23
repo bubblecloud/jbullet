@@ -24,7 +24,7 @@
 package com.bulletphysics;
 
 import com.bulletphysics.util.ArrayPool;
-import com.bulletphysics.util.ObjectPool;
+
 
 
 /**
@@ -122,7 +122,6 @@ public class BulletGlobals {
 	 */
 	public static void cleanCurrentThread() {
 		threadLocal.remove();
-		ObjectPool.cleanCurrentThread();
 		ArrayPool.cleanCurrentThread();
 	}
 

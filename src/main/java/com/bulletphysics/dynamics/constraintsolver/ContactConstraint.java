@@ -24,7 +24,7 @@
 package com.bulletphysics.dynamics.constraintsolver;
 
 import com.bulletphysics.BulletGlobals;
-import com.bulletphysics.util.ObjectPool;
+
 import com.bulletphysics.collision.narrowphase.ManifoldPoint;
 import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.linearmath.Transform;
@@ -70,7 +70,6 @@ public class ContactConstraint {
 			return;
 		}
 
-		ObjectPool<JacobianEntry> jacobiansPool = ObjectPool.get(JacobianEntry.class);
 		Vector3f tmp = new Vector3f();
 		
 		Vector3f rel_pos1 = new Vector3f();
@@ -96,7 +95,7 @@ public class ContactConstraint {
 		Matrix3f mat2 = body2.getCenterOfMassTransform(new Transform()).basis;
 		mat2.transpose();
 
-		JacobianEntry jac = jacobiansPool.get();
+		JacobianEntry jac = new JacobianEntry();
 		jac.init(mat1, mat2,
 				rel_pos1, rel_pos2, normal,
 				body1.getInvInertiaDiagLocal(new Vector3f()), body1.getInvMass(),
@@ -116,8 +115,6 @@ public class ContactConstraint {
 				tmp1,
 				body2.getLinearVelocity(new Vector3f()),
 				tmp2);
-
-		jacobiansPool.release(jac);
 
 		float a;
 		a = jacDiagABInv;

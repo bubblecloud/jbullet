@@ -42,7 +42,7 @@ import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.linearmath.TransformUtil;
 import com.bulletphysics.linearmath.VectorUtil;
 import com.bulletphysics.util.IntArrayList;
-import com.bulletphysics.util.ObjectPool;
+
 import javax.vecmath.Vector3f;
 import static com.bulletphysics.demos.opengl.IGL.*;
 
@@ -92,10 +92,6 @@ public class GLShapeDrawer {
 	private static float[] glMat = new float[16];
 	
 	public static void drawOpenGL(IGL gl, Transform trans, CollisionShape shape, Vector3f color, int debugMode) {
-		ObjectPool<Transform> transformsPool = ObjectPool.get(Transform.class);
-		ObjectPool<Vector3f> vectorsPool = ObjectPool.get(Vector3f.class);
-
-		//System.out.println("shape="+shape+" type="+BroadphaseNativeTypes.forValue(shape.getShapeType()));
 
 		gl.glPushMatrix();
 		trans.getOpenGLMatrix(glMat);
@@ -119,13 +115,12 @@ public class GLShapeDrawer {
 
 		if (shape.getShapeType() == BroadphaseNativeType.COMPOUND_SHAPE_PROXYTYPE) {
 			CompoundShape compoundShape = (CompoundShape) shape;
-			Transform childTrans = transformsPool.get();
+			Transform childTrans = new Transform();
 			for (int i = compoundShape.getNumChildShapes() - 1; i >= 0; i--) {
 				compoundShape.getChildTransform(i, childTrans);
 				CollisionShape colShape = compoundShape.getChildShape(i);
 				drawOpenGL(gl, childTrans, colShape, color, debugMode);
 			}
-			transformsPool.release(childTrans);
 		}
 		else {
 			//drawCoordSystem();
@@ -144,10 +139,9 @@ public class GLShapeDrawer {
 				switch (shape.getShapeType()) {
 					case BOX_SHAPE_PROXYTYPE: {
 						BoxShape boxShape = (BoxShape) shape;
-						Vector3f halfExtent = boxShape.getHalfExtentsWithMargin(vectorsPool.get());
+						Vector3f halfExtent = boxShape.getHalfExtentsWithMargin(new Vector3f());
 						gl.glScalef(2f * halfExtent.x, 2f * halfExtent.y, 2f * halfExtent.z);
 						gl.drawCube(1f);
-						vectorsPool.release(halfExtent);
 						useWireframeFallback = false;
 						break;
 					}
@@ -199,25 +193,25 @@ public class GLShapeDrawer {
 					{
 						StaticPlaneShape staticPlaneShape = (StaticPlaneShape)shape;
 						float planeConst = staticPlaneShape.getPlaneConstant();
-						Vector3f planeNormal = staticPlaneShape.getPlaneNormal(vectorsPool.get());
-						Vector3f planeOrigin = vectorsPool.get();
+						Vector3f planeNormal = staticPlaneShape.getPlaneNormal(new Vector3f());
+						Vector3f planeOrigin = new Vector3f();
 						planeOrigin.scale(planeConst, planeNormal);
-						Vector3f vec0 = vectorsPool.get();
-						Vector3f vec1 = vectorsPool.get();
+						Vector3f vec0 = new Vector3f();
+						Vector3f vec1 = new Vector3f();
 						TransformUtil.planeSpace1(planeNormal,vec0,vec1);
 						float vecLen = 100f;
 						
-						Vector3f pt0 = vectorsPool.get();
+						Vector3f pt0 = new Vector3f();
 						pt0.scaleAdd(vecLen, vec0, planeOrigin);
 
-						Vector3f pt1 = vectorsPool.get();
+						Vector3f pt1 = new Vector3f();
 						pt1.scale(vecLen, vec0);
 						pt1.sub(planeOrigin, pt1);
 
-						Vector3f pt2 = vectorsPool.get();
+						Vector3f pt2 = new Vector3f();
 						pt2.scaleAdd(vecLen, vec1, planeOrigin);
 
-						Vector3f pt3 = vectorsPool.get();
+						Vector3f pt3 = new Vector3f();
 						pt3.scale(vecLen, vec1);
 						pt3.sub(planeOrigin, pt3);
 						
@@ -228,15 +222,6 @@ public class GLShapeDrawer {
 						gl.glVertex3f(pt3.x,pt3.y,pt3.z);
 						gl.glEnd();
 						
-						vectorsPool.release(planeNormal);
-						vectorsPool.release(planeOrigin);
-						vectorsPool.release(vec0);
-						vectorsPool.release(vec1);
-						vectorsPool.release(pt0);
-						vectorsPool.release(pt1);
-						vectorsPool.release(pt2);
-						vectorsPool.release(pt3);
-						
 						break;
 					}
 					
@@ -246,13 +231,11 @@ public class GLShapeDrawer {
 						int upAxis = cylinder.getUpAxis();
 
 						float radius = cylinder.getRadius();
-						Vector3f halfVec = vectorsPool.get();
+						Vector3f halfVec = new Vector3f();
 						float halfHeight = VectorUtil.getCoord(cylinder.getHalfExtentsWithMargin(halfVec), upAxis);
 
 						gl.drawCylinder(radius, halfHeight, upAxis);
 						
-						vectorsPool.release(halfVec);
-
 						break;
 					}
 					default: {
@@ -282,9 +265,9 @@ public class GLShapeDrawer {
 								//glutSolidCube(1.0);
 								ShapeHull hull = (ShapeHull)shape.getUserPointer();
 								
-								Vector3f normal = vectorsPool.get();
-								Vector3f tmp1 = vectorsPool.get();
-								Vector3f tmp2 = vectorsPool.get();
+								Vector3f normal = new Vector3f();
+								Vector3f tmp1 = new Vector3f();
+								Vector3f tmp2 = new Vector3f();
 
 								if (hull.numTriangles () > 0)
 								{
@@ -327,9 +310,6 @@ public class GLShapeDrawer {
 									gl.glEnd ();
 								}
 								
-								vectorsPool.release(normal);
-								vectorsPool.release(tmp1);
-								vectorsPool.release(tmp2);
 							}
 						} else
 						{
@@ -349,7 +329,7 @@ public class GLShapeDrawer {
 
 					gl.glBegin(GL_LINES);
 
-					Vector3f a = vectorsPool.get(), b = vectorsPool.get();
+					Vector3f a = new Vector3f(), b = new Vector3f();
 					int i;
 					for (i = 0; i < polyshape.getNumEdges(); i++) {
 						polyshape.getEdge(i, a, b);
@@ -359,8 +339,6 @@ public class GLShapeDrawer {
 					}
 					gl.glEnd();
 					
-					vectorsPool.release(a);
-					vectorsPool.release(b);
 
 //					if (debugMode==btIDebugDraw::DBG_DrawFeaturesText)
 //					{
@@ -417,9 +395,9 @@ public class GLShapeDrawer {
 				//btVector3 aabbMax(100,100,100);//btScalar(1e30),btScalar(1e30),btScalar(1e30));
 
 				//todo pass camera, for some culling
-				Vector3f aabbMax = vectorsPool.get();
+				Vector3f aabbMax = new Vector3f();
 				aabbMax.set(1e30f, 1e30f, 1e30f);
-				Vector3f aabbMin = vectorsPool.get();
+				Vector3f aabbMin = new Vector3f();
 				aabbMin.set(-1e30f, -1e30f, -1e30f);
 
 				GlDrawcallback drawCallback = new GlDrawcallback(gl);
@@ -427,8 +405,6 @@ public class GLShapeDrawer {
 
 				concaveMesh.processAllTriangles(drawCallback, aabbMin, aabbMax);
 				
-				vectorsPool.release(aabbMax);
-				vectorsPool.release(aabbMin);
 			}
 			//#endif
 

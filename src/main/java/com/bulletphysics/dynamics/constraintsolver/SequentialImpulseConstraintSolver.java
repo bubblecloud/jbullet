@@ -26,7 +26,7 @@ package com.bulletphysics.dynamics.constraintsolver;
 import com.bulletphysics.BulletGlobals;
 import com.bulletphysics.BulletStats;
 import com.bulletphysics.ContactDestroyedCallback;
-import com.bulletphysics.util.ObjectPool;
+
 import com.bulletphysics.collision.broadphase.Dispatcher;
 import com.bulletphysics.collision.dispatch.CollisionObject;
 import com.bulletphysics.collision.narrowphase.ManifoldPoint;
@@ -70,10 +70,6 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
 	}
 	
 	////////////////////////////////////////////////////////////////////////////
-	
-	private final ObjectPool<SolverBody> bodiesPool = ObjectPool.get(SolverBody.class);
-	private final ObjectPool<SolverConstraint> constraintsPool = ObjectPool.get(SolverConstraint.class);
-	private final ObjectPool<JacobianEntry> jacobiansPool = ObjectPool.get(JacobianEntry.class);
 	
 	private final ObjectArrayList<SolverBody> tmpSolverBodyPool = new ObjectArrayList<SolverBody>();
 	private final ObjectArrayList<SolverConstraint> tmpSolverConstraintPool = new ObjectArrayList<SolverConstraint>();
@@ -344,7 +340,7 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
 		RigidBody body0 = RigidBody.upcast(colObj0);
 		RigidBody body1 = RigidBody.upcast(colObj1);
 
-		SolverConstraint solverConstraint = constraintsPool.get();
+		SolverConstraint solverConstraint = new SolverConstraint();
 		tmpSolverFrictionConstraintPool.add(solverConstraint);
 
 		solverConstraint.contactNormal.set(normalAxis);
@@ -518,7 +514,7 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
 								}
 								else {
 									solverBodyIdA = tmpSolverBodyPool.size();
-									SolverBody solverBody = bodiesPool.get();
+									SolverBody solverBody = new SolverBody();
 									tmpSolverBodyPool.add(solverBody);
 									initSolverBody(solverBody, colObj0);
 									colObj0.setCompanionId(solverBodyIdA);
@@ -527,7 +523,7 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
 							else {
 								// create a static body
 								solverBodyIdA = tmpSolverBodyPool.size();
-								SolverBody solverBody = bodiesPool.get();
+								SolverBody solverBody = new SolverBody();
 								tmpSolverBodyPool.add(solverBody);
 								initSolverBody(solverBody, colObj0);
 							}
@@ -538,7 +534,7 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
 								}
 								else {
 									solverBodyIdB = tmpSolverBodyPool.size();
-									SolverBody solverBody = bodiesPool.get();
+									SolverBody solverBody = new SolverBody();
 									tmpSolverBodyPool.add(solverBody);
 									initSolverBody(solverBody, colObj1);
 									colObj1.setCompanionId(solverBodyIdB);
@@ -547,7 +543,7 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
 							else {
 								// create a static body
 								solverBodyIdB = tmpSolverBodyPool.size();
-								SolverBody solverBody = bodiesPool.get();
+								SolverBody solverBody = new SolverBody();
 								tmpSolverBodyPool.add(solverBody);
 								initSolverBody(solverBody, colObj1);
 							}
@@ -572,7 +568,7 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
 								int frictionIndex = tmpSolverConstraintPool.size();
 
 								{
-									SolverConstraint solverConstraint = constraintsPool.get();
+									SolverConstraint solverConstraint = new SolverConstraint();
 									tmpSolverConstraintPool.add(solverConstraint);
 									RigidBody rb0 = RigidBody.upcast(colObj0);
 									RigidBody rb1 = RigidBody.upcast(colObj1);
@@ -912,13 +908,11 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
 		if (infoGlobal.splitImpulse) {
 			for (int i=0; i<tmpSolverBodyPool.size(); i++) {
 				tmpSolverBodyPool.getQuick(i).writebackVelocity(infoGlobal.timeStep);
-				bodiesPool.release(tmpSolverBodyPool.getQuick(i));
 			}
 		}
 		else {
 			for (int i=0; i<tmpSolverBodyPool.size(); i++) {
 				tmpSolverBodyPool.getQuick(i).writebackVelocity();
-				bodiesPool.release(tmpSolverBodyPool.getQuick(i));
 			}
 		}
 
@@ -934,15 +928,9 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
 		*/
 
 		tmpSolverBodyPool.clear();
-		
-		for (int i=0; i<tmpSolverConstraintPool.size(); i++) {
-			constraintsPool.release(tmpSolverConstraintPool.getQuick(i));
-		}
+
 		tmpSolverConstraintPool.clear();
-		
-		for (int i=0; i<tmpSolverFrictionConstraintPool.size(); i++) {
-			constraintsPool.release(tmpSolverFrictionConstraintPool.getQuick(i));
-		}
+
 		tmpSolverFrictionConstraintPool.clear();
 
 		return 0f;
@@ -1081,14 +1069,13 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
 					Matrix3f mat2 = body1.getCenterOfMassTransform(new Transform()).basis;
 					mat2.transpose();
 
-					JacobianEntry jac = jacobiansPool.get();
+					JacobianEntry jac = new JacobianEntry();
 					jac.init(mat1, mat2,
 							rel_pos1, rel_pos2, cp.normalWorldOnB,
 							body0.getInvInertiaDiagLocal(new Vector3f()), body0.getInvMass(),
 							body1.getInvInertiaDiagLocal(new Vector3f()), body1.getInvMass());
 
 					float jacDiagAB = jac.getDiagonal();
-					jacobiansPool.release(jac);
 
 					ConstraintPersistentData cpd = (ConstraintPersistentData) cp.userPersistentData;
 					if (cpd != null) {

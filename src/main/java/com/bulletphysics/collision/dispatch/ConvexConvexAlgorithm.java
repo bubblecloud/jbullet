@@ -23,7 +23,7 @@
 
 package com.bulletphysics.collision.dispatch;
 
-import com.bulletphysics.util.ObjectPool;
+
 import com.bulletphysics.collision.broadphase.CollisionAlgorithm;
 import com.bulletphysics.collision.broadphase.CollisionAlgorithmConstructionInfo;
 import com.bulletphysics.collision.broadphase.DispatcherInfo;
@@ -49,8 +49,6 @@ import javax.vecmath.Vector3f;
  * @author jezek2
  */
 public class ConvexConvexAlgorithm extends CollisionAlgorithm {
-	
-	protected final ObjectPool<ClosestPointInput> pointInputsPool = ObjectPool.get(ClosestPointInput.class);
 
 	private GjkPairDetector gjkPairDetector = new GjkPairDetector();
 
@@ -109,7 +107,7 @@ public class ConvexConvexAlgorithm extends CollisionAlgorithm {
 		ConvexShape min0 = (ConvexShape) body0.getCollisionShape();
 		ConvexShape min1 = (ConvexShape) body1.getCollisionShape();
 
-		ClosestPointInput input = pointInputsPool.get();
+		ClosestPointInput input = new ClosestPointInput();
 		input.init();
 
 		// JAVA NOTE: original: TODO: if (dispatchInfo.m_useContinuous)
@@ -125,9 +123,6 @@ public class ConvexConvexAlgorithm extends CollisionAlgorithm {
 		body1.getWorldTransform(input.transformB);
 
 		gjkPairDetector.getClosestPoints(input, resultOut, dispatchInfo.debugDraw);
-		
-		pointInputsPool.release(input);
-		//	#endif
 
 		if (ownManifold) {
 			resultOut.refreshContactPoints();
@@ -250,7 +245,6 @@ public class ConvexConvexAlgorithm extends CollisionAlgorithm {
 	////////////////////////////////////////////////////////////////////////////
 	
 	public static class CreateFunc extends CollisionAlgorithmCreateFunc {
-		private final ObjectPool<ConvexConvexAlgorithm> pool = ObjectPool.get(ConvexConvexAlgorithm.class);
 
 		public ConvexPenetrationDepthSolver pdSolver;
 		public SimplexSolverInterface simplexSolver;
@@ -262,14 +256,14 @@ public class ConvexConvexAlgorithm extends CollisionAlgorithm {
 
 		@Override
 		public CollisionAlgorithm createCollisionAlgorithm(CollisionAlgorithmConstructionInfo ci, CollisionObject body0, CollisionObject body1) {
-			ConvexConvexAlgorithm algo = pool.get();
+			ConvexConvexAlgorithm algo = new ConvexConvexAlgorithm();
 			algo.init(ci.manifold, ci, body0, body1, simplexSolver, pdSolver);
 			return algo;
 		}
 
 		@Override
 		public void releaseCollisionAlgorithm(CollisionAlgorithm algo) {
-			pool.release((ConvexConvexAlgorithm)algo);
+
 		}
 	}
 	

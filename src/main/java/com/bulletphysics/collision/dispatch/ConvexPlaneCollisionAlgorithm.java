@@ -31,7 +31,7 @@ import com.bulletphysics.collision.shapes.ConvexShape;
 import com.bulletphysics.collision.shapes.StaticPlaneShape;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.util.ObjectArrayList;
-import com.bulletphysics.util.ObjectPool;
+
 
 import javax.vecmath.Vector3f;
 
@@ -148,11 +148,10 @@ public class ConvexPlaneCollisionAlgorithm extends CollisionAlgorithm {
 	////////////////////////////////////////////////////////////////////////////
 	
 	public static class CreateFunc extends CollisionAlgorithmCreateFunc {
-		private final ObjectPool<ConvexPlaneCollisionAlgorithm> pool = ObjectPool.get(ConvexPlaneCollisionAlgorithm.class);
 
 		@Override
 		public CollisionAlgorithm createCollisionAlgorithm(CollisionAlgorithmConstructionInfo ci, CollisionObject body0, CollisionObject body1) {
-			ConvexPlaneCollisionAlgorithm algo = pool.get();
+			ConvexPlaneCollisionAlgorithm algo = new ConvexPlaneCollisionAlgorithm();
 			if (!swapped) {
 				algo.init(null, ci, body0, body1, false);
 			}
@@ -164,7 +163,7 @@ public class ConvexPlaneCollisionAlgorithm extends CollisionAlgorithm {
 
 		@Override
 		public void releaseCollisionAlgorithm(CollisionAlgorithm algo) {
-			pool.release((ConvexPlaneCollisionAlgorithm)algo);
+
 		}
 	}
 	

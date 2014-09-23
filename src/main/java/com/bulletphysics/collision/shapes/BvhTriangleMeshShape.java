@@ -24,7 +24,7 @@
 package com.bulletphysics.collision.shapes;
 
 import com.bulletphysics.BulletGlobals;
-import com.bulletphysics.util.ObjectPool;
+
 import com.bulletphysics.collision.broadphase.BroadphaseNativeType;
 import com.bulletphysics.linearmath.VectorUtil;
 
@@ -50,9 +50,7 @@ public class BvhTriangleMeshShape extends TriangleMeshShape {
 	private OptimizedBvh bvh;
 	private boolean useQuantizedAabbCompression;
 	private boolean ownsBvh;
-	
-	private ObjectPool<MyNodeOverlapCallback> myNodeCallbacks = ObjectPool.get(MyNodeOverlapCallback.class);
-	
+
 	public BvhTriangleMeshShape() {
 		super(null);
 		this.bvh = null;
@@ -129,21 +127,18 @@ public class BvhTriangleMeshShape extends TriangleMeshShape {
 	}
 
 	public void performRaycast(TriangleCallback callback, Vector3f raySource, Vector3f rayTarget) {
-		MyNodeOverlapCallback myNodeCallback = myNodeCallbacks.get();
+		MyNodeOverlapCallback myNodeCallback = new MyNodeOverlapCallback();
 		myNodeCallback.init(callback, meshInterface);
 
 		bvh.reportRayOverlappingNodex(myNodeCallback, raySource, rayTarget);
 		
-		myNodeCallbacks.release(myNodeCallback);
 	}
 	
 	public void performConvexcast(TriangleCallback callback, Vector3f raySource, Vector3f rayTarget, Vector3f aabbMin, Vector3f aabbMax) {
-		MyNodeOverlapCallback myNodeCallback = myNodeCallbacks.get();
+		MyNodeOverlapCallback myNodeCallback = new MyNodeOverlapCallback();
 		myNodeCallback.init(callback, meshInterface);
 
 		bvh.reportBoxCastOverlappingNodex(myNodeCallback, raySource, rayTarget, aabbMin, aabbMax);
-
-		myNodeCallbacks.release(myNodeCallback);
 	}
 
 	/**
@@ -157,12 +152,10 @@ public class BvhTriangleMeshShape extends TriangleMeshShape {
 		//#else
 
 		// first get all the nodes
-		MyNodeOverlapCallback myNodeCallback = myNodeCallbacks.get();
+		MyNodeOverlapCallback myNodeCallback = new MyNodeOverlapCallback();
 		myNodeCallback.init(callback, meshInterface);
 
 		bvh.reportAabbOverlappingNodex(myNodeCallback, aabbMin, aabbMax);
-
-		myNodeCallbacks.release(myNodeCallback);
 		//#endif//DISABLE_BVH
 	}
 	

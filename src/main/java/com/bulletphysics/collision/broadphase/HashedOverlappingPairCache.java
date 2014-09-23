@@ -24,7 +24,7 @@
 package com.bulletphysics.collision.broadphase;
 
 import com.bulletphysics.BulletStats;
-import com.bulletphysics.util.ObjectPool;
+
 import com.bulletphysics.linearmath.MiscUtil;
 import com.bulletphysics.util.IntArrayList;
 import com.bulletphysics.util.ObjectArrayList;
@@ -36,8 +36,6 @@ import com.bulletphysics.util.ObjectArrayList;
  */
 public class HashedOverlappingPairCache extends OverlappingPairCache {
 
-	private final ObjectPool<BroadphasePair> pairsPool = ObjectPool.get(BroadphasePair.class);
-	
 	private static final int NULL_PAIR = 0xffffffff;
 	
 	private ObjectArrayList<BroadphasePair> overlappingPairArray = new ObjectArrayList<BroadphasePair>();

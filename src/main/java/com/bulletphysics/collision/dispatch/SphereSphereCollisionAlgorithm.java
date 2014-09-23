@@ -31,7 +31,7 @@ import com.bulletphysics.collision.narrowphase.PersistentManifold;
 import com.bulletphysics.collision.shapes.SphereShape;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.util.ObjectArrayList;
-import com.bulletphysics.util.ObjectPool;
+
 
 import javax.vecmath.Vector3f;
 
@@ -146,18 +146,16 @@ public class SphereSphereCollisionAlgorithm extends CollisionAlgorithm {
 	////////////////////////////////////////////////////////////////////////////
 
 	public static class CreateFunc extends CollisionAlgorithmCreateFunc {
-		private final ObjectPool<SphereSphereCollisionAlgorithm> pool = ObjectPool.get(SphereSphereCollisionAlgorithm.class);
-
 		@Override
 		public CollisionAlgorithm createCollisionAlgorithm(CollisionAlgorithmConstructionInfo ci, CollisionObject body0, CollisionObject body1) {
-			SphereSphereCollisionAlgorithm algo = pool.get();
+			SphereSphereCollisionAlgorithm algo = new SphereSphereCollisionAlgorithm();
 			algo.init(null, ci, body0, body1);
 			return algo;
 		}
 
 		@Override
 		public void releaseCollisionAlgorithm(CollisionAlgorithm algo) {
-			pool.release((SphereSphereCollisionAlgorithm)algo);
+
 		}
 	};
 	

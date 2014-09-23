@@ -25,7 +25,6 @@ package com.bulletphysics.collision.narrowphase;
 
 import java.util.Arrays;
 import com.bulletphysics.BulletGlobals;
-import com.bulletphysics.util.ObjectStackList;
 import com.bulletphysics.collision.shapes.ConvexShape;
 import com.bulletphysics.linearmath.MatrixUtil;
 import com.bulletphysics.linearmath.QuaternionUtil;
@@ -50,22 +49,6 @@ Nov.2006
 public class GjkEpaSolver {
 
 	protected final ArrayPool<float[]> floatArrays = ArrayPool.get(float.class);
-
-	protected final ObjectStackList<Mkv> stackMkv = new ObjectStackList<Mkv>(Mkv.class);
-	protected final ObjectStackList<He> stackHe = new ObjectStackList<He>(He.class);
-	protected final ObjectStackList<Face> stackFace = new ObjectStackList<Face>(Face.class);
-
-	protected void pushStack() {
-		stackMkv.push();
-		stackHe.push();
-		stackFace.push();
-	}
-
-	protected void popStack() {
-		stackMkv.pop();
-		stackHe.pop();
-		stackFace.pop();
-	}
 
 	public enum ResultsStatus {
 		Separated,		/* Shapes doesnt penetrate												*/ 
@@ -154,7 +137,6 @@ public class GjkEpaSolver {
 				Matrix3f wrot0, Vector3f pos0, ConvexShape shape0,
 				Matrix3f wrot1, Vector3f pos1, ConvexShape shape1,
 				float pmargin) {
-			pushStack();
 			wrotations[0].set(wrot0);
 			positions[0].set(pos0);
 			shapes[0] = shape0;
@@ -168,7 +150,6 @@ public class GjkEpaSolver {
 		}
 		
 		public void destroy() {
-			popStack();
 		}
 		
 		// vdh: very dummy hash
@@ -215,8 +196,7 @@ public class GjkEpaSolver {
 				}
 			}
 			//e = (He*)sa->allocate(sizeof(He));
-			//e = new He();
-			e = stackHe.get();
+			e = new He();
 			e.v.set(ray);
 			e.n = table[h];
 			table[h] = e;
@@ -595,8 +575,7 @@ public class GjkEpaSolver {
 		}
 		
 		public Face NewFace(Mkv a, Mkv b, Mkv c) {
-			//Face pf = new Face();
-			Face pf = stackFace.get();
+			Face pf = new Face();
 			if (Set(pf, a, b, c)) {
 				if (root != null) {
 					root.prev = pf;
@@ -638,8 +617,7 @@ public class GjkEpaSolver {
 		}
 
 		public Mkv Support(Vector3f w) {
-			//Mkv v = new Mkv();
-			Mkv v = stackMkv.get();
+			Mkv v = new Mkv();
 			gjk.Support(w, v);
 			return v;
 		}
@@ -676,7 +654,6 @@ public class GjkEpaSolver {
 		}
 		
 		public float EvaluatePD(float accuracy) {
-			pushStack();
 			try {
 				Vector3f tmp = new Vector3f();
 
@@ -818,7 +795,6 @@ public class GjkEpaSolver {
 				return (depth);
 			}
 			finally {
-				popStack();
 			}
 		}
 		

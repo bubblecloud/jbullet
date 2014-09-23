@@ -42,6 +42,11 @@ public class DebugDrawModes {
 	public static final int ENABLE_SAT_COMPARISON = 256;
 	public static final int DISABLE_BULLET_LCP    = 512;
 	public static final int ENABLE_CCD            = 1024;
+
+        // PORT_ISSUE: added these modes here, but not yet supported
+        public static final int DrawConstraints = (1 << 11);
+        public static final int DrawConstraintLimits = (1 << 12);
+
 	public static final int MAX_DEBUG_DRAW_MODE   = 1025;
 	
 }

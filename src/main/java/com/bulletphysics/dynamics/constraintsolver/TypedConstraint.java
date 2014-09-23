@@ -38,7 +38,7 @@ public abstract class TypedConstraint {
 	// TODO: stack allocation
 	private static /*final*/ RigidBody s_fixed;// = new RigidBody(0, null, null);
 	
-	private static synchronized RigidBody getFixed() {
+	protected static synchronized RigidBody getFixed() {
 		if (s_fixed == null) {
 			s_fixed = new RigidBody(0, null, null);
 		}
@@ -48,7 +48,7 @@ public abstract class TypedConstraint {
 	private int userConstraintType = -1;
 	private int userConstraintId = -1;
 
-	private TypedConstraintType constraintType;
+	protected TypedConstraintType constraintType;
 	
 	protected RigidBody rbA;
 	protected RigidBody rbB;
@@ -108,5 +108,12 @@ public abstract class TypedConstraint {
 	public TypedConstraintType getConstraintType() {
 		return constraintType;
 	}
+
+
+        // added to Java port for the Generic6DofSpringConstraint
+        // use same name as latest version of Bullet, for consistency, 
+        // even though the name doesn't properly reflect function here
+        public void getInfo2(ContactSolverInfo infoGlobal) {
+        }
 	
 }

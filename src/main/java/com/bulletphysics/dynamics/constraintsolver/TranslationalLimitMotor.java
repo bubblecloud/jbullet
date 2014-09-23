@@ -30,6 +30,7 @@ http://gimpact.sf.net
 
 package com.bulletphysics.dynamics.constraintsolver;
 
+import com.bulletphysics.BulletGlobals;
 import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.linearmath.VectorUtil;
 import cz.advel.stack.Stack;
@@ -48,9 +49,19 @@ public class TranslationalLimitMotor {
 	public final Vector3f upperLimit = new Vector3f(); //!< the constraint upper limits
 	public final Vector3f accumulatedImpulse = new Vector3f();
 	
-	public float limitSoftness; //!< Softness for linear limit
-	public float damping; //!< Damping for linear limit
-	public float restitution; //! Bounce parameter for linear limit
+	public float limitSoftness;     //!< Softness for linear limit
+	public float damping;           //!< Damping for linear limit
+	public float restitution;       //!< Bounce parameter for linear limit
+
+        // added for 6dofSpring
+        public final boolean enableMotor[]      = new boolean[3];
+        public final Vector3f targetVelocity    = new Vector3f();   //!< target motor velocity
+	public final Vector3f maxMotorForce     = new Vector3f();   //!< max force on motor
+        public final Vector3f maxLimitForce     = new Vector3f();   //!< max force on limit
+        public final Vector3f currentLimitError = new Vector3f();   //!  How much is violated this limit
+        public final Vector3f currentLinearDiff = new Vector3f();   //!  Current relative offset of constraint frames
+        public final int currentLimit[]         = new int[3];       //!< 0=free, 1=at lower limit, 2=at upper limit
+        
 
 	public TranslationalLimitMotor() {
 		lowerLimit.set(0f, 0f, 0f);
@@ -60,7 +71,16 @@ public class TranslationalLimitMotor {
 		limitSoftness = 0.7f;
 		damping = 1.0f;
 		restitution = 0.5f;
+
+                targetVelocity.set(0f, 0f, 0f);
+                maxMotorForce.set(0.1f, 0.1f, 0.1f);
+                maxLimitForce.set(300.0f, 300.0f, 300.0f);
+
+                for (int i = 0 ; i<3 ; i++) {
+                    enableMotor[i] = false;
+                }
 	}
+
 
 	public TranslationalLimitMotor(TranslationalLimitMotor other) {
 		lowerLimit.set(other.lowerLimit);
@@ -82,6 +102,48 @@ public class TranslationalLimitMotor {
 	public boolean isLimited(int limitIndex) {
 		return (VectorUtil.getCoord(upperLimit, limitIndex) >= VectorUtil.getCoord(lowerLimit, limitIndex));
 	}
+
+	/**
+	 * Need apply correction?
+	 */
+        public boolean needApplyForces(int idx)
+        {
+            if(currentLimit[idx] == 0 && enableMotor[idx] == false) {
+                return false;
+            } 
+            return true;
+        }
+
+        public int testLimitValue(int limitIndex, float test_value)
+        {
+            float loLimit = VectorUtil.getCoord(lowerLimit, limitIndex);
+            float hiLimit = VectorUtil.getCoord(upperLimit, limitIndex);
+            if(loLimit > hiLimit)
+            {
+                currentLimit[limitIndex] = 0;//Free from violation
+                VectorUtil.setCoord(currentLimitError, limitIndex, 0.f);
+                return 0;
+            }
+
+            if (test_value < loLimit)
+            {
+                currentLimit[limitIndex] = 2;//low limit violation
+                VectorUtil.setCoord(currentLimitError, limitIndex, test_value - loLimit);
+                return 2;
+            }
+            else if (test_value > hiLimit)
+            {
+                currentLimit[limitIndex] = 1;//High limit violation
+                VectorUtil.setCoord(currentLimitError, limitIndex, test_value - hiLimit);
+                return 1;
+            }
+
+            currentLimit[limitIndex] = 0;//Free from violation
+            VectorUtil.setCoord(currentLimitError, limitIndex, 0.f);
+            return 0;
+        }
+
+
 
 	@StaticAlloc
 	public float solveLinearAxis(float timeStep, float jacDiagABInv, RigidBody body1, Vector3f pointInA, RigidBody body2, Vector3f pointInB, int limit_index, Vector3f axis_normal_on_a, Vector3f anchorPos) {
@@ -105,38 +167,45 @@ public class TranslationalLimitMotor {
 		float rel_vel = axis_normal_on_a.dot(vel);
 
 		// apply displacement correction
+                float target_velocity   = VectorUtil.getCoord(this.targetVelocity, limit_index);
+                float maxMotorForce     = VectorUtil.getCoord(this.maxMotorForce, limit_index);
 
-		// positional error (zeroth order error)
-		tmp.sub(pointInA, pointInB);
-		float depth = -(tmp).dot(axis_normal_on_a);
+                float limErr = VectorUtil.getCoord(currentLimitError, limit_index);
+                if (currentLimit[limit_index] != 0)
+                {
+                    target_velocity = restitution * limErr / (timeStep);
+                    maxMotorForce = VectorUtil.getCoord(maxLimitForce, limit_index);
+                }
+		maxMotorForce *= timeStep;
+
+
+                // correction velocity
+		float motor_relvel = limitSoftness * (target_velocity - damping * rel_vel);
+		if (motor_relvel < BulletGlobals.FLT_EPSILON && motor_relvel > -BulletGlobals.FLT_EPSILON) {
+			return 0.0f; // no need for applying force
+		}
+                
+                // correction impulse
+		float unclippedMotorImpulse = motor_relvel * jacDiagABInv;
+
+		// clip correction impulse
+		float clippedMotorImpulse;
+
+		// todo: should clip against accumulated impulse
+		if (unclippedMotorImpulse > 0.0f) {
+			clippedMotorImpulse = unclippedMotorImpulse > maxMotorForce ? maxMotorForce : unclippedMotorImpulse;
+		}
+		else {
+			clippedMotorImpulse = unclippedMotorImpulse < -maxMotorForce ? -maxMotorForce : unclippedMotorImpulse;
+		}
+
+                float normalImpulse = clippedMotorImpulse;
+
+                // sort with accumulated impulses
 		float lo = -1e30f;
 		float hi = 1e30f;
 
-		float minLimit = VectorUtil.getCoord(lowerLimit, limit_index);
-		float maxLimit = VectorUtil.getCoord(upperLimit, limit_index);
-
-		// handle the limits
-		if (minLimit < maxLimit) {
-			{
-				if (depth > maxLimit) {
-					depth -= maxLimit;
-					lo = 0f;
-
-				}
-				else {
-					if (depth < minLimit) {
-						depth -= minLimit;
-						hi = 0f;
-					}
-					else {
-						return 0.0f;
-					}
-				}
-			}
-		}
-
-		float normalImpulse = limitSoftness * (restitution * depth / timeStep - damping * rel_vel) * jacDiagABInv;
-
+                
 		float oldNormalImpulse = VectorUtil.getCoord(accumulatedImpulse, limit_index);
 		float sum = oldNormalImpulse + normalImpulse;
 		VectorUtil.setCoord(accumulatedImpulse, limit_index, sum > hi ? 0f : sum < lo ? 0f : sum);

@@ -66,8 +66,6 @@ import javax.vecmath.Vector3f;
 import org.lwjgl.LWJGLException;
 import static com.bulletphysics.demos.opengl.IGL.*;
 
-// JAVA TODO: update for 2.70b1
-
 /**
  *
  * @author jezek2

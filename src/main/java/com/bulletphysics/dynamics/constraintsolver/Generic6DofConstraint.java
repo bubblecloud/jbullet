@@ -37,6 +37,7 @@ import com.bulletphysics.linearmath.Transform;
 
 
 /// 
+import com.bulletphysics.linearmath.TransformUtil;
 import com.bulletphysics.linearmath.VectorUtil;
 import cz.advel.stack.Stack;
 import javax.vecmath.Matrix3f;
@@ -45,7 +46,7 @@ import javax.vecmath.Vector3f;
 
 */
 /**
- * Generic6DofConstraint between two rigidbodies each with a pivot point that descibes
+ * Generic6DofConstraint between two rigid bodies each with a pivot point that describes
  * the axis location in local space.<p>
  * 
  * Generic6DofConstraint can leave any of the 6 degree of freedom "free" or "locked".
@@ -53,9 +54,8 @@ import javax.vecmath.Vector3f;
  * 
  * <ul>
  * <li>For linear limits, use {@link #setLinearUpperLimit}, {@link #setLinearLowerLimit}.
- * You can set the parameters with the {@link TranslationalLimitMotor} structure accsesible
- * through the {@link #getTranslationalLimitMotor} method.
- * At this moment translational motors are not supported. May be in the future.</li>
+ * You can set the parameters with the {@link TranslationalLimitMotor} structure accessible
+ * through the {@link #getTranslationalLimitMotor} method. </li>
  * 
  * <li>For angular limits, use the {@link RotationalLimitMotor} structure for configuring
  * the limit. This is accessible through {@link #getRotationalLimitMotor} method,
@@ -88,30 +88,37 @@ import javax.vecmath.Vector3f;
  */
 public class Generic6DofConstraint extends TypedConstraint {
 
-	protected final Transform frameInA = new Transform(); //!< the constraint space w.r.t body A
+    protected final Transform frameInA = new Transform(); //!< the constraint space w.r.t body A
     protected final Transform frameInB = new Transform(); //!< the constraint space w.r.t body B
-
-	protected final JacobianEntry[] jacLinear/*[3]*/ = new JacobianEntry[] { new JacobianEntry(), new JacobianEntry(), new JacobianEntry() }; //!< 3 orthogonal linear constraints
-    protected final JacobianEntry[] jacAng/*[3]*/ = new JacobianEntry[] { new JacobianEntry(), new JacobianEntry(), new JacobianEntry() }; //!< 3 orthogonal angular constraints
-
-	protected final TranslationalLimitMotor linearLimits = new TranslationalLimitMotor();
-
-	protected final RotationalLimitMotor[] angularLimits/*[3]*/ = new RotationalLimitMotor[] { new RotationalLimitMotor(), new RotationalLimitMotor(), new RotationalLimitMotor() };
-
-	protected float timeStep;
+    protected final JacobianEntry[] jacLinear/*[3]*/ = new JacobianEntry[]{new JacobianEntry(), new JacobianEntry(), new JacobianEntry()}; //!< 3 orthogonal linear constraints
+    protected final JacobianEntry[] jacAng/*[3]*/ = new JacobianEntry[]{new JacobianEntry(), new JacobianEntry(), new JacobianEntry()}; //!< 3 orthogonal angular constraints
+    protected final TranslationalLimitMotor linearLimits = new TranslationalLimitMotor();
+    protected final RotationalLimitMotor[] angularLimits/*[3]*/ = new RotationalLimitMotor[]{new RotationalLimitMotor(), new RotationalLimitMotor(), new RotationalLimitMotor()};
+    protected float timeStep;
     protected final Transform calculatedTransformA = new Transform();
     protected final Transform calculatedTransformB = new Transform();
     protected final Vector3f calculatedAxisAngleDiff = new Vector3f();
-    protected final Vector3f[] calculatedAxis/*[3]*/ = new Vector3f[] { new Vector3f(), new Vector3f(), new Vector3f() };
-	
-	protected final Vector3f anchorPos = new Vector3f(); // point betwen pivots of bodies A and B to solve linear axes
-    
+    protected final Vector3f[] calculatedAxis/*[3]*/ = new Vector3f[]{new Vector3f(), new Vector3f(), new Vector3f()};
+    protected final Vector3f anchorPos = new Vector3f(); // point betwen pivots of bodies A and B to solve linear axes
+    protected final Vector3f calculatedLinearDiff = new Vector3f();
     protected boolean useLinearReferenceFrameA;
 
 	public Generic6DofConstraint() {
 		super(TypedConstraintType.D6_CONSTRAINT_TYPE);
 		useLinearReferenceFrameA = true;
 	}
+
+        public Generic6DofConstraint(RigidBody rbB, Transform frameInB, boolean useLinearReferenceFrameB)
+        {
+            super(TypedConstraintType.D6_CONSTRAINT_TYPE, TypedConstraint.getFixed(), rbB);
+            this.frameInB.set(frameInB);
+            this.useLinearReferenceFrameA = useLinearReferenceFrameB;
+
+            ///not providing rigidbody A means implicitly using worldspace for body A
+            rbB.getCenterOfMassTransform(frameInA);
+            frameInA.mul(frameInB);
+            // m_frameInA = rbB.getCenterOfMassTransform() * m_frameInB;
+        }
 
 	public Generic6DofConstraint(RigidBody rbA, RigidBody rbB, Transform frameInA, Transform frameInB, boolean useLinearReferenceFrameA) {
 		super(TypedConstraintType.D6_CONSTRAINT_TYPE, rbA, rbB);
@@ -125,7 +132,7 @@ public class Generic6DofConstraint extends TypedConstraint {
 		int j = index / 3;
 		return mat.getElement(i, j);
 	}
-	
+
 	/**
 	 * MatrixToEulerXYZ from http://www.geometrictools.com/LibFoundation/Mathematics/Wm4Matrix3.inl.html
 	 */
@@ -159,6 +166,25 @@ public class Generic6DofConstraint extends TypedConstraint {
 
 		return false;
 	}
+
+	/**
+	 * tests linear limits
+	 */
+        void calculateLinearInfo()
+        {
+            calculatedLinearDiff.sub(calculatedTransformB.origin, calculatedTransformA.origin);
+
+            Matrix3f basisInv = new Matrix3f();
+            basisInv.invert(calculatedTransformA.basis);
+            basisInv.transform(calculatedLinearDiff);    // t = this*t      (t is the param)
+
+            linearLimits.currentLinearDiff.set(calculatedLinearDiff);
+            for(int i = 0; i < 3; i++)
+            {
+                linearLimits.testLimitValue(i, VectorUtil.getCoord(calculatedLinearDiff, i) );
+            }
+        }
+
 
 	/**
 	 * Calcs the euler angles between the two bodies.
@@ -212,7 +238,7 @@ public class Generic6DofConstraint extends TypedConstraint {
 
 	/**
 	 * Calcs global transform of the offsets.<p>
-	 * Calcs the global transform for the joint offset for body A an B, and also calcs the agle differences between the bodies.
+	 * Calcs the global transform for the joint offset for body A an B, and also calcs the angle differences between the bodies.
 	 * 
 	 * See also: Generic6DofConstraint.getCalculatedTransformA, Generic6DofConstraint.getCalculatedTransformB, Generic6DofConstraint.calculateAngleInfo
 	 */
@@ -223,7 +249,9 @@ public class Generic6DofConstraint extends TypedConstraint {
 		rbB.getCenterOfMassTransform(calculatedTransformB);
 		calculatedTransformB.mul(frameInB);
 
+                calculateLinearInfo();            
 		calculateAngleInfo();
+
 	}
 	
 	protected void buildLinearJacobian(/*JacobianEntry jacLinear*/int jacLinear_index, Vector3f normalWorld, Vector3f pivotAInW, Vector3f pivotBInW) {
@@ -280,7 +308,21 @@ public class Generic6DofConstraint extends TypedConstraint {
 		return angularLimits[axis_index].needApplyTorques();
 	}
 	
-	@Override
+	/**
+	 * Test linear limit.<p>
+	 * Calculates linear correction and returns true if limit needs to be corrected.
+	 * Generic6DofConstraint.buildJacobian must be called previously.
+	 */
+	public boolean testLinearLimitMotor(int axis_index) {
+		float diff = VectorUtil.getCoord(calculatedLinearDiff, axis_index);
+
+		// test limits
+		linearLimits.testLimitValue(axis_index, diff); 
+		return linearLimits.needApplyForces(axis_index);
+	}
+
+        
+        @Override
 	public void buildJacobian() {
 		// Clear accumulated impulses for the next simulation step
 		linearLimits.accumulatedImpulse.set(0f, 0f, 0f);
@@ -306,7 +348,8 @@ public class Generic6DofConstraint extends TypedConstraint {
 		Vector3f normalWorld = Stack.alloc(Vector3f.class);
 		// linear part
 		for (int i=0; i<3; i++) {
-			if (linearLimits.isLimited(i)) {
+			if ( testLinearLimitMotor(i))
+                        {
 				if (useLinearReferenceFrameA) {
 					calculatedTransformA.basis.getColumn(i, normalWorld);
 				}
@@ -324,7 +367,7 @@ public class Generic6DofConstraint extends TypedConstraint {
 		// angular part
 		for (int i=0; i<3; i++) {
 			// calculates error angle
-			if (testAngularLimitMotor(i)) {
+			if (testAngularLimitMotor(i)) {   // test, and true if need to apply force at limit or due to motor
 				this.getAxis(i, normalWorld);
 				// Create angular atom
 				buildAngularJacobian(/*jacAng[i]*/i, normalWorld);
@@ -348,7 +391,8 @@ public class Generic6DofConstraint extends TypedConstraint {
 		float jacDiagABInv;
 		Vector3f linear_axis = Stack.alloc(Vector3f.class);
 		for (i = 0; i < 3; i++) {
-			if (linearLimits.isLimited(i)) {
+			if (linearLimits.needApplyForces(i))
+                        {
 				jacDiagABInv = 1f / jacLinear[i].getDiagonal();
 
 				if (useLinearReferenceFrameA) {
@@ -364,7 +408,6 @@ public class Generic6DofConstraint extends TypedConstraint {
 						rbA, pointInA,
 						rbB, pointInB,
 						i, linear_axis, anchorPos);
-
 			}
 		}
 
@@ -372,13 +415,18 @@ public class Generic6DofConstraint extends TypedConstraint {
 		Vector3f angular_axis = Stack.alloc(Vector3f.class);
 		float angularJacDiagABInv;
 		for (i = 0; i < 3; i++) {
-			if (angularLimits[i].needApplyTorques()) {
+			if (angularLimits[i].needApplyTorques()) { // true if need to apply force at limit or due to motor
 				// get axis
 				getAxis(i, angular_axis);
 
 				angularJacDiagABInv = 1f / jacAng[i].getDiagonal();
 
-				angularLimits[i].solveAngularLimits(this.timeStep, angular_axis, angularJacDiagABInv, rbA, rbB);
+				angularLimits[i].solveAngularLimits(
+                                        this.timeStep,
+                                        angular_axis,
+                                        angularJacDiagABInv,
+                                        rbA,
+                                        rbB);
 			}
 		}
 	}
@@ -453,14 +501,14 @@ public class Generic6DofConstraint extends TypedConstraint {
 	}
 
 	/**
-	 * Retrieves the angular limit informacion.
+	 * Retrieves the angular limit information.
 	 */
 	public RotationalLimitMotor getRotationalLimitMotor(int index) {
 		return angularLimits[index];
 	}
 
 	/**
-	 * Retrieves the limit informacion.
+	 * Retrieves the limit information.
 	 */
 	public TranslationalLimitMotor getTranslationalLimitMotor() {
 		return linearLimits;
@@ -490,7 +538,6 @@ public class Generic6DofConstraint extends TypedConstraint {
 	public boolean isLimited(int limitIndex) {
 		if (limitIndex < 3) {
 			return linearLimits.isLimited(limitIndex);
-
 		}
 		return angularLimits[limitIndex - 3].isLimited();
 	}

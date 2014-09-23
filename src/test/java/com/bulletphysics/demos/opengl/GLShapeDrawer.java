@@ -44,8 +44,6 @@ import com.bulletphysics.linearmath.VectorUtil;
 import com.bulletphysics.util.IntArrayList;
 import com.bulletphysics.util.ObjectPool;
 import javax.vecmath.Vector3f;
-//import static org.lwjgl.opengl.GL11.*;
-//import static org.lwjgl.opengl.glu.GLU.*;
 import static com.bulletphysics.demos.opengl.IGL.*;
 
 /**

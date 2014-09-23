@@ -32,6 +32,7 @@ import com.bulletphysics.demos.bsp.BspDemo;
 import com.bulletphysics.demos.character.CharacterDemo;
 import com.bulletphysics.demos.concave.ConcaveDemo;
 import com.bulletphysics.demos.concaveconvexcast.ConcaveConvexcastDemo;
+import com.bulletphysics.demos.constraint.ConstraintDemo;
 import com.bulletphysics.demos.dynamiccontrol.DynamicControlDemo;
 import com.bulletphysics.demos.forklift.ForkLiftDemo;
 import com.bulletphysics.demos.genericjoint.GenericJointDemo;
@@ -82,7 +83,8 @@ public class JBulletApplet extends javax.swing.JApplet {
 					model.addElement(new DemoEntry("ForkLift Demo", ForkLiftDemo.class));
 					model.addElement(new DemoEntry("Concave Convexcast Demo", ConcaveConvexcastDemo.class));
 					model.addElement(new DemoEntry("Character Demo", CharacterDemo.class));
-					
+                                        model.addElement(new DemoEntry("Constraint Demo", ConstraintDemo.class));
+
 					cmbDemos.addItemListener(new ItemListener() {
 						public void itemStateChanged(final ItemEvent e) {
 							if (e.getStateChange() == ItemEvent.SELECTED) {

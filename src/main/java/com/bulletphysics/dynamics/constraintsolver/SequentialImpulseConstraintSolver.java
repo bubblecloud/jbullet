@@ -761,6 +761,13 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
 				}
 			}
 
+			{
+				int j;
+				for (j = 0; j < numConstraints; j++) {
+					TypedConstraint constraint = constraints.getQuick(constraints_offset+j);
+					constraint.getInfo2(infoGlobal);
+				}
+			}
 
 
 			int numConstraintPool = tmpSolverConstraintPool.size();

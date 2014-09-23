@@ -126,12 +126,11 @@ public class KinematicCharacterController extends ActionInterface {
 		this.velocityTimeInterval = 0.0f;
 		this.verticalVelocity = 0.0f;
 		this.verticalOffset = 0.0f;
-		this.gravity = 9.8f *3; // 1G acceleration
+		this.gravity = 9.8f; // 1G acceleration
 		this.fallSpeed = 55.0f; // Terminal velocity of a sky diver in m/s.
 		this.jumpSpeed = 10.0f; // ?
 		this.wasOnGround = false;
-                this.wasJumping=false;
-		setMaxSlope((float)((45.0f/180.0f) * Math.PI));
+		setMaxSlope((float)((50.0f/180.0f) * Math.PI));
 	}
 
 	private PairCachingGhostObject getGhostObject() {

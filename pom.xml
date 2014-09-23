@@ -3,14 +3,14 @@
 
     <groupId>org.bubblecloud.jbullet</groupId>
     <artifactId>jbullet</artifactId>
-    <version>2.72.2.2</version>
+    <version>2.72.2.3-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <scm>
         <url>https://github.com/bubblecloud/jbullet.git</url>
         <connection>scm:git:git://github.com:bubblecloud/jbullet.git</connection>
         <developerConnection>scm:git:git@github.com:bubblecloud/jbullet.git</developerConnection>
-        <tag>jbullet-2.72.2.2</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <!-- Deploy releases and snapshots to the CloudBees maven repositories -->

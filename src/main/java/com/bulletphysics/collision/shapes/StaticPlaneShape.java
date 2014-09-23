@@ -27,7 +27,7 @@ import com.bulletphysics.collision.broadphase.BroadphaseNativeType;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.linearmath.TransformUtil;
 import com.bulletphysics.linearmath.VectorUtil;
-import cz.advel.stack.Stack;
+
 import javax.vecmath.Vector3f;
 
 /**
@@ -60,33 +60,33 @@ public class StaticPlaneShape extends ConcaveShape {
 	
 	@Override
 	public void processAllTriangles(TriangleCallback callback, Vector3f aabbMin, Vector3f aabbMax) {
-		Vector3f tmp = Stack.alloc(Vector3f.class);
-		Vector3f tmp1 = Stack.alloc(Vector3f.class);
-		Vector3f tmp2 = Stack.alloc(Vector3f.class);
+		Vector3f tmp = new Vector3f();
+		Vector3f tmp1 = new Vector3f();
+		Vector3f tmp2 = new Vector3f();
 
-		Vector3f halfExtents = Stack.alloc(Vector3f.class);
+		Vector3f halfExtents = new Vector3f();
 		halfExtents.sub(aabbMax, aabbMin);
 		halfExtents.scale(0.5f);
 
 		float radius = halfExtents.length();
-		Vector3f center = Stack.alloc(Vector3f.class);
+		Vector3f center = new Vector3f();
 		center.add(aabbMax, aabbMin);
 		center.scale(0.5f);
 
 		// this is where the triangles are generated, given AABB and plane equation (normal/constant)
 
-		Vector3f tangentDir0 = Stack.alloc(Vector3f.class), tangentDir1 = Stack.alloc(Vector3f.class);
+		Vector3f tangentDir0 = new Vector3f(), tangentDir1 = new Vector3f();
 
 		// tangentDir0/tangentDir1 can be precalculated
 		TransformUtil.planeSpace1(planeNormal, tangentDir0, tangentDir1);
 
-		Vector3f supVertex0 = Stack.alloc(Vector3f.class), supVertex1 = Stack.alloc(Vector3f.class);
+		Vector3f supVertex0 = new Vector3f(), supVertex1 = new Vector3f();
 
-		Vector3f projectedCenter = Stack.alloc(Vector3f.class);
+		Vector3f projectedCenter = new Vector3f();
 		tmp.scale(planeNormal.dot(center) - planeConstant, planeNormal);
 		projectedCenter.sub(center, tmp);
 
-		Vector3f[] triangle = new Vector3f[] { Stack.alloc(Vector3f.class), Stack.alloc(Vector3f.class), Stack.alloc(Vector3f.class) };
+		Vector3f[] triangle = new Vector3f[] { new Vector3f(), new Vector3f(), new Vector3f() };
 
 		tmp1.scale(radius, tangentDir0);
 		tmp2.scale(radius, tangentDir1);

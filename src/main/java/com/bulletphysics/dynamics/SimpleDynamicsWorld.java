@@ -34,7 +34,7 @@ import com.bulletphysics.dynamics.constraintsolver.ConstraintSolver;
 import com.bulletphysics.dynamics.constraintsolver.ContactSolverInfo;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.util.ObjectArrayList;
-import cz.advel.stack.Stack;
+
 import javax.vecmath.Vector3f;
 
 /**
@@ -57,7 +57,7 @@ public class SimpleDynamicsWorld extends DynamicsWorld {
 	}
 
 	protected void predictUnconstraintMotion(float timeStep) {
-		Transform tmpTrans = Stack.alloc(Transform.class);
+		Transform tmpTrans = new Transform();
 		
 		for (int i = 0; i < collisionObjects.size(); i++) {
 			CollisionObject colObj = collisionObjects.getQuick(i);
@@ -76,7 +76,7 @@ public class SimpleDynamicsWorld extends DynamicsWorld {
 	}
 	
 	protected void integrateTransforms(float timeStep) {
-		Transform predictedTrans = Stack.alloc(Transform.class);
+		Transform predictedTrans = new Transform();
 		for (int i = 0; i < collisionObjects.size(); i++) {
 			CollisionObject colObj = collisionObjects.getQuick(i);
 			RigidBody body = RigidBody.upcast(colObj);
@@ -177,9 +177,9 @@ public class SimpleDynamicsWorld extends DynamicsWorld {
 
 	@Override
 	public void updateAabbs() {
-		Transform tmpTrans = Stack.alloc(Transform.class);
-		Transform predictedTrans = Stack.alloc(Transform.class);
-		Vector3f minAabb = Stack.alloc(Vector3f.class), maxAabb = Stack.alloc(Vector3f.class);
+		Transform tmpTrans = new Transform();
+		Transform predictedTrans = new Transform();
+		Vector3f minAabb = new Vector3f(), maxAabb = new Vector3f();
 
 		for (int i = 0; i < collisionObjects.size(); i++) {
 			CollisionObject colObj = collisionObjects.getQuick(i);
@@ -195,7 +195,7 @@ public class SimpleDynamicsWorld extends DynamicsWorld {
 	}
 
 	public void synchronizeMotionStates() {
-		Transform tmpTrans = Stack.alloc(Transform.class);
+		Transform tmpTrans = new Transform();
 		
 		// todo: iterate over awake simulation islands!
 		for (int i = 0; i < collisionObjects.size(); i++) {

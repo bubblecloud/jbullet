@@ -46,7 +46,7 @@ import com.bulletphysics.linearmath.VectorUtil;
 import com.bulletphysics.util.IntArrayList;
 import com.bulletphysics.util.ObjectArrayList;
 import com.bulletphysics.util.ObjectPool;
-import cz.advel.stack.Stack;
+
 import javax.vecmath.Vector3f;
 import javax.vecmath.Vector4f;
 
@@ -141,8 +141,8 @@ public class GImpactCollisionAlgorithm extends CollisionAlgorithm {
 			return;
 		}
 
-		Transform orgtrans0 = body0.getWorldTransform(Stack.alloc(Transform.class));
-		Transform orgtrans1 = body1.getWorldTransform(Stack.alloc(Transform.class));
+		Transform orgtrans0 = body0.getWorldTransform(new Transform());
+		Transform orgtrans1 = body1.getWorldTransform(new Transform());
 
 		PairSet pairset = tmpPairset;
 		pairset.clear();
@@ -179,7 +179,7 @@ public class GImpactCollisionAlgorithm extends CollisionAlgorithm {
 		boolean child_has_transform0 = shape0.childrenHasTransform();
 		boolean child_has_transform1 = shape1.childrenHasTransform();
 
-		Transform tmpTrans = Stack.alloc(Transform.class);
+		Transform tmpTrans = new Transform();
 
 		int i = pairset.size();
 		while ((i--) != 0) {
@@ -252,8 +252,8 @@ public class GImpactCollisionAlgorithm extends CollisionAlgorithm {
 			return;
 		}
 
-		Transform orgtrans0 = body0.getWorldTransform(Stack.alloc(Transform.class));
-		Transform orgtrans1 = body1.getWorldTransform(Stack.alloc(Transform.class));
+		Transform orgtrans0 = body0.getWorldTransform(new Transform());
+		Transform orgtrans1 = body1.getWorldTransform(new Transform());
 
 		IntArrayList collided_results = new IntArrayList();
 
@@ -268,7 +268,7 @@ public class GImpactCollisionAlgorithm extends CollisionAlgorithm {
 
 		boolean child_has_transform0 = shape0.childrenHasTransform();
 
-		Transform tmpTrans = Stack.alloc(Transform.class);
+		Transform tmpTrans = new Transform();
 
 		int i = collided_results.size();
 
@@ -306,9 +306,9 @@ public class GImpactCollisionAlgorithm extends CollisionAlgorithm {
 	}
 	
 	public void gimpact_vs_compoundshape(CollisionObject body0, CollisionObject body1, GImpactShapeInterface shape0, CompoundShape shape1, boolean swapped) {
-		Transform orgtrans1 = body1.getWorldTransform(Stack.alloc(Transform.class));
-		Transform childtrans1 = Stack.alloc(Transform.class);
-		Transform tmpTrans = Stack.alloc(Transform.class);
+		Transform orgtrans1 = body1.getWorldTransform(new Transform());
+		Transform childtrans1 = new Transform();
+		Transform tmpTrans = new Transform();
 
 		int i = shape1.getNumChildShapes();
 		while ((i--) != 0) {
@@ -337,13 +337,13 @@ public class GImpactCollisionAlgorithm extends CollisionAlgorithm {
 		tricallback.margin = shape1.getMargin();
 
 		// getting the trimesh AABB
-		Transform gimpactInConcaveSpace = Stack.alloc(Transform.class);
+		Transform gimpactInConcaveSpace = new Transform();
 
 		body1.getWorldTransform(gimpactInConcaveSpace);
 		gimpactInConcaveSpace.inverse();
-		gimpactInConcaveSpace.mul(body0.getWorldTransform(Stack.alloc(Transform.class)));
+		gimpactInConcaveSpace.mul(body0.getWorldTransform(new Transform()));
 
-		Vector3f minAABB = Stack.alloc(Vector3f.class), maxAABB = Stack.alloc(Vector3f.class);
+		Vector3f minAABB = new Vector3f(), maxAABB = new Vector3f();
 		shape0.getAabb(gimpactInConcaveSpace, minAABB, maxAABB);
 
 		shape1.processAllTriangles(tricallback, minAABB, maxAABB);
@@ -426,14 +426,14 @@ public class GImpactCollisionAlgorithm extends CollisionAlgorithm {
 	*/
 	
 	void collide_sat_triangles(CollisionObject body0, CollisionObject body1, GImpactMeshShapePart shape0, GImpactMeshShapePart shape1, PairSet pairs, int pair_count) {
-		Vector3f tmp = Stack.alloc(Vector3f.class);
+		Vector3f tmp = new Vector3f();
 
-		Transform orgtrans0 = body0.getWorldTransform(Stack.alloc(Transform.class));
-		Transform orgtrans1 = body1.getWorldTransform(Stack.alloc(Transform.class));
+		Transform orgtrans0 = body0.getWorldTransform(new Transform());
+		Transform orgtrans1 = body1.getWorldTransform(new Transform());
 
-		PrimitiveTriangle ptri0 = Stack.alloc(PrimitiveTriangle.class);
-		PrimitiveTriangle ptri1 = Stack.alloc(PrimitiveTriangle.class);
-		TriangleContact contact_data = Stack.alloc(TriangleContact.class);
+		PrimitiveTriangle ptri0 = new PrimitiveTriangle();
+		PrimitiveTriangle ptri1 = new PrimitiveTriangle();
+		TriangleContact contact_data = new TriangleContact();
 
 		shape0.lockChildShapes();
 		shape1.lockChildShapes();
@@ -533,8 +533,8 @@ public class GImpactCollisionAlgorithm extends CollisionAlgorithm {
 			GImpactBvh.find_collision(shape0.getBoxSet(), trans0, shape1.getBoxSet(), trans1, pairset);
 		}
 		else {
-			AABB boxshape0 = Stack.alloc(AABB.class);
-			AABB boxshape1 = Stack.alloc(AABB.class);
+			AABB boxshape0 = new AABB();
+			AABB boxshape1 = new AABB();
 			int i = shape0.getNumChildShapes();
 
 			while ((i--) != 0) {
@@ -553,10 +553,10 @@ public class GImpactCollisionAlgorithm extends CollisionAlgorithm {
 	}
 
 	protected void gimpact_vs_shape_find_pairs(Transform trans0, Transform trans1, GImpactShapeInterface shape0, CollisionShape shape1, IntArrayList collided_primitives) {
-		AABB boxshape = Stack.alloc(AABB.class);
+		AABB boxshape = new AABB();
 
 		if (shape0.hasBoxSet()) {
-			Transform trans1to0 = Stack.alloc(Transform.class);
+			Transform trans1to0 = new Transform();
 			trans1to0.inverse(trans0);
 			trans1to0.mul(trans1);
 
@@ -567,7 +567,7 @@ public class GImpactCollisionAlgorithm extends CollisionAlgorithm {
 		else {
 			shape1.getAabb(trans1, boxshape.min, boxshape.max);
 
-			AABB boxshape0 = Stack.alloc(AABB.class);
+			AABB boxshape0 = new AABB();
 			int i = shape0.getNumChildShapes();
 
 			while ((i--) != 0) {
@@ -581,16 +581,16 @@ public class GImpactCollisionAlgorithm extends CollisionAlgorithm {
 	}
 	
 	protected void gimpacttrimeshpart_vs_plane_collision(CollisionObject body0, CollisionObject body1, GImpactMeshShapePart shape0, StaticPlaneShape shape1, boolean swapped) {
-		Transform orgtrans0 = body0.getWorldTransform(Stack.alloc(Transform.class));
-		Transform orgtrans1 = body1.getWorldTransform(Stack.alloc(Transform.class));
+		Transform orgtrans0 = body0.getWorldTransform(new Transform());
+		Transform orgtrans1 = body1.getWorldTransform(new Transform());
 
 		StaticPlaneShape planeshape = shape1;
-		Vector4f plane = Stack.alloc(Vector4f.class);
+		Vector4f plane = new Vector4f();
 		PlaneShape.get_plane_equation_transformed(planeshape, orgtrans1, plane);
 
 		// test box against plane
 
-		AABB tribox = Stack.alloc(AABB.class);
+		AABB tribox = new AABB();
 		shape0.getAabb(orgtrans0, tribox.min, tribox.max);
 		tribox.increment_margin(planeshape.getMargin());
 
@@ -601,9 +601,9 @@ public class GImpactCollisionAlgorithm extends CollisionAlgorithm {
 
 		float margin = shape0.getMargin() + planeshape.getMargin();
 
-		Vector3f vertex = Stack.alloc(Vector3f.class);
+		Vector3f vertex = new Vector3f();
 
-		Vector3f tmp = Stack.alloc(Vector3f.class);
+		Vector3f tmp = new Vector3f();
 
 		int vi = shape0.getVertexCount();
 		while ((vi--) != 0) {

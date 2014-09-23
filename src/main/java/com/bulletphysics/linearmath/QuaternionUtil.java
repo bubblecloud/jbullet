@@ -24,7 +24,7 @@
 package com.bulletphysics.linearmath;
 
 import com.bulletphysics.BulletGlobals;
-import cz.advel.stack.Stack;
+
 import javax.vecmath.Quat4f;
 import javax.vecmath.Vector3f;
 
@@ -49,7 +49,7 @@ public class QuaternionUtil {
 	
 	// Game Programming Gems 2.10. make sure v0,v1 are normalized
 	public static Quat4f shortestArcQuat(Vector3f v0, Vector3f v1, Quat4f out) {
-		Vector3f c = Stack.alloc(Vector3f.class);
+		Vector3f c = new Vector3f();
 		c.cross(v0, v1);
 		float d = v0.dot(v1);
 
@@ -75,10 +75,10 @@ public class QuaternionUtil {
 	}
 	
 	public static Vector3f quatRotate(Quat4f rotation, Vector3f v, Vector3f out) {
-		Quat4f q = Stack.alloc(rotation);
+		Quat4f q = new Quat4f(rotation);
 		QuaternionUtil.mul(q, v);
 
-		Quat4f tmp = Stack.alloc(Quat4f.class);
+		Quat4f tmp = new Quat4f();
 		inverse(tmp, rotation);
 		q.mul(tmp);
 		

@@ -25,7 +25,7 @@ package com.bulletphysics.dynamics.constraintsolver;
 
 import com.bulletphysics.BulletGlobals;
 import com.bulletphysics.linearmath.VectorUtil;
-import cz.advel.stack.Stack;
+
 import javax.vecmath.Matrix3f;
 import javax.vecmath.Vector3f;
 
@@ -176,35 +176,35 @@ public class JacobianEntry {
 	public float getNonDiagonal(JacobianEntry jacB, float massInvA, float massInvB) {
 		JacobianEntry jacA = this;
 
-		Vector3f lin = Stack.alloc(Vector3f.class);
+		Vector3f lin = new Vector3f();
 		VectorUtil.mul(lin, jacA.linearJointAxis, jacB.linearJointAxis);
 
-		Vector3f ang0 = Stack.alloc(Vector3f.class);
+		Vector3f ang0 = new Vector3f();
 		VectorUtil.mul(ang0, jacA.m_0MinvJt, jacB.aJ);
 
-		Vector3f ang1 = Stack.alloc(Vector3f.class);
+		Vector3f ang1 = new Vector3f();
 		VectorUtil.mul(ang1, jacA.m_1MinvJt, jacB.bJ);
 
-		Vector3f lin0 = Stack.alloc(Vector3f.class);
+		Vector3f lin0 = new Vector3f();
 		lin0.scale(massInvA, lin);
 
-		Vector3f lin1 = Stack.alloc(Vector3f.class);
+		Vector3f lin1 = new Vector3f();
 		lin1.scale(massInvB, lin);
 
-		Vector3f sum = Stack.alloc(Vector3f.class);
+		Vector3f sum = new Vector3f();
 		VectorUtil.add(sum, ang0, ang1, lin0, lin1);
 
 		return sum.x + sum.y + sum.z;
 	}
 
 	public float getRelativeVelocity(Vector3f linvelA, Vector3f angvelA, Vector3f linvelB, Vector3f angvelB) {
-		Vector3f linrel = Stack.alloc(Vector3f.class);
+		Vector3f linrel = new Vector3f();
 		linrel.sub(linvelA, linvelB);
 
-		Vector3f angvela = Stack.alloc(Vector3f.class);
+		Vector3f angvela = new Vector3f();
 		VectorUtil.mul(angvela, angvelA, aJ);
 
-		Vector3f angvelb = Stack.alloc(Vector3f.class);
+		Vector3f angvelb = new Vector3f();
 		VectorUtil.mul(angvelb, angvelB, bJ);
 
 		VectorUtil.mul(linrel, linrel, linearJointAxis);

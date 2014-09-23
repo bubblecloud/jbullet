@@ -31,7 +31,7 @@ import com.bulletphysics.extras.gimpact.BoxCollision.AABB;
 import com.bulletphysics.extras.gimpact.BoxCollision.BoxBoxTransformCache;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.util.IntArrayList;
-import cz.advel.stack.Stack;
+
 import javax.vecmath.Vector3f;
 
 /**
@@ -72,9 +72,9 @@ class GImpactBvh {
 	
 	// stackless refit
 	protected void refit() {
-		AABB leafbox = Stack.alloc(AABB.class);
-		AABB bound = Stack.alloc(AABB.class);
-		AABB temp_box = Stack.alloc(AABB.class);
+		AABB leafbox = new AABB();
+		AABB bound = new AABB();
+		AABB temp_box = new AABB();
 
 		int nodecount = getNodeCount();
 		while ((nodecount--) != 0) {
@@ -120,7 +120,7 @@ class GImpactBvh {
 		BvhDataArray primitive_boxes = new BvhDataArray();
 		primitive_boxes.resize(primitive_manager.get_primitive_count());
 
-		AABB tmpAABB = Stack.alloc(AABB.class);
+		AABB tmpAABB = new AABB();
 
 		for (int i = 0; i < primitive_boxes.size(); i++) {
 			//primitive_manager.get_primitive_box(i,primitive_boxes[i].bound);
@@ -140,7 +140,7 @@ class GImpactBvh {
 		int curIndex = 0;
 		int numNodes = getNodeCount();
 
-		AABB bound = Stack.alloc(AABB.class);
+		AABB bound = new AABB();
 
 		while (curIndex < numNodes) {
 			getNodeBound(curIndex, bound);
@@ -173,7 +173,7 @@ class GImpactBvh {
 	 * Returns the indices of the primitives in the primitive_manager field.
 	 */
 	public boolean boxQueryTrans(AABB box, Transform transform, IntArrayList collided_results) {
-		AABB transbox = Stack.alloc(box);
+		AABB transbox = new AABB(box);
 		transbox.appy_transform(transform);
 		return boxQuery(transbox, collided_results);
 	}
@@ -185,7 +185,7 @@ class GImpactBvh {
 		int curIndex = 0;
 		int numNodes = getNodeCount();
 
-		AABB bound = Stack.alloc(AABB.class);
+		AABB bound = new AABB();
 
 		while (curIndex < numNodes) {
 			getNodeBound(curIndex, bound);
@@ -272,9 +272,9 @@ class GImpactBvh {
 	}
 
 	private static boolean _node_collision(GImpactBvh boxset0, GImpactBvh boxset1, BoxBoxTransformCache trans_cache_1to0, int node0, int node1, boolean complete_primitive_tests) {
-		AABB box0 = Stack.alloc(AABB.class);
+		AABB box0 = new AABB();
 		boxset0.getNodeBound(node0, box0);
-		AABB box1 = Stack.alloc(AABB.class);
+		AABB box1 = new AABB();
 		boxset1.getNodeBound(node1, box1);
 
 		return box0.overlapping_trans_cache(box1, trans_cache_1to0, complete_primitive_tests);
@@ -361,7 +361,7 @@ class GImpactBvh {
 		if (boxset0.getNodeCount() == 0 || boxset1.getNodeCount() == 0) {
 			return;
 		}
-		BoxBoxTransformCache trans_cache_1to0 = Stack.alloc(BoxBoxTransformCache.class);
+		BoxBoxTransformCache trans_cache_1to0 = new BoxBoxTransformCache();
 
 		trans_cache_1to0.calc_from_homogenic(trans0, trans1);
 

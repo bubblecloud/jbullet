@@ -25,7 +25,7 @@ package com.bulletphysics.collision.narrowphase;
 
 import com.bulletphysics.collision.shapes.TriangleCallback;
 import com.bulletphysics.linearmath.VectorUtil;
-import cz.advel.stack.Stack;
+
 import javax.vecmath.Vector3f;
 
 /**
@@ -52,13 +52,13 @@ public abstract class TriangleRaycastCallback extends TriangleCallback {
 		Vector3f vert1 = triangle[1];
 		Vector3f vert2 = triangle[2];
 
-		Vector3f v10 = Stack.alloc(Vector3f.class);
+		Vector3f v10 = new Vector3f();
 		v10.sub(vert1, vert0);
 
-		Vector3f v20 = Stack.alloc(Vector3f.class);
+		Vector3f v20 = new Vector3f();
 		v20.sub(vert2, vert0);
 
-		Vector3f triangleNormal = Stack.alloc(Vector3f.class);
+		Vector3f triangleNormal = new Vector3f();
 		triangleNormal.cross(v10, v20);
 
 		float dist = vert0.dot(triangleNormal);
@@ -84,20 +84,20 @@ public abstract class TriangleRaycastCallback extends TriangleCallback {
 			Vector3f point = new Vector3f();
 			VectorUtil.setInterpolate3(point, from, to, distance);
 			{
-				Vector3f v0p = Stack.alloc(Vector3f.class);
+				Vector3f v0p = new Vector3f();
 				v0p.sub(vert0, point);
-				Vector3f v1p = Stack.alloc(Vector3f.class);
+				Vector3f v1p = new Vector3f();
 				v1p.sub(vert1, point);
-				Vector3f cp0 = Stack.alloc(Vector3f.class);
+				Vector3f cp0 = new Vector3f();
 				cp0.cross(v0p, v1p);
 
 				if (cp0.dot(triangleNormal) >= edge_tolerance) {
-					Vector3f v2p = Stack.alloc(Vector3f.class);
+					Vector3f v2p = new Vector3f();
 					v2p.sub(vert2, point);
-					Vector3f cp1 = Stack.alloc(Vector3f.class);
+					Vector3f cp1 = new Vector3f();
 					cp1.cross(v1p, v2p);
 					if (cp1.dot(triangleNormal) >= edge_tolerance) {
-						Vector3f cp2 = Stack.alloc(Vector3f.class);
+						Vector3f cp2 = new Vector3f();
 						cp2.cross(v2p, v0p);
 
 						if (cp2.dot(triangleNormal) >= edge_tolerance) {
@@ -106,7 +106,7 @@ public abstract class TriangleRaycastCallback extends TriangleCallback {
 								hitFraction = reportHit(triangleNormal, distance, partId, triangleIndex);
 							}
 							else {
-								Vector3f tmp = Stack.alloc(Vector3f.class);
+								Vector3f tmp = new Vector3f();
 								tmp.negate(triangleNormal);
 								hitFraction = reportHit(tmp, distance, partId, triangleIndex);
 							}

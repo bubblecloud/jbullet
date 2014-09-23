@@ -25,7 +25,7 @@ package com.bulletphysics.linearmath;
 
 import com.bulletphysics.BulletGlobals;
 import com.bulletphysics.util.ArrayPool;
-import cz.advel.stack.Stack;
+
 import javax.vecmath.Matrix3f;
 import javax.vecmath.Quat4f;
 import javax.vecmath.Vector3f;
@@ -214,7 +214,7 @@ public class MatrixUtil {
 	 */
 	// JAVA NOTE: diagonalize method from 2.71
 	public static void diagonalize(Matrix3f mat, Matrix3f rot, float threshold, int maxSteps) {
-		Vector3f row = Stack.alloc(Vector3f.class);
+		Vector3f row = new Vector3f();
 
 		rot.setIdentity();
 		for (int step = maxSteps; step > 0; step--) {

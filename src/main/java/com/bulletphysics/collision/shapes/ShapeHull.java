@@ -29,7 +29,7 @@ import com.bulletphysics.linearmath.MiscUtil;
 import com.bulletphysics.linearmath.convexhull.*;
 import com.bulletphysics.util.IntArrayList;
 import com.bulletphysics.util.ObjectArrayList;
-import cz.advel.stack.Stack;
+
 import javax.vecmath.Vector3f;
 
 /**
@@ -60,7 +60,7 @@ public class ShapeHull {
 	}
 
 	public boolean buildHull(float margin) {
-		Vector3f norm = Stack.alloc(Vector3f.class);
+		Vector3f norm = new Vector3f();
 
 		int numSampleDirections = NUM_UNITSPHERE_POINTS;
 		{

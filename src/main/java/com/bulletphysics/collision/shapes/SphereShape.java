@@ -25,7 +25,6 @@ package com.bulletphysics.collision.shapes;
 
 import com.bulletphysics.collision.broadphase.BroadphaseNativeType;
 import com.bulletphysics.linearmath.Transform;
-import cz.advel.stack.Stack;
 import javax.vecmath.Vector3f;
 
 /**
@@ -56,7 +55,7 @@ public class SphereShape extends ConvexInternalShape {
 	@Override
 	public void getAabb(Transform t, Vector3f aabbMin, Vector3f aabbMax) {
 		Vector3f center = t.origin;
-		Vector3f extent = Stack.alloc(Vector3f.class);
+		Vector3f extent = new Vector3f();
 		extent.set(getMargin(), getMargin(), getMargin());
 		aabbMin.sub(center, extent);
 		aabbMax.add(center, extent);

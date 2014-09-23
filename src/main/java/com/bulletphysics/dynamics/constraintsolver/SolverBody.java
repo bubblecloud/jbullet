@@ -26,7 +26,7 @@ package com.bulletphysics.dynamics.constraintsolver;
 import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.linearmath.TransformUtil;
-import cz.advel.stack.Stack;
+
 import javax.vecmath.Vector3f;
 
 /**
@@ -51,7 +51,7 @@ public class SolverBody {
 	public final Vector3f turnVelocity = new Vector3f();
 	
 	public void getVelocityInLocalPoint(Vector3f rel_pos, Vector3f velocity) {
-		Vector3f tmp = Stack.alloc(Vector3f.class);
+		Vector3f tmp = new Vector3f();
 		tmp.cross(angularVelocity, rel_pos);
 		velocity.add(linearVelocity, tmp);
 	}
@@ -87,8 +87,8 @@ public class SolverBody {
 			originalBody.setAngularVelocity(angularVelocity);
 
 			// correct the position/orientation based on push/turn recovery
-			Transform newTransform = Stack.alloc(Transform.class);
-			Transform curTrans = originalBody.getWorldTransform(Stack.alloc(Transform.class));
+			Transform newTransform = new Transform();
+			Transform curTrans = originalBody.getWorldTransform(new Transform());
 			TransformUtil.integrateTransform(curTrans, pushVelocity, turnVelocity, timeStep, newTransform);
 			originalBody.setWorldTransform(newTransform);
 

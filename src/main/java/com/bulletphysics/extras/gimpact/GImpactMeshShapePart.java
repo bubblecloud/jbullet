@@ -33,7 +33,7 @@ import com.bulletphysics.collision.shapes.TriangleCallback;
 import com.bulletphysics.extras.gimpact.BoxCollision.AABB;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.util.IntArrayList;
-import cz.advel.stack.Stack;
+
 import javax.vecmath.Vector3f;
 
 /**
@@ -123,7 +123,7 @@ public class GImpactMeshShapePart extends GImpactShapeInterface {
 		int i = getVertexCount();
 		float pointmass = mass / (float)i;
 
-		Vector3f pointintertia = Stack.alloc(Vector3f.class);
+		Vector3f pointintertia = new Vector3f();
 
 		while ((i--) != 0) {
 			getVertex(i, pointintertia);
@@ -218,7 +218,7 @@ public class GImpactMeshShapePart extends GImpactShapeInterface {
 	@Override
 	public void processAllTriangles(TriangleCallback callback, Vector3f aabbMin, Vector3f aabbMax) {
 		lockChildShapes();
-		AABB box = Stack.alloc(AABB.class);
+		AABB box = new AABB();
 		box.min.set(aabbMin);
 		box.max.set(aabbMax);
 
@@ -231,7 +231,7 @@ public class GImpactMeshShapePart extends GImpactShapeInterface {
 		}
 
 		int part = getPart();
-		PrimitiveTriangle triangle = Stack.alloc(PrimitiveTriangle.class);
+		PrimitiveTriangle triangle = new PrimitiveTriangle();
 		int i = collided.size();
 		while ((i--) != 0) {
 			getPrimitiveTriangle(collided.get(i), triangle);

@@ -32,7 +32,7 @@ import com.bulletphysics.collision.shapes.CollisionShape;
 import com.bulletphysics.collision.shapes.TriangleCallback;
 import com.bulletphysics.collision.shapes.TriangleShape;
 import com.bulletphysics.linearmath.Transform;
-import cz.advel.stack.Stack;
+
 import javax.vecmath.Vector3f;
 
 /**
@@ -86,17 +86,17 @@ class ConvexTriangleCallback extends TriangleCallback {
 		this.resultOut = resultOut;
 
 		// recalc aabbs
-		Transform convexInTriangleSpace = Stack.alloc(Transform.class);
+		Transform convexInTriangleSpace = new Transform();
 
 		triBody.getWorldTransform(convexInTriangleSpace);
 		convexInTriangleSpace.inverse();
-		convexInTriangleSpace.mul(convexBody.getWorldTransform(Stack.alloc(Transform.class)));
+		convexInTriangleSpace.mul(convexBody.getWorldTransform(new Transform()));
 
 		CollisionShape convexShape = (CollisionShape)convexBody.getCollisionShape();
 		//CollisionShape* triangleShape = static_cast<btCollisionShape*>(triBody->m_collisionShape);
 		convexShape.getAabb(convexInTriangleSpace, aabbMin, aabbMax);
 		float extraMargin = collisionMarginTriangle;
-		Vector3f extra = Stack.alloc(Vector3f.class);
+		Vector3f extra = new Vector3f();
 		extra.set(extraMargin, extraMargin, extraMargin);
 
 		aabbMax.add(extra);
@@ -118,12 +118,12 @@ class ConvexTriangleCallback extends TriangleCallback {
 
 		// debug drawing of the overlapping triangles
 		if (dispatchInfoPtr != null && dispatchInfoPtr.debugDraw != null && dispatchInfoPtr.debugDraw.getDebugMode() > 0) {
-			Vector3f color = Stack.alloc(Vector3f.class);
+			Vector3f color = new Vector3f();
 			color.set(255, 255, 0);
-			Transform tr = ob.getWorldTransform(Stack.alloc(Transform.class));
+			Transform tr = ob.getWorldTransform(new Transform());
 
-			Vector3f tmp1 = Stack.alloc(Vector3f.class);
-			Vector3f tmp2 = Stack.alloc(Vector3f.class);
+			Vector3f tmp1 = new Vector3f();
+			Vector3f tmp2 = new Vector3f();
 
 			tmp1.set(triangle[0]); tr.transform(tmp1);
 			tmp2.set(triangle[1]); tr.transform(tmp2);

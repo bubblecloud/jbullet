@@ -31,7 +31,7 @@ import com.bulletphysics.linearmath.MiscUtil;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.util.IntArrayList;
 import com.bulletphysics.util.ObjectArrayList;
-import cz.advel.stack.Stack;
+
 import java.util.Collections;
 import javax.vecmath.Vector3f;
 
@@ -156,7 +156,7 @@ public class Dbvt {
 		if (leaf.volume.Contain(volume)) {
 			return false;
 		}
-		Vector3f tmp = Stack.alloc(Vector3f.class);
+		Vector3f tmp = new Vector3f();
 		tmp.set(margin, margin, margin);
 		volume.Expand(tmp);
 		volume.SignedExpand(velocity);
@@ -177,7 +177,7 @@ public class Dbvt {
 		if (leaf.volume.Contain(volume)) {
 			return false;
 		}
-		Vector3f tmp = Stack.alloc(Vector3f.class);
+		Vector3f tmp = new Vector3f();
 		tmp.set(margin, margin, margin);
 		volume.Expand(tmp);
 		update(leaf, volume);
@@ -326,7 +326,7 @@ public class Dbvt {
 	}
 
 	public static void collideTT(Node root0, Transform xform0, Node root1, Transform xform1, ICollide policy) {
-		Transform xform = Stack.alloc(Transform.class);
+		Transform xform = new Transform();
 		xform.inverse(xform0);
 		xform.mul(xform1);
 		collideTT(root0, root1, xform, policy);
@@ -356,9 +356,9 @@ public class Dbvt {
 	public static void collideRAY(Node root, Vector3f origin, Vector3f direction, ICollide policy) {
 		//DBVT_CHECKTYPE
 		if (root != null) {
-			Vector3f normal = Stack.alloc(Vector3f.class);
+			Vector3f normal = new Vector3f();
 			normal.normalize(direction);
-			Vector3f invdir = Stack.alloc(Vector3f.class);
+			Vector3f invdir = new Vector3f();
 			invdir.set(1f / normal.x, 1f / normal.y, 1f / normal.z);
 			int[] signs = new int[] { direction.x<0 ? 1:0, direction.y<0 ? 1:0, direction.z<0 ? 1:0 };
 			ObjectArrayList<Node> stack = new ObjectArrayList<Node>(SIMPLE_STACKSIZE);
@@ -581,7 +581,7 @@ public class Dbvt {
 	
 	// volume+edge lengths
 	private static float size(DbvtAabbMm a) {
-		Vector3f edges = a.Lengths(Stack.alloc(Vector3f.class));
+		Vector3f edges = a.Lengths(new Vector3f());
 		return (edges.x * edges.y * edges.z +
 		        edges.x + edges.y + edges.z);
 	}
@@ -715,7 +715,7 @@ public class Dbvt {
 	}
 	
 	private static void split(ObjectArrayList<Node> leaves, ObjectArrayList<Node> left, ObjectArrayList<Node> right, Vector3f org, Vector3f axis) {
-		Vector3f tmp = Stack.alloc(Vector3f.class);
+		Vector3f tmp = new Vector3f();
 		MiscUtil.resize(left, 0, Node.class);
 		MiscUtil.resize(right, 0, Node.class);
 		for (int i=0, ni=leaves.size(); i<ni; i++) {
@@ -772,7 +772,7 @@ public class Dbvt {
 		if (leaves.size() > 1) {
 			if (leaves.size() > bu_treshold) {
 				DbvtAabbMm vol = bounds(leaves);
-				Vector3f org = vol.Center(Stack.alloc(Vector3f.class));
+				Vector3f org = vol.Center(new Vector3f());
 				ObjectArrayList[] sets = new ObjectArrayList[2];
 				for (int i=0; i<sets.length; i++) {
 					sets[i] = new ObjectArrayList();
@@ -781,7 +781,7 @@ public class Dbvt {
 				int bestmidp = leaves.size();
 				int[][] splitcount = new int[/*3*/][/*2*/]{{0, 0}, {0, 0}, {0, 0}};
 
-				Vector3f x = Stack.alloc(Vector3f.class);
+				Vector3f x = new Vector3f();
 
 				for (int i=0; i<leaves.size(); i++) {
 					leaves.getQuick(i).volume.Center(x);

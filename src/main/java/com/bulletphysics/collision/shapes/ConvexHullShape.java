@@ -27,7 +27,7 @@ import com.bulletphysics.BulletGlobals;
 import com.bulletphysics.collision.broadphase.BroadphaseNativeType;
 import com.bulletphysics.linearmath.VectorUtil;
 import com.bulletphysics.util.ObjectArrayList;
-import cz.advel.stack.Stack;
+
 import javax.vecmath.Vector3f;
 
 /**
@@ -82,7 +82,7 @@ public class ConvexHullShape extends PolyhedralConvexShape {
 		supVec.set(0f, 0f, 0f);
 		float newDot, maxDot = -1e30f;
 
-		Vector3f vec = Stack.alloc(vec0);
+		Vector3f vec = new Vector3f(vec0);
 		float lenSqr = vec.lengthSquared();
 		if (lenSqr < 0.0001f) {
 			vec.set(1f, 0f, 0f);
@@ -93,7 +93,7 @@ public class ConvexHullShape extends PolyhedralConvexShape {
 		}
 
 
-		Vector3f vtx = Stack.alloc(Vector3f.class);
+		Vector3f vtx = new Vector3f();
 		for (int i = 0; i < points.size(); i++) {
 			VectorUtil.mul(vtx, points.getQuick(i), localScaling);
 
@@ -121,7 +121,7 @@ public class ConvexHullShape extends PolyhedralConvexShape {
 				wcoords[i] = -1e30f;
 			}
 		}
-		Vector3f vtx = Stack.alloc(Vector3f.class);
+		Vector3f vtx = new Vector3f();
 		for (int i = 0; i < points.size(); i++) {
 			VectorUtil.mul(vtx, points.getQuick(i), localScaling);
 
@@ -145,7 +145,7 @@ public class ConvexHullShape extends PolyhedralConvexShape {
 		Vector3f supVertex = localGetSupportingVertexWithoutMargin(vec, out);
 
 		if (getMargin() != 0f) {
-			Vector3f vecnorm = Stack.alloc(vec);
+			Vector3f vecnorm = new Vector3f(vec);
 			if (vecnorm.lengthSquared() < (BulletGlobals.FLT_EPSILON * BulletGlobals.FLT_EPSILON)) {
 				vecnorm.set(-1f, -1f, -1f);
 			}

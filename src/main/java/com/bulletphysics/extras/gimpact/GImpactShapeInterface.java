@@ -34,7 +34,7 @@ import com.bulletphysics.collision.shapes.ConcaveShape;
 import com.bulletphysics.collision.shapes.TriangleCallback;
 import com.bulletphysics.extras.gimpact.BoxCollision.AABB;
 import com.bulletphysics.linearmath.Transform;
-import cz.advel.stack.Stack;
+
 import javax.vecmath.Vector3f;
 
 /**
@@ -78,7 +78,7 @@ public abstract class GImpactShapeInterface extends ConcaveShape {
      */
 	@Override
 	public void getAabb(Transform t, Vector3f aabbMin, Vector3f aabbMax) {
-		AABB transformedbox = Stack.alloc(localAABB);
+		AABB transformedbox = new AABB(localAABB);
 		transformedbox.appy_transform(t);
 		aabbMin.set(transformedbox.min);
 		aabbMax.set(transformedbox.max);
@@ -215,7 +215,7 @@ public abstract class GImpactShapeInterface extends ConcaveShape {
 	 * Retrieves the bound from a child.
 	 */
 	public void getChildAabb(int child_index, Transform t, Vector3f aabbMin, Vector3f aabbMax) {
-		AABB child_aabb = Stack.alloc(AABB.class);
+		AABB child_aabb = new AABB();
 		getPrimitiveManager().get_primitive_box(child_index, child_aabb);
 		child_aabb.appy_transform(t);
 		aabbMin.set(child_aabb.min);

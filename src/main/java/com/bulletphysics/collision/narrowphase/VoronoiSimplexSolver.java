@@ -25,8 +25,8 @@ package com.bulletphysics.collision.narrowphase;
 
 import com.bulletphysics.util.ObjectPool;
 import com.bulletphysics.linearmath.VectorUtil;
-import cz.advel.stack.Stack;
-import cz.advel.stack.StaticAlloc;
+
+
 import javax.vecmath.Vector3f;
 
 /**
@@ -94,7 +94,7 @@ public class VoronoiSimplexSolver extends SimplexSolverInterface {
 			removeVertex(0);
 	}
 	
-	@StaticAlloc
+
 	public boolean updateClosestVectorAndPoints() {
 		if (needsUpdate)
 		{
@@ -119,19 +119,19 @@ public class VoronoiSimplexSolver extends SimplexSolverInterface {
 				}
 			case 2:
 				{
-					Vector3f tmp = Stack.alloc(Vector3f.class);
+					Vector3f tmp = new Vector3f();
 					
 					//closest point origin from line segment
 					Vector3f from = simplexVectorW[0];
 					Vector3f to = simplexVectorW[1];
-					Vector3f nearest = Stack.alloc(Vector3f.class);
+					Vector3f nearest = new Vector3f();
 
-					Vector3f p = Stack.alloc(Vector3f.class);
+					Vector3f p = new Vector3f();
 					p.set(0f, 0f, 0f);
-					Vector3f diff = Stack.alloc(Vector3f.class);
+					Vector3f diff = new Vector3f();
 					diff.sub(p, from);
 
-					Vector3f v = Stack.alloc(Vector3f.class);
+					Vector3f v = new Vector3f();
 					v.sub(to, from);
 
 					float t = v.dot(diff);
@@ -178,12 +178,12 @@ public class VoronoiSimplexSolver extends SimplexSolverInterface {
 				}
 			case 3: 
 				{ 
-					Vector3f tmp1 = Stack.alloc(Vector3f.class);
-					Vector3f tmp2 = Stack.alloc(Vector3f.class);
-					Vector3f tmp3 = Stack.alloc(Vector3f.class);
+					Vector3f tmp1 = new Vector3f();
+					Vector3f tmp2 = new Vector3f();
+					Vector3f tmp3 = new Vector3f();
 					
 					// closest point origin from triangle 
-					Vector3f p = Stack.alloc(Vector3f.class);
+					Vector3f p = new Vector3f();
 					p.set(0f, 0f, 0f);
 
 					Vector3f a = simplexVectorW[0]; 
@@ -211,12 +211,12 @@ public class VoronoiSimplexSolver extends SimplexSolverInterface {
 				}
 			case 4:
 				{
-					Vector3f tmp1 = Stack.alloc(Vector3f.class);
-					Vector3f tmp2 = Stack.alloc(Vector3f.class);
-					Vector3f tmp3 = Stack.alloc(Vector3f.class);
-					Vector3f tmp4 = Stack.alloc(Vector3f.class);
+					Vector3f tmp1 = new Vector3f();
+					Vector3f tmp2 = new Vector3f();
+					Vector3f tmp3 = new Vector3f();
+					Vector3f tmp4 = new Vector3f();
 					
-					Vector3f p = Stack.alloc(Vector3f.class);
+					Vector3f p = new Vector3f();
 					p.set(0f, 0f, 0f);
 
 					Vector3f a = simplexVectorW[0];
@@ -273,18 +273,18 @@ public class VoronoiSimplexSolver extends SimplexSolverInterface {
 		return cachedValidClosest;
 	}
 
-	@StaticAlloc
+
 	public boolean closestPtPointTriangle(Vector3f p, Vector3f a, Vector3f b, Vector3f c, SubSimplexClosestResult result) {
 		result.usedVertices.reset();
 
 		// Check if P in vertex region outside A
-		Vector3f ab = Stack.alloc(Vector3f.class);
+		Vector3f ab = new Vector3f();
 		ab.sub(b, a);
 
-		Vector3f ac = Stack.alloc(Vector3f.class);
+		Vector3f ac = new Vector3f();
 		ac.sub(c, a);
 
-		Vector3f ap = Stack.alloc(Vector3f.class);
+		Vector3f ap = new Vector3f();
 		ap.sub(p, a);
 
 		float d1 = ab.dot(ap);
@@ -299,7 +299,7 @@ public class VoronoiSimplexSolver extends SimplexSolverInterface {
 		}
 
 		// Check if P in vertex region outside B
-		Vector3f bp = Stack.alloc(Vector3f.class);
+		Vector3f bp = new Vector3f();
 		bp.sub(p, b);
 
 		float d3 = ab.dot(bp);
@@ -327,7 +327,7 @@ public class VoronoiSimplexSolver extends SimplexSolverInterface {
 		}
 
 		// Check if P in vertex region outside C
-		Vector3f cp = Stack.alloc(Vector3f.class);
+		Vector3f cp = new Vector3f();
 		cp.sub(p, c);
 
 		float d5 = ab.dot(cp);
@@ -358,7 +358,7 @@ public class VoronoiSimplexSolver extends SimplexSolverInterface {
 		if (va <= 0f && (d4 - d3) >= 0f && (d5 - d6) >= 0f) {
 			float w = (d4 - d3) / ((d4 - d3) + (d5 - d6));
 
-			Vector3f tmp = Stack.alloc(Vector3f.class);
+			Vector3f tmp = new Vector3f();
 			tmp.sub(c, b);
 			result.closestPointOnSimplex.scaleAdd(w, tmp, b);
 
@@ -374,8 +374,8 @@ public class VoronoiSimplexSolver extends SimplexSolverInterface {
 		float v = vb * denom;
 		float w = vc * denom;
 
-		Vector3f tmp1 = Stack.alloc(Vector3f.class);
-		Vector3f tmp2 = Stack.alloc(Vector3f.class);
+		Vector3f tmp1 = new Vector3f();
+		Vector3f tmp2 = new Vector3f();
 
 		tmp1.scale(v, ab);
 		tmp2.scale(w, ac);
@@ -390,12 +390,12 @@ public class VoronoiSimplexSolver extends SimplexSolverInterface {
 	}
 	
 	/// Test if point p and d lie on opposite sides of plane through abc
-	@StaticAlloc
+
 	public static int pointOutsideOfPlane(Vector3f p, Vector3f a, Vector3f b, Vector3f c, Vector3f d)
 	{
-		Vector3f tmp = Stack.alloc(Vector3f.class);
+		Vector3f tmp = new Vector3f();
 
-		Vector3f normal = Stack.alloc(Vector3f.class);
+		Vector3f normal = new Vector3f();
 		normal.sub(b, a);
 		tmp.sub(c, a);
 		normal.cross(normal, tmp);
@@ -425,13 +425,13 @@ public class VoronoiSimplexSolver extends SimplexSolverInterface {
 		return (signp * signd < 0f)? 1 : 0;
 	}
 	
-	@StaticAlloc
+
 	public boolean closestPtPointTetrahedron(Vector3f p, Vector3f a, Vector3f b, Vector3f c, Vector3f d, SubSimplexClosestResult finalResult) {
 		SubSimplexClosestResult tempResult = subsimplexResultsPool.get();
 		tempResult.reset();
 		try {
-			Vector3f tmp = Stack.alloc(Vector3f.class);
-			Vector3f q = Stack.alloc(Vector3f.class);
+			Vector3f tmp = new Vector3f();
+			Vector3f q = new Vector3f();
 
 			// Start out assuming point inside all halfspaces, so closest to itself
 			finalResult.closestPointOnSimplex.set(p);

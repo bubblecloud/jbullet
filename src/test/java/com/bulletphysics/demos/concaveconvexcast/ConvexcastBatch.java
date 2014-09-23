@@ -32,7 +32,7 @@ import com.bulletphysics.linearmath.QuaternionUtil;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.linearmath.TransformUtil;
 import com.bulletphysics.linearmath.VectorUtil;
-import cz.advel.stack.Stack;
+
 import javax.vecmath.Quat4f;
 import javax.vecmath.Vector3f;
 import static com.bulletphysics.demos.opengl.IGL.*;
@@ -185,13 +185,13 @@ public class ConvexcastBatch {
 		for (int i=0; i<NUMRAYS_IN_BAR; i++) {
 			ClosestConvexResultCallback cb = new ClosestConvexResultCallback(source[i], dest[i]);
 
-			Quat4f qFrom = Stack.alloc(Quat4f.class);
-			Quat4f qTo = Stack.alloc(Quat4f.class);
+			Quat4f qFrom = new Quat4f();
+			Quat4f qTo = new Quat4f();
 			QuaternionUtil.setRotation(qFrom, new Vector3f(1f, 0f, 0f), 0f);
 			QuaternionUtil.setRotation(qTo, new Vector3f(1f, 0f, 0f), 0.7f);
 
-			Transform from = Stack.alloc(Transform.class);
-			Transform to = Stack.alloc(Transform.class);
+			Transform from = new Transform();
+			Transform to = new Transform();
 			from.basis.set(qFrom);
 			from.origin.set(source[i]);
 			to.basis.set(qTo);
@@ -259,24 +259,24 @@ public class ConvexcastBatch {
 		}
 		gl.glEnd();
 		gl.glColor3f(0f, 1f, 1f);
-		Quat4f qFrom = Stack.alloc(Quat4f.class);
-		Quat4f qTo = Stack.alloc(Quat4f.class);
+		Quat4f qFrom = new Quat4f();
+		Quat4f qTo = new Quat4f();
 		QuaternionUtil.setRotation(qFrom, new Vector3f(1f, 0f, 0f), 0f);
 		QuaternionUtil.setRotation(qTo, new Vector3f(1f, 0f, 0f), 0.7f);
 		for (int i=0; i<NUMRAYS_IN_BAR; i++) {
-			Transform from = Stack.alloc(Transform.class);
+			Transform from = new Transform();
 			from.basis.set(qFrom);
 			from.origin.set(source[i]);
 
-			Transform to = Stack.alloc(Transform.class);
+			Transform to = new Transform();
 			to.basis.set(qTo);
 			to.origin.set(dest[i]);
 
-			Vector3f linVel = Stack.alloc(Vector3f.class);
-			Vector3f angVel = Stack.alloc(Vector3f.class);
+			Vector3f linVel = new Vector3f();
+			Vector3f angVel = new Vector3f();
 
 			TransformUtil.calculateVelocity(from, to, 1f, linVel, angVel);
-			Transform T = Stack.alloc(Transform.class);
+			Transform T = new Transform();
 			TransformUtil.integrateTransform(from, linVel, angVel, hit_fraction[i], T);
 			drawCube(gl, T);
 		}

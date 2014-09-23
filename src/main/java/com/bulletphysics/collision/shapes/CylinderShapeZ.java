@@ -23,7 +23,7 @@
 
 package com.bulletphysics.collision.shapes;
 
-import cz.advel.stack.Stack;
+
 import javax.vecmath.Vector3f;
 
 /**
@@ -41,19 +41,19 @@ public class CylinderShapeZ extends CylinderShape {
 
 	@Override
 	public Vector3f localGetSupportingVertexWithoutMargin(Vector3f vec, Vector3f out) {
-		return cylinderLocalSupportZ(getHalfExtentsWithoutMargin(Stack.alloc(Vector3f.class)), vec, out);
+		return cylinderLocalSupportZ(getHalfExtentsWithoutMargin(new Vector3f()), vec, out);
 	}
 
 	@Override
 	public void batchedUnitVectorGetSupportingVertexWithoutMargin(Vector3f[] vectors, Vector3f[] supportVerticesOut, int numVectors) {
 		for (int i = 0; i < numVectors; i++) {
-			cylinderLocalSupportZ(getHalfExtentsWithoutMargin(Stack.alloc(Vector3f.class)), vectors[i], supportVerticesOut[i]);
+			cylinderLocalSupportZ(getHalfExtentsWithoutMargin(new Vector3f()), vectors[i], supportVerticesOut[i]);
 		}
 	}
 
 	@Override
 	public float getRadius() {
-		return getHalfExtentsWithMargin(Stack.alloc(Vector3f.class)).x;
+		return getHalfExtentsWithMargin(new Vector3f()).x;
 	}
 
 	@Override

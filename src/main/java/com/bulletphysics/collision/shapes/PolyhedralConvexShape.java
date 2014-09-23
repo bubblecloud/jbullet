@@ -26,7 +26,7 @@ package com.bulletphysics.collision.shapes;
 import com.bulletphysics.linearmath.AabbUtil2;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.linearmath.VectorUtil;
-import cz.advel.stack.Stack;
+
 import javax.vecmath.Vector3f;
 
 /**
@@ -69,7 +69,7 @@ public abstract class PolyhedralConvexShape extends ConvexInternalShape {
 
 		float maxDot = -1e30f;
 
-		Vector3f vec = Stack.alloc(vec0);
+		Vector3f vec = new Vector3f(vec0);
 		float lenSqr = vec.lengthSquared();
 		if (lenSqr < 0.0001f) {
 			vec.set(1f, 0f, 0f);
@@ -79,7 +79,7 @@ public abstract class PolyhedralConvexShape extends ConvexInternalShape {
 			vec.scale(rlen);
 		}
 
-		Vector3f vtx = Stack.alloc(Vector3f.class);
+		Vector3f vtx = new Vector3f();
 		float newDot;
 
 		for (i = 0; i < getNumVertices(); i++) {
@@ -98,7 +98,7 @@ public abstract class PolyhedralConvexShape extends ConvexInternalShape {
 	public void batchedUnitVectorGetSupportingVertexWithoutMargin(Vector3f[] vectors, Vector3f[] supportVerticesOut, int numVectors) {
 		int i;
 
-		Vector3f vtx = Stack.alloc(Vector3f.class);
+		Vector3f vtx = new Vector3f();
 		float newDot;
 
 		// JAVA NOTE: rewritten as code used W coord for temporary usage in Vector3
@@ -134,12 +134,12 @@ public abstract class PolyhedralConvexShape extends ConvexInternalShape {
 
 		float margin = getMargin();
 
-		Transform ident = Stack.alloc(Transform.class);
+		Transform ident = new Transform();
 		ident.setIdentity();
-		Vector3f aabbMin = Stack.alloc(Vector3f.class), aabbMax = Stack.alloc(Vector3f.class);
+		Vector3f aabbMin = new Vector3f(), aabbMax = new Vector3f();
 		getAabb(ident, aabbMin, aabbMax);
 
-		Vector3f halfExtents = Stack.alloc(Vector3f.class);
+		Vector3f halfExtents = new Vector3f();
 		halfExtents.sub(aabbMax, aabbMin);
 		halfExtents.scale(0.5f);
 
@@ -185,10 +185,10 @@ public abstract class PolyhedralConvexShape extends ConvexInternalShape {
 		
 		//#else
 		//for (int i=0; i<3; i++) {
-		//	Vector3f vec = Stack.alloc(Vector3f.class);
+		//	Vector3f vec = new Vector3f();
 		//	vec.set(0f, 0f, 0f);
 		//	VectorUtil.setCoord(vec, i, 1f);
-		//	Vector3f tmp = localGetSupportingVertex(vec, Stack.alloc(Vector3f.class));
+		//	Vector3f tmp = localGetSupportingVertex(vec, new Vector3f());
 		//	VectorUtil.setCoord(localAabbMax, i, VectorUtil.getCoord(tmp, i) + collisionMargin);
 		//	VectorUtil.setCoord(vec, i, -1f);
 		//	localGetSupportingVertex(vec, tmp);

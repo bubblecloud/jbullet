@@ -29,7 +29,7 @@ package com.bulletphysics.extras.gimpact;
 
 import com.bulletphysics.extras.gimpact.BoxCollision.AABB;
 import com.bulletphysics.linearmath.VectorUtil;
-import cz.advel.stack.Stack;
+
 import javax.vecmath.Vector3f;
 
 /**
@@ -42,18 +42,18 @@ class BvhTree {
 	protected BvhTreeNodeArray node_array = new BvhTreeNodeArray();
 	
 	protected int _calc_splitting_axis(BvhDataArray primitive_boxes, int startIndex, int endIndex) {
-		Vector3f means = Stack.alloc(Vector3f.class);
+		Vector3f means = new Vector3f();
 		means.set(0f, 0f, 0f);
-		Vector3f variance = Stack.alloc(Vector3f.class);
+		Vector3f variance = new Vector3f();
 		variance.set(0f, 0f, 0f);
 
 		int numIndices = endIndex - startIndex;
 
-		Vector3f center = Stack.alloc(Vector3f.class);
-		Vector3f diff2 = Stack.alloc(Vector3f.class);
+		Vector3f center = new Vector3f();
+		Vector3f diff2 = new Vector3f();
 
-		Vector3f tmp1 = Stack.alloc(Vector3f.class);
-		Vector3f tmp2 = Stack.alloc(Vector3f.class);
+		Vector3f tmp1 = new Vector3f();
+		Vector3f tmp2 = new Vector3f();
 
 		for (int i=startIndex; i<endIndex; i++) {
 			primitive_boxes.getBoundMax(i, tmp1);
@@ -85,13 +85,13 @@ class BvhTree {
 		// average of centers
 		float splitValue = 0.0f;
 
-		Vector3f means = Stack.alloc(Vector3f.class);
+		Vector3f means = new Vector3f();
 		means.set(0f, 0f, 0f);
 
-		Vector3f center = Stack.alloc(Vector3f.class);
+		Vector3f center = new Vector3f();
 
-		Vector3f tmp1 = Stack.alloc(Vector3f.class);
-		Vector3f tmp2 = Stack.alloc(Vector3f.class);
+		Vector3f tmp1 = new Vector3f();
+		Vector3f tmp2 = new Vector3f();
 
 		for (int i = startIndex; i < endIndex; i++) {
 			primitive_boxes.getBoundMax(i, tmp1);
@@ -164,8 +164,8 @@ class BvhTree {
 
 		//calc this node bounding box
 
-		AABB node_bound = Stack.alloc(AABB.class);
-		AABB tmpAABB = Stack.alloc(AABB.class);
+		AABB node_bound = new AABB();
+		AABB tmpAABB = new AABB();
 
 		node_bound.invalidate();
 

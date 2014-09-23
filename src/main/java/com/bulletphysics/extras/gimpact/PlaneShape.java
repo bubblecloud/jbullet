@@ -30,7 +30,7 @@ package com.bulletphysics.extras.gimpact;
 import com.bulletphysics.collision.shapes.StaticPlaneShape;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.linearmath.VectorUtil;
-import cz.advel.stack.Stack;
+
 import javax.vecmath.Vector3f;
 import javax.vecmath.Vector4f;
 
@@ -41,7 +41,7 @@ import javax.vecmath.Vector4f;
 class PlaneShape {
 
 	public static void get_plane_equation(StaticPlaneShape shape, Vector4f equation) {
-		Vector3f tmp = Stack.alloc(Vector3f.class);
+		Vector3f tmp = new Vector3f();
 		equation.set(shape.getPlaneNormal(tmp));
 		equation.w = shape.getPlaneConstant();
 	}
@@ -49,7 +49,7 @@ class PlaneShape {
 	public static void get_plane_equation_transformed(StaticPlaneShape shape, Transform trans, Vector4f equation) {
 		get_plane_equation(shape, equation);
 
-		Vector3f tmp = Stack.alloc(Vector3f.class);
+		Vector3f tmp = new Vector3f();
 
 		trans.basis.getRow(0, tmp);
 		float x = VectorUtil.dot3(tmp, equation);

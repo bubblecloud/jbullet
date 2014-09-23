@@ -26,7 +26,6 @@ package com.bulletphysics.collision.shapes;
 import com.bulletphysics.collision.broadphase.BroadphaseNativeType;
 import com.bulletphysics.collision.dispatch.CollisionObject;
 import com.bulletphysics.linearmath.Transform;
-import cz.advel.stack.Stack;
 import javax.vecmath.Vector3f;
 
 /**
@@ -45,11 +44,11 @@ public abstract class CollisionShape {
 	public abstract void getAabb(Transform t, Vector3f aabbMin, Vector3f aabbMax);
 
 	public void getBoundingSphere(Vector3f center, float[] radius) {
-		Vector3f tmp = Stack.alloc(Vector3f.class);
+		Vector3f tmp = new Vector3f();
 
-		Transform tr = Stack.alloc(Transform.class);
+		Transform tr = new Transform();
 		tr.setIdentity();
-		Vector3f aabbMin = Stack.alloc(Vector3f.class), aabbMax = Stack.alloc(Vector3f.class);
+		Vector3f aabbMin = new Vector3f(), aabbMax = new Vector3f();
 
 		getAabb(tr, aabbMin, aabbMax);
 
@@ -62,7 +61,7 @@ public abstract class CollisionShape {
 
 	///getAngularMotionDisc returns the maximus radius needed for Conservative Advancement to handle time-of-impact with rotations.
 	public float getAngularMotionDisc() {
-		Vector3f center = Stack.alloc(Vector3f.class);
+		Vector3f center = new Vector3f();
 		float[] disc = new float[1]; // TODO: stack
 		getBoundingSphere(center, disc);
 		disc[0] += center.length();
@@ -83,7 +82,7 @@ public abstract class CollisionShape {
 		float temporalAabbMinz = temporalAabbMin.z;
 
 		// add linear motion
-		Vector3f linMotion = Stack.alloc(linvel);
+		Vector3f linMotion = new Vector3f(linvel);
 		linMotion.scale(timeStep);
 
 		//todo: simd would have a vector max/min operation, instead of per-element access
@@ -108,7 +107,7 @@ public abstract class CollisionShape {
 
 		//add conservative angular motion
 		float angularMotion = angvel.length() * getAngularMotionDisc() * timeStep;
-		Vector3f angularMotion3d = Stack.alloc(Vector3f.class);
+		Vector3f angularMotion3d = new Vector3f();
 		angularMotion3d.set(angularMotion, angularMotion, angularMotion);
 		temporalAabbMin.set(temporalAabbMinx, temporalAabbMiny, temporalAabbMinz);
 		temporalAabbMax.set(temporalAabbMaxx, temporalAabbMaxy, temporalAabbMaxz);

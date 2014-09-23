@@ -34,7 +34,7 @@ import com.bulletphysics.collision.shapes.TriangleCallback;
 import com.bulletphysics.extras.gimpact.BoxCollision.AABB;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.util.ObjectArrayList;
-import cz.advel.stack.Stack;
+
 import javax.vecmath.Vector3f;
 
 /**
@@ -102,7 +102,7 @@ public class GImpactMeshShape extends GImpactShapeInterface {
 		int i = getMeshPartCount();
 		float partmass = mass / (float) i;
 
-		Vector3f partinertia = Stack.alloc(Vector3f.class);
+		Vector3f partinertia = new Vector3f();
 
 		while ((i--) != 0) {
 			getMeshPart(i).calculateLocalInertia(partmass, partinertia);
@@ -228,7 +228,7 @@ public class GImpactMeshShape extends GImpactShapeInterface {
 
 	@Override
 	protected void calcLocalAABB() {
-		AABB tmpAABB = Stack.alloc(AABB.class);
+		AABB tmpAABB = new AABB();
 
 		localAABB.invalidate();
 		int i = mesh_parts.size();

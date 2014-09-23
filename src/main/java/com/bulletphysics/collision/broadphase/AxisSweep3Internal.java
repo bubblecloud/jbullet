@@ -31,7 +31,7 @@ import com.bulletphysics.collision.broadphase.AxisSweep3Internal.Handle;
 import com.bulletphysics.linearmath.MiscUtil;
 import com.bulletphysics.linearmath.VectorUtil;
 import com.bulletphysics.util.ObjectArrayList;
-import cz.advel.stack.Stack;
+
 import javax.vecmath.Vector3f;
 
 /**
@@ -87,7 +87,7 @@ public abstract class AxisSweep3Internal extends BroadphaseInterface {
 		this.worldAabbMin.set(worldAabbMin);
 		this.worldAabbMax.set(worldAabbMax);
 
-		Vector3f aabbSize = Stack.alloc(Vector3f.class);
+		Vector3f aabbSize = new Vector3f();
 		aabbSize.sub(this.worldAabbMax, this.worldAabbMin);
 
 		int maxInt = this.handleSentinel;
@@ -192,12 +192,12 @@ public abstract class AxisSweep3Internal extends BroadphaseInterface {
 	//#endif //DEBUG_BROADPHASE
 
 	protected void quantize(int[] out, Vector3f point, int isMax) {
-		Vector3f clampedPoint = Stack.alloc(point);
+		Vector3f clampedPoint = new Vector3f(point);
 
 		VectorUtil.setMax(clampedPoint, worldAabbMin);
 		VectorUtil.setMin(clampedPoint, worldAabbMax);
 
-		Vector3f v = Stack.alloc(Vector3f.class);
+		Vector3f v = new Vector3f();
 		v.sub(clampedPoint, worldAabbMin);
 		VectorUtil.mul(v, v, quantize);
 

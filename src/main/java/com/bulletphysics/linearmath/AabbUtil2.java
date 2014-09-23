@@ -23,7 +23,7 @@
 
 package com.bulletphysics.linearmath;
 
-import cz.advel.stack.Stack;
+
 import javax.vecmath.Matrix3f;
 import javax.vecmath.Vector3f;
 
@@ -49,12 +49,12 @@ public class AabbUtil2 {
 	}
 	
 	public static boolean rayAabb(Vector3f rayFrom, Vector3f rayTo, Vector3f aabbMin, Vector3f aabbMax, float[] param, Vector3f normal) {
-		Vector3f aabbHalfExtent = Stack.alloc(Vector3f.class);
-		Vector3f aabbCenter = Stack.alloc(Vector3f.class);
-		Vector3f source = Stack.alloc(Vector3f.class);
-		Vector3f target = Stack.alloc(Vector3f.class);
-		Vector3f r = Stack.alloc(Vector3f.class);
-		Vector3f hitNormal = Stack.alloc(Vector3f.class);
+		Vector3f aabbHalfExtent = new Vector3f();
+		Vector3f aabbCenter = new Vector3f();
+		Vector3f source = new Vector3f();
+		Vector3f target = new Vector3f();
+		Vector3f r = new Vector3f();
+		Vector3f hitNormal = new Vector3f();
 
 		aabbHalfExtent.sub(aabbMax, aabbMin);
 		aabbHalfExtent.scale(0.5f);
@@ -136,18 +136,18 @@ public class AabbUtil2 {
 	}
 
 	public static void transformAabb(Vector3f halfExtents, float margin, Transform t, Vector3f aabbMinOut, Vector3f aabbMaxOut) {
-		Vector3f halfExtentsWithMargin = Stack.alloc(Vector3f.class);
+		Vector3f halfExtentsWithMargin = new Vector3f();
 		halfExtentsWithMargin.x = halfExtents.x + margin;
 		halfExtentsWithMargin.y = halfExtents.y + margin;
 		halfExtentsWithMargin.z = halfExtents.z + margin;
 
-		Matrix3f abs_b = Stack.alloc(t.basis);
+		Matrix3f abs_b = new Matrix3f(t.basis);
 		MatrixUtil.absolute(abs_b);
 
-		Vector3f tmp = Stack.alloc(Vector3f.class);
+		Vector3f tmp = new Vector3f();
 
-		Vector3f center = Stack.alloc(t.origin);
-		Vector3f extent = Stack.alloc(Vector3f.class);
+		Vector3f center = new Vector3f(t.origin);
+		Vector3f extent = new Vector3f();
 		abs_b.getRow(0, tmp);
 		extent.x = tmp.dot(halfExtentsWithMargin);
 		abs_b.getRow(1, tmp);
@@ -164,7 +164,7 @@ public class AabbUtil2 {
 		assert (localAabbMin.y <= localAabbMax.y);
 		assert (localAabbMin.z <= localAabbMax.z);
 
-		Vector3f localHalfExtents = Stack.alloc(Vector3f.class);
+		Vector3f localHalfExtents = new Vector3f();
 		localHalfExtents.sub(localAabbMax, localAabbMin);
 		localHalfExtents.scale(0.5f);
 
@@ -172,18 +172,18 @@ public class AabbUtil2 {
 		localHalfExtents.y += margin;
 		localHalfExtents.z += margin;
 
-		Vector3f localCenter = Stack.alloc(Vector3f.class);
+		Vector3f localCenter = new Vector3f();
 		localCenter.add(localAabbMax, localAabbMin);
 		localCenter.scale(0.5f);
 
-		Matrix3f abs_b = Stack.alloc(trans.basis);
+		Matrix3f abs_b = new Matrix3f(trans.basis);
 		MatrixUtil.absolute(abs_b);
 
-		Vector3f center = Stack.alloc(localCenter);
+		Vector3f center = new Vector3f(localCenter);
 		trans.transform(center);
 
-		Vector3f extent = Stack.alloc(Vector3f.class);
-		Vector3f tmp = Stack.alloc(Vector3f.class);
+		Vector3f extent = new Vector3f();
+		Vector3f tmp = new Vector3f();
 
 		abs_b.getRow(0, tmp);
 		extent.x = tmp.dot(localHalfExtents);

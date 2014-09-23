@@ -27,7 +27,7 @@ import com.bulletphysics.collision.broadphase.BroadphaseNativeType;
 import com.bulletphysics.linearmath.MatrixUtil;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.linearmath.VectorUtil;
-import cz.advel.stack.Stack;
+
 import javax.vecmath.Matrix3f;
 import javax.vecmath.Vector3f;
 
@@ -58,11 +58,11 @@ public class ScaledBvhTriangleMeshShape extends ConcaveShape {
 	public void processAllTriangles(TriangleCallback callback, Vector3f aabbMin, Vector3f aabbMax) {
 		ScaledTriangleCallback scaledCallback = new ScaledTriangleCallback(callback, localScaling);
 
-		Vector3f invLocalScaling = Stack.alloc(Vector3f.class);
+		Vector3f invLocalScaling = new Vector3f();
 		invLocalScaling.set(1.f / localScaling.x, 1.f / localScaling.y, 1.f / localScaling.z);
 
-		Vector3f scaledAabbMin = Stack.alloc(Vector3f.class);
-		Vector3f scaledAabbMax = Stack.alloc(Vector3f.class);
+		Vector3f scaledAabbMin = new Vector3f();
+		Vector3f scaledAabbMax = new Vector3f();
 
 		// support negative scaling
 		scaledAabbMin.x = localScaling.x >= 0f ? aabbMin.x * invLocalScaling.x : aabbMax.x * invLocalScaling.x;
@@ -78,11 +78,11 @@ public class ScaledBvhTriangleMeshShape extends ConcaveShape {
 
 	@Override
 	public void getAabb(Transform trans, Vector3f aabbMin, Vector3f aabbMax) {
-		Vector3f localAabbMin = bvhTriMeshShape.getLocalAabbMin(Stack.alloc(Vector3f.class));
-		Vector3f localAabbMax = bvhTriMeshShape.getLocalAabbMax(Stack.alloc(Vector3f.class));
+		Vector3f localAabbMin = bvhTriMeshShape.getLocalAabbMin(new Vector3f());
+		Vector3f localAabbMax = bvhTriMeshShape.getLocalAabbMax(new Vector3f());
 
-		Vector3f tmpLocalAabbMin = Stack.alloc(Vector3f.class);
-		Vector3f tmpLocalAabbMax = Stack.alloc(Vector3f.class);
+		Vector3f tmpLocalAabbMin = new Vector3f();
+		Vector3f tmpLocalAabbMax = new Vector3f();
 		VectorUtil.mul(tmpLocalAabbMin, localAabbMin, localScaling);
 		VectorUtil.mul(tmpLocalAabbMax, localAabbMax, localScaling);
 
@@ -93,7 +93,7 @@ public class ScaledBvhTriangleMeshShape extends ConcaveShape {
 		localAabbMax.y = (localScaling.y <= 0f) ? tmpLocalAabbMin.y : tmpLocalAabbMax.y;
 		localAabbMax.z = (localScaling.z <= 0f) ? tmpLocalAabbMin.z : tmpLocalAabbMax.z;
 
-		Vector3f localHalfExtents = Stack.alloc(Vector3f.class);
+		Vector3f localHalfExtents = new Vector3f();
 		localHalfExtents.sub(localAabbMax, localAabbMin);
 		localHalfExtents.scale(0.5f);
 
@@ -102,18 +102,18 @@ public class ScaledBvhTriangleMeshShape extends ConcaveShape {
 		localHalfExtents.y += margin;
 		localHalfExtents.z += margin;
 
-		Vector3f localCenter = Stack.alloc(Vector3f.class);
+		Vector3f localCenter = new Vector3f();
 		localCenter.add(localAabbMax, localAabbMin);
 		localCenter.scale(0.5f);
 
-		Matrix3f abs_b = Stack.alloc(trans.basis);
+		Matrix3f abs_b = new Matrix3f(trans.basis);
 		MatrixUtil.absolute(abs_b);
 
-		Vector3f center = Stack.alloc(localCenter);
+		Vector3f center = new Vector3f(localCenter);
 		trans.transform(center);
 
-		Vector3f extent = Stack.alloc(Vector3f.class);
-		Vector3f tmp = Stack.alloc(Vector3f.class);
+		Vector3f extent = new Vector3f();
+		Vector3f tmp = new Vector3f();
 		abs_b.getRow(0, tmp);
 		extent.x = tmp.dot(localHalfExtents);
 		abs_b.getRow(1, tmp);

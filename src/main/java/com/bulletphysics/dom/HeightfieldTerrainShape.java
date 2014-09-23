@@ -35,7 +35,7 @@ import com.bulletphysics.collision.shapes.TriangleCallback;
 import com.bulletphysics.linearmath.MatrixUtil;
 import com.bulletphysics.linearmath.Transform;
 
-import cz.advel.stack.Stack;
+
 
 public class HeightfieldTerrainShape extends ConcaveShape {
 
@@ -114,13 +114,13 @@ public class HeightfieldTerrainShape extends ConcaveShape {
 
 	@Override
 	public void processAllTriangles(TriangleCallback callback, Vector3f aabbMin, Vector3f aabbMax) {
-		Vector3f localAabbMin = Stack.alloc(Vector3f.class);
+		Vector3f localAabbMin = new Vector3f();
 
 		localAabbMin.x = aabbMin.x * (1.f / m_localScaling.x);
 		localAabbMin.y = aabbMin.y * (1.f / m_localScaling.y);
 		localAabbMin.z = aabbMin.z * (1.f / m_localScaling.z);
 
-		Vector3f localAabbMax = Stack.alloc(Vector3f.class);
+		Vector3f localAabbMax = new Vector3f();
 		localAabbMax.x = aabbMax.x * (1.f / m_localScaling.x);
 		localAabbMax.y = aabbMax.y * (1.f / m_localScaling.y);
 		localAabbMax.z = aabbMax.z * (1.f / m_localScaling.z);
@@ -187,9 +187,9 @@ public class HeightfieldTerrainShape extends ConcaveShape {
 			for (int x = startX; x < endX; x++) {
 				// Vector3f vertices[3];
 				Vector3f[] vertices = new Vector3f[3];
-				vertices[0] = Stack.alloc(Vector3f.class);
-				vertices[1] = Stack.alloc(Vector3f.class);
-				vertices[2] = Stack.alloc(Vector3f.class);
+				vertices[0] = new Vector3f();
+				vertices[1] = new Vector3f();
+				vertices[2] = new Vector3f();
 				if (m_flipQuadEdges || (m_useDiamondSubdivision && (((j + x) & 1) != 0))) {// XXX
 					// first triangle
 					getVertex(x, j, vertices[0]);
@@ -254,7 +254,7 @@ public class HeightfieldTerrainShape extends ConcaveShape {
 
 	@Override
 	public void getAabb(Transform t, Vector3f aabbMin, Vector3f aabbMax) {
-		Vector3f halfExtents = Stack.alloc(Vector3f.class);
+		Vector3f halfExtents = new Vector3f();
 		halfExtents.set(m_localAabbMax);
 		halfExtents.sub(m_localAabbMin);
 		halfExtents.x = halfExtents.x * m_localScaling.x * 0.5f;
@@ -265,13 +265,13 @@ public class HeightfieldTerrainShape extends ConcaveShape {
 		localOrigin[m_upAxis] = (m_minHeight + m_maxHeight) * 0.5f; XXX
 		localOrigin *= m_localScaling;*/
 
-		Matrix3f abs_b = Stack.alloc(t.basis);
+		Matrix3f abs_b = new Matrix3f(t.basis);
 		MatrixUtil.absolute(abs_b);
 
-		Vector3f tmp = Stack.alloc(Vector3f.class);
+		Vector3f tmp = new Vector3f();
 
-		Vector3f center = Stack.alloc(t.origin);
-		Vector3f extent = Stack.alloc(Vector3f.class);
+		Vector3f center = new Vector3f(t.origin);
+		Vector3f extent = new Vector3f();
 		abs_b.getRow(0, tmp);
 		extent.x = tmp.dot(halfExtents);
 		abs_b.getRow(1, tmp);
@@ -279,7 +279,7 @@ public class HeightfieldTerrainShape extends ConcaveShape {
 		abs_b.getRow(2, tmp);
 		extent.z = tmp.dot(halfExtents);
 
-		Vector3f margin = Stack.alloc(Vector3f.class);
+		Vector3f margin = new Vector3f();
 		margin.set(getMargin(), getMargin(), getMargin());
 		extent.add(margin);
 

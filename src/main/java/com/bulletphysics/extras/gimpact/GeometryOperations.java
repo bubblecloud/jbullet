@@ -29,7 +29,7 @@ package com.bulletphysics.extras.gimpact;
 
 import com.bulletphysics.BulletGlobals;
 import com.bulletphysics.linearmath.VectorUtil;
-import cz.advel.stack.Stack;
+
 import javax.vecmath.Vector3f;
 import javax.vecmath.Vector4f;
 
@@ -50,7 +50,7 @@ class GeometryOperations {
 	 * Calc a plane from a triangle edge an a normal.
 	 */
 	public static void edge_plane(Vector3f e1, Vector3f e2, Vector3f normal, Vector4f plane) {
-		Vector3f planenormal = Stack.alloc(Vector3f.class);
+		Vector3f planenormal = new Vector3f();
 		planenormal.sub(e2, e1);
 		planenormal.cross(planenormal, normal);
 		planenormal.normalize();
@@ -63,7 +63,7 @@ class GeometryOperations {
 	 * Finds the closest point(cp) to (v) on a segment (e1,e2).
 	 */
 	public static void closest_point_on_segment(Vector3f cp, Vector3f v, Vector3f e1, Vector3f e2) {
-		Vector3f n = Stack.alloc(Vector3f.class);
+		Vector3f n = new Vector3f();
 		n.sub(e2, e1);
 		cp.sub(v, e1);
 		float _scalar = cp.dot(n) / n.dot(n);
@@ -111,17 +111,17 @@ class GeometryOperations {
 	 * Find closest points on segments.
 	 */
 	public static void segment_collision(Vector3f vA1, Vector3f vA2, Vector3f vB1, Vector3f vB2, Vector3f vPointA, Vector3f vPointB) {
-		Vector3f AD = Stack.alloc(Vector3f.class);
+		Vector3f AD = new Vector3f();
 		AD.sub(vA2, vA1);
 
-		Vector3f BD = Stack.alloc(Vector3f.class);
+		Vector3f BD = new Vector3f();
 		BD.sub(vB2, vB1);
 
-		Vector3f N = Stack.alloc(Vector3f.class);
+		Vector3f N = new Vector3f();
 		N.cross(AD, BD);
 		float[] tp = new float[] { N.lengthSquared() };
 
-		Vector4f _M = Stack.alloc(Vector4f.class);//plane
+		Vector4f _M = new Vector4f();//plane
 
 		if (tp[0] < BulletGlobals.SIMD_EPSILON)//ARE PARALELE
 		{

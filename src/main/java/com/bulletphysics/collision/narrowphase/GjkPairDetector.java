@@ -29,8 +29,8 @@ import com.bulletphysics.collision.shapes.ConvexShape;
 import com.bulletphysics.linearmath.IDebugDraw;
 import com.bulletphysics.linearmath.MatrixUtil;
 import com.bulletphysics.linearmath.Transform;
-import cz.advel.stack.Stack;
-import cz.advel.stack.StaticAlloc;
+
+
 import javax.vecmath.Vector3f;
 
 /**
@@ -69,18 +69,17 @@ public class GjkPairDetector extends DiscreteCollisionDetectorInterface {
 		this.minkowskiA = objectA;
 		this.minkowskiB = objectB;
 	}
-	
-	@StaticAlloc
+
 	public void getClosestPoints(ClosestPointInput input, Result output, IDebugDraw debugDraw, boolean swapResults) {
-		Vector3f tmp = Stack.alloc(Vector3f.class);
+		Vector3f tmp = new Vector3f();
 
 		float distance = 0f;
-		Vector3f normalInB = Stack.alloc(Vector3f.class);
+		Vector3f normalInB = new Vector3f();
 		normalInB.set(0f, 0f, 0f);
-		Vector3f pointOnA = Stack.alloc(Vector3f.class), pointOnB = Stack.alloc(Vector3f.class);
-		Transform localTransA = Stack.alloc(input.transformA);
-		Transform localTransB = Stack.alloc(input.transformB);
-		Vector3f positionOffset = Stack.alloc(Vector3f.class);
+		Vector3f pointOnA = new Vector3f(), pointOnB = new Vector3f();
+		Transform localTransA = new Transform(input.transformA);
+		Transform localTransB = new Transform(input.transformB);
+		Vector3f positionOffset = new Vector3f();
 		positionOffset.add(localTransA.origin, localTransB.origin);
 		positionOffset.scale(0.5f);
 		localTransA.origin.sub(positionOffset);
@@ -116,18 +115,18 @@ public class GjkPairDetector extends DiscreteCollisionDetectorInterface {
 
 			simplexSolver.reset();
 
-			Vector3f seperatingAxisInA = Stack.alloc(Vector3f.class);
-			Vector3f seperatingAxisInB = Stack.alloc(Vector3f.class);
+			Vector3f seperatingAxisInA = new Vector3f();
+			Vector3f seperatingAxisInB = new Vector3f();
 			
-			Vector3f pInA = Stack.alloc(Vector3f.class);
-			Vector3f qInB = Stack.alloc(Vector3f.class);
+			Vector3f pInA = new Vector3f();
+			Vector3f qInB = new Vector3f();
 			
-			Vector3f pWorld = Stack.alloc(Vector3f.class);
-			Vector3f qWorld = Stack.alloc(Vector3f.class);
-			Vector3f w = Stack.alloc(Vector3f.class);
+			Vector3f pWorld = new Vector3f();
+			Vector3f qWorld = new Vector3f();
+			Vector3f w = new Vector3f();
 			
-			Vector3f tmpPointOnA = Stack.alloc(Vector3f.class), tmpPointOnB = Stack.alloc(Vector3f.class);
-			Vector3f tmpNormalInB = Stack.alloc(Vector3f.class);
+			Vector3f tmpPointOnA = new Vector3f(), tmpPointOnB = new Vector3f();
+			Vector3f tmpNormalInB = new Vector3f();
 			
 			for (;;) //while (true)
 			{

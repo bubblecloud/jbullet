@@ -25,7 +25,7 @@ package com.bulletphysics.linearmath;
 
 import com.bulletphysics.collision.dispatch.CollisionWorld;
 import com.bulletphysics.dynamics.DynamicsWorld;
-import cz.advel.stack.Stack;
+
 import javax.vecmath.Vector3f;
 
 /**
@@ -67,19 +67,19 @@ public abstract class IDebugDraw {
 	public abstract int getDebugMode();
 
 	public void drawAabb(Vector3f from, Vector3f to, Vector3f color) {
-		Vector3f halfExtents = Stack.alloc(to);
+		Vector3f halfExtents = new Vector3f(to);
 		halfExtents.sub(from);
 		halfExtents.scale(0.5f);
 
-		Vector3f center = Stack.alloc(to);
+		Vector3f center = new Vector3f(to);
 		center.add(from);
 		center.scale(0.5f);
 
 		int i, j;
 
-		Vector3f edgecoord = Stack.alloc(Vector3f.class);
+		Vector3f edgecoord = new Vector3f();
 		edgecoord.set(1f, 1f, 1f);
-		Vector3f pa = Stack.alloc(Vector3f.class), pb = Stack.alloc(Vector3f.class);
+		Vector3f pa = new Vector3f(), pb = new Vector3f();
 		for (i = 0; i < 4; i++) {
 			for (j = 0; j < 3; j++) {
 				pa.set(edgecoord.x * halfExtents.x, edgecoord.y * halfExtents.y, edgecoord.z * halfExtents.z);

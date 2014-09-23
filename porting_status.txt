@@ -4,6 +4,10 @@ Base code is based on Bullet 2.72.
 
 List of exceptions:
 
+QIntBio:
+- Translational Motors
+- Spring Constraint (Generic6DofSpringConstraint) and the ConstraintDemo in JBullet
+
 2.74:
 - CCD motion clamping fix
 

@@ -1,0 +1,99 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.bubblecloud.jbullet</groupId>
+    <artifactId>jbullet</artifactId>
+    <version>2.7.3-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <scm>
+        <url>https://github.com/bubblecloud/jbullet.git</url>
+        <connection>scm:git:git://github.com:bubblecloud/jbullet.git</connection>
+        <developerConnection>scm:git:git@github.com:bubblecloud/jbullet.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
+
+    <!-- Deploy releases and snapshots to the CloudBees maven repositories -->
+    <distributionManagement>
+        <downloadUrl>http://repository-bubblecloud.forge.cloudbees.com/snapshot/</downloadUrl>
+        <repository>
+            <id>bubblecloud-cloudbees-release</id>
+            <name>bubblecloud-cloudbees-release</name>
+            <url>dav:https://repository-bubblecloud.forge.cloudbees.com/release/</url>
+        </repository>
+        <snapshotRepository>
+            <id>bubblecloud-cloudbees-snapshot</id>
+            <name>bubblecloud-cloudbees-snapshot</name>
+            <url>dav:https://repository-bubblecloud.forge.cloudbees.com/snapshot/</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+    <build>
+        <extensions>
+            <extension>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-webdav-jackrabbit</artifactId>
+                <version>1.0-beta-7</version>
+            </extension>
+        </extensions>
+        <plugins>
+            <plugin>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.4.2</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.maven.scm</groupId>
+                        <artifactId>maven-scm-provider-gitexe</artifactId>
+                        <version>1.8.1</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>java3d</groupId>
+            <artifactId>vecmath</artifactId>
+            <version>1.3.1</version>
+        </dependency>
+        <dependency>
+            <groupId>asm</groupId>
+            <artifactId>asm-all</artifactId>
+            <version>3.1</version>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.sociaal</groupId>
+            <artifactId>stack-alloc</artifactId>
+            <version>3.0.0.20130526</version>
+        </dependency>
+        <dependency>
+            <groupId>org.swinglabs</groupId>
+            <artifactId>swing-layout</artifactId>
+            <version>1.0.3</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.lwjgl.lwjgl</groupId>
+            <artifactId>lwjgl</artifactId>
+            <version>2.9.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.lwjgl.lwjgl</groupId>
+            <artifactId>lwjgl_util</artifactId>
+            <version>2.9.1</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+</project>
+

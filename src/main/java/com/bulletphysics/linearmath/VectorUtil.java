@@ -122,6 +122,13 @@ public class VectorUtil {
 		dest.y = v1.y + v2.y;
 		dest.z = v1.z + v2.z;
 	}
+
+	public static void sub(Vector3f dest, Vector3f v1, Vector3f v2) {
+		dest.x = v1.x - v2.x;
+		dest.y = v1.y - v2.y;
+		dest.z = v1.z - v2.z;
+	}
+
 	
 	public static void add(Vector3f dest, Vector3f v1, Vector3f v2, Vector3f v3) {
 		dest.x = v1.x + v2.x + v3.x;
@@ -140,6 +147,13 @@ public class VectorUtil {
 		dest.y = v1.y * v2.y;
 		dest.z = v1.z * v2.z;
 	}
+
+	public static void mul(Vector3f dest, Vector3f v1, float s) {
+		dest.x = v1.x * s;
+		dest.y = v1.y * s;
+		dest.z = v1.z * s;
+	}
+
 	
 	public static void div(Vector3f dest, Vector3f v1, Vector3f v2) {
 		dest.x = v1.x / v2.x;

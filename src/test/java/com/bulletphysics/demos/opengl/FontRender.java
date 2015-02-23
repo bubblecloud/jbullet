@@ -120,9 +120,9 @@ public class FontRender {
 			in.read(data);
 			buf.put(data);
 
-			int[] id = new int[1];
-			glGenTextures(IntBuffer.wrap(id));
-			texture = id[0];
+			final IntBuffer intBuffer = BufferUtils.createIntBuffer(1);
+			glGenTextures(intBuffer);
+			texture = intBuffer.get(0);
 			width = w;
 			height = h;
 			

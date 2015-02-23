@@ -58,7 +58,10 @@ public class LwjglGL implements IGL {
 	}
 	
 	public void glLight(int light, int pname, float[] params) {
-		GL11.glLight(light, pname, FloatBuffer.wrap(params));
+		FloatBuffer floatBuffer = BufferUtils.createFloatBuffer(params.length);
+		floatBuffer.put(params);
+		floatBuffer.flip();
+		GL11.glLight(light, pname, floatBuffer);
 	}
 
 	public void glEnable(int cap) {

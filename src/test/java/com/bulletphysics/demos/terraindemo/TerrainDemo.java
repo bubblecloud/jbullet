@@ -41,7 +41,9 @@ import com.bulletphysics.collision.shapes.CollisionShape;
 import com.bulletphysics.collision.shapes.HeightfieldTerrainShape;
 import com.bulletphysics.collision.shapes.SphereShape;
 import com.bulletphysics.demos.opengl.DemoApplication;
+import com.bulletphysics.demos.opengl.GLDebugDrawer;
 import com.bulletphysics.demos.opengl.IGL;
+import com.bulletphysics.demos.opengl.LWJGL;
 import com.bulletphysics.dynamics.DiscreteDynamicsWorld;
 import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.dynamics.constraintsolver.ConstraintSolver;
@@ -49,9 +51,17 @@ import com.bulletphysics.dynamics.constraintsolver.SequentialImpulseConstraintSo
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.linearmath.VectorUtil;
 import com.bulletphysics.util.ObjectArrayList;
+import org.lwjgl.LWJGLException;
 
 public class TerrainDemo extends DemoApplication
 {
+	public static void main(String[] args) throws LWJGLException {
+		TerrainDemo terrainDemo = new TerrainDemo(LWJGL.getGL());
+		terrainDemo.initPhysics();
+		terrainDemo.getDynamicsWorld().setDebugDrawer(new GLDebugDrawer(LWJGL.getGL()));
+		LWJGL.main(args, 800, 600, "Bullet Terrain Demo", terrainDemo);
+	}
+
 	public TerrainDemo(IGL gl)
 	{
 		super(gl);
@@ -134,7 +144,9 @@ public class TerrainDemo extends DemoApplication
 		m_collisionShapes.add(m_terrainShape);
 
 		// set origin to middle of heightfield
-		Transform tr = Transform.createTranslation(new Vector3f(0, -20, 0));
+		Transform tr = new Transform();
+		tr.setIdentity();
+		tr.origin.set(0, -20, 0);
 
 		// create ground object
 		float mass = 0.0f;

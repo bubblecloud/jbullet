@@ -29,12 +29,9 @@ import javax.vecmath.Matrix3f;
 import javax.vecmath.Vector3f;
 
 import com.bulletphysics.collision.broadphase.BroadphaseNativeType;
-import com.bulletphysics.demos.opengl.GLShapeDrawer;
 import com.bulletphysics.linearmath.MatrixUtil;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.linearmath.VectorUtil;
-
-import cz.advel.stack.Stack;
 
 public class HeightfieldTerrainShape extends ConcaveShape
 {
@@ -176,7 +173,7 @@ public class HeightfieldTerrainShape extends ConcaveShape
 		  axis-aligned bounding box.
 		 */
 
-		Vector3f clampedPoint = Stack.alloc(Vector3f.class);
+		Vector3f clampedPoint = new Vector3f();
 		clampedPoint.set(point.x, point.y, point.z);
 		VectorUtil.setMax(clampedPoint, m_localAabbMin);
 		VectorUtil.setMin(clampedPoint, m_localAabbMax);
@@ -334,24 +331,24 @@ public class HeightfieldTerrainShape extends ConcaveShape
 	@Override
 	public void getAabb(Transform trans, Vector3f aabbMin, Vector3f aabbMax)
 	{
-		Vector3f tmp = Stack.alloc(Vector3f.class);
+		Vector3f tmp = new Vector3f();
 
-		Vector3f localHalfExtents = Stack.alloc(Vector3f.class);
+		Vector3f localHalfExtents = new Vector3f();
 		localHalfExtents.sub(m_localAabbMax, m_localAabbMin);
 		VectorUtil.mul(localHalfExtents,localHalfExtents,m_localScaling);
 		//localHalfExtents.mul(localHalfExtents,m_localScaling);
 		localHalfExtents.scale(0.5f);
 
-		Vector3f localOrigin = Stack.alloc(Vector3f.class);
+		Vector3f localOrigin = new Vector3f();
 		localOrigin.set(0f,0f,0f);
 		VectorUtil.setCoord(localOrigin,m_upAxis,(m_minHeight + m_maxHeight)*0.5f );
 		VectorUtil.mul(localOrigin,localOrigin,m_localScaling);
 		
-		Matrix3f abs_b = Stack.alloc(trans.basis);
+		Matrix3f abs_b = new Matrix3f(trans.basis);
 		MatrixUtil.absolute(abs_b);
 
-		Vector3f center = Stack.alloc(trans.origin);
-		Vector3f extent = Stack.alloc(Vector3f.class);
+		Vector3f center = new Vector3f(trans.origin);
+		Vector3f extent = new Vector3f();
 		abs_b.getRow(0, tmp);
 		extent.x = tmp.dot(localHalfExtents);
 		abs_b.getRow(1, tmp);
@@ -359,7 +356,7 @@ public class HeightfieldTerrainShape extends ConcaveShape
 		abs_b.getRow(2, tmp);
 		extent.z = tmp.dot(localHalfExtents);
 
-		Vector3f margin = Stack.alloc(Vector3f.class);
+		Vector3f margin = new Vector3f();
 		margin.set(getMargin(), getMargin(), getMargin());
 		extent.add(margin);
 
@@ -381,37 +378,28 @@ public class HeightfieldTerrainShape extends ConcaveShape
 
 	public void checkNormal(Vector3f[] vertices1, TriangleCallback callback)
 	{
-		if (!(callback instanceof GLShapeDrawer.GlDrawcallback))
-		{
-			int ibreak = 0;
-		}
 
-		Vector3f tmp1 = Stack.alloc(Vector3f.class);
-		Vector3f tmp2 = Stack.alloc(Vector3f.class);
-		Vector3f normal = Stack.alloc(Vector3f.class);
+		Vector3f tmp1 = new Vector3f();
+		Vector3f tmp2 = new Vector3f();
+		Vector3f normal = new Vector3f();
 
 		tmp1.sub(vertices1[1], vertices1[0]);
 		tmp2.sub(vertices1[2], vertices1[0]);
 
 		normal.cross(tmp1, tmp2);
 		normal.normalize();
-		int ibreak = 0;
 
 	}
 
 	public void processAllTriangles(TriangleCallback callback, Vector3f aabbMin, Vector3f aabbMax)
 	{
-		if (!(callback instanceof GLShapeDrawer.GlDrawcallback))
-		{
-			int ibreak = 0;
-		}
 
 		// scale down the input aabb's so they are in local (non-scaled) coordinates
-		Vector3f invScale = Stack.alloc(Vector3f.class);
+		Vector3f invScale = new Vector3f();
 		invScale.set(1f / m_localScaling.x, 1f / m_localScaling.y, 1f / m_localScaling.z);
 
-		Vector3f localAabbMin = Stack.alloc(Vector3f.class);
-		Vector3f localAabbMax = Stack.alloc(Vector3f.class);
+		Vector3f localAabbMin = new Vector3f();
+		Vector3f localAabbMax = new Vector3f();
 
 		VectorUtil.mul(localAabbMin, aabbMin, invScale);
 		VectorUtil.mul(localAabbMax, aabbMax, invScale);

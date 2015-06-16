@@ -23,7 +23,10 @@
 
 package com.bulletphysics.demos.bsp;
 
-import com.bulletphysics.util.ObjectArrayList;
+import javax.vecmath.Vector3f;
+
+import br.com.luvia.core.video.Graphics3D;
+
 import com.bulletphysics.collision.broadphase.BroadphaseInterface;
 import com.bulletphysics.collision.broadphase.DbvtBroadphase;
 import com.bulletphysics.collision.dispatch.CollisionDispatcher;
@@ -31,15 +34,11 @@ import com.bulletphysics.collision.dispatch.DefaultCollisionConfiguration;
 import com.bulletphysics.collision.shapes.CollisionShape;
 import com.bulletphysics.collision.shapes.ConvexHullShape;
 import com.bulletphysics.demos.opengl.DemoApplication;
-import com.bulletphysics.demos.opengl.GLDebugDrawer;
-import com.bulletphysics.demos.opengl.IGL;
-import com.bulletphysics.demos.opengl.LWJGL;
 import com.bulletphysics.dynamics.DiscreteDynamicsWorld;
 import com.bulletphysics.dynamics.constraintsolver.ConstraintSolver;
 import com.bulletphysics.dynamics.constraintsolver.SequentialImpulseConstraintSolver;
 import com.bulletphysics.linearmath.Transform;
-import javax.vecmath.Vector3f;
-import static com.bulletphysics.demos.opengl.IGL.*;
+import com.bulletphysics.util.ObjectArrayList;
 
 /**
  * BspDemo shows the convex collision detection, by converting a Quake BSP file
@@ -59,11 +58,11 @@ public class BspDemo extends DemoApplication {
 	public ConstraintSolver solver;
 	public DefaultCollisionConfiguration collisionConfiguration;
 
-	public BspDemo(IGL gl) {
-		super(gl);
+	public BspDemo(int w, int h) {
+		super(w, h);
 	}
 	
-	public void initPhysics() throws Exception {
+	public void initPhysics(Graphics3D g) throws Exception {
 		cameraUp.set(0f, 0f, 1f);
 		forwardAxis = 1;
 
@@ -96,7 +95,6 @@ public class BspDemo extends DemoApplication {
 	
 	@Override
 	public void clientMoveAndDisplay() {
-		gl.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 		float dt = getDeltaTimeMicroseconds() * 0.000001f;
 
 		dynamicsWorld.stepSimulation(dt);
@@ -104,28 +102,8 @@ public class BspDemo extends DemoApplication {
 		// optional but useful: debug drawing
 		dynamicsWorld.debugDrawWorld();
 
-		renderme();
-
 		//glFlush();
 		//glutSwapBuffers();
-	}
-
-	@Override
-	public void displayCallback() {
-		gl.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
-
-		renderme();
-
-		//glFlush();
-		//glutSwapBuffers();
-	}
-
-	public static void main(String[] args) throws Exception {
-		BspDemo demo = new BspDemo(LWJGL.getGL());
-		demo.initPhysics();
-		demo.getDynamicsWorld().setDebugDrawer(new GLDebugDrawer(LWJGL.getGL()));
-
-		LWJGL.main(args, 800, 600, "Bullet Physics Demo. http://bullet.sf.net", demo);
 	}
 	
 	////////////////////////////////////////////////////////////////////////////

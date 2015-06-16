@@ -23,10 +23,13 @@
 
 package com.bulletphysics.demos.opengl;
 
+import javax.media.opengl.GL2;
+import javax.vecmath.Vector3f;
+
+import br.com.luvia.core.video.Graphics3D;
+
 import com.bulletphysics.linearmath.DebugDrawModes;
 import com.bulletphysics.linearmath.IDebugDraw;
-import javax.vecmath.Vector3f;
-import static com.bulletphysics.demos.opengl.IGL.*;
 
 /**
  *
@@ -37,19 +40,20 @@ public class GLDebugDrawer extends IDebugDraw {
 	// JAVA NOTE: added
 	private static final boolean DEBUG_NORMALS = false;
 	
-	private IGL gl;
+	private Graphics3D g;
 	private int debugMode;
 	
 	private final Vector3f tmpVec = new Vector3f();
 
-	public GLDebugDrawer(IGL gl) {
-		this.gl = gl;
+	public GLDebugDrawer(Graphics3D g) {
+		this.g = g;
 	}
 
 	@Override
 	public void drawLine(Vector3f from, Vector3f to, Vector3f color) {
+		GL2 gl = g.getGL2();
 		if (debugMode > 0) {
-			gl.glBegin(GL_LINES);
+			gl.glBegin(GL2.GL_LINES);
 			gl.glColor3f(color.x, color.y, color.z);
 			gl.glVertex3f(from.x, from.y, from.z);
 			gl.glVertex3f(to.x, to.y, to.z);
@@ -76,6 +80,8 @@ public class GLDebugDrawer extends IDebugDraw {
 	@Override
 	public void drawContactPoint(Vector3f pointOnB, Vector3f normalOnB, float distance, int lifeTime, Vector3f color) {
 		if ((debugMode & DebugDrawModes.DRAW_CONTACT_POINTS) != 0) {
+			GL2 gl = g.getGL2();
+			
 			Vector3f to = tmpVec;
 			to.scaleAdd(distance*100f, normalOnB, pointOnB);
 			Vector3f from = pointOnB;
@@ -87,13 +93,13 @@ public class GLDebugDrawer extends IDebugDraw {
 				to.add(pointOnB);
 				gl.glLineWidth(3f);
 				gl.glPointSize(6f);
-				gl.glBegin(GL_POINTS);
+				gl.glBegin(GL2.GL_POINTS);
 				gl.glColor3f(color.x, color.y, color.z);
 				gl.glVertex3f(from.x, from.y, from.z);
 				gl.glEnd();
 			}
 
-			gl.glBegin(GL_LINES);
+			gl.glBegin(GL2.GL_LINES);
 			gl.glColor3f(color.x, color.y, color.z);
 			gl.glVertex3f(from.x, from.y, from.z);
 			gl.glVertex3f(to.x, to.y, to.z);

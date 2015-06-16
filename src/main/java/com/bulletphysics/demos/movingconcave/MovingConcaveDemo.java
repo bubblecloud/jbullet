@@ -23,6 +23,13 @@
 
 package com.bulletphysics.demos.movingconcave;
 
+import javax.vecmath.Quat4f;
+import javax.vecmath.Vector3f;
+
+import br.com.etyllica.core.event.GUIEvent;
+import br.com.etyllica.core.event.KeyEvent;
+import br.com.luvia.core.video.Graphics3D;
+
 import com.bulletphysics.collision.broadphase.BroadphaseInterface;
 import com.bulletphysics.collision.broadphase.DbvtBroadphase;
 import com.bulletphysics.collision.dispatch.CollisionDispatcher;
@@ -34,9 +41,6 @@ import com.bulletphysics.collision.shapes.CompoundShape;
 import com.bulletphysics.collision.shapes.StaticPlaneShape;
 import com.bulletphysics.collision.shapes.TriangleIndexVertexArray;
 import com.bulletphysics.demos.opengl.DemoApplication;
-import com.bulletphysics.demos.opengl.GLDebugDrawer;
-import com.bulletphysics.demos.opengl.IGL;
-import com.bulletphysics.demos.opengl.LWJGL;
 import com.bulletphysics.dynamics.DiscreteDynamicsWorld;
 import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.dynamics.constraintsolver.ConstraintSolver;
@@ -44,10 +48,6 @@ import com.bulletphysics.dynamics.constraintsolver.SequentialImpulseConstraintSo
 import com.bulletphysics.extras.gimpact.GImpactCollisionAlgorithm;
 import com.bulletphysics.extras.gimpact.GImpactMeshShape;
 import com.bulletphysics.linearmath.Transform;
-import javax.vecmath.Quat4f;
-import javax.vecmath.Vector3f;
-import org.lwjgl.LWJGLException;
-import static com.bulletphysics.demos.opengl.IGL.*;
 
 /**
  * 
@@ -63,13 +63,14 @@ public class MovingConcaveDemo extends DemoApplication {
 	
 	private CollisionShape trimeshShape;
 
-	public MovingConcaveDemo(IGL gl) {
-		super(gl);
+	public MovingConcaveDemo(int w, int h) {
+		super(w, h);
+		
+		setTitle("Moving Concave Mesh Demo");
 	}
 	
 	@Override
 	public void clientMoveAndDisplay() {
-		gl.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// simple dynamics world doesn't handle fixed-time-stepping
 		float ms = getDeltaTimeMicroseconds();
@@ -81,13 +82,11 @@ public class MovingConcaveDemo extends DemoApplication {
 			dynamicsWorld.debugDrawWorld();
 		}
 
-		renderme();
-
 		//glFlush();
 		//glutSwapBuffers();
 	}
 
-	@Override
+	/*@Override
 	public void displayCallback() {
 		gl.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -100,7 +99,7 @@ public class MovingConcaveDemo extends DemoApplication {
 
 		//glFlush();
 		//glutSwapBuffers();
-	}
+	}*/
 
 	public void initGImpactCollision() {
 		// create trimesh
@@ -117,7 +116,7 @@ public class MovingConcaveDemo extends DemoApplication {
 		GImpactCollisionAlgorithm.registerAlgorithm(dispatcher);
 	}
 	
-	public void initPhysics() {
+	public void initPhysics(Graphics3D g) {
 		setCameraDistance(30f);
 
 		// collision configuration contains default setup for memory, collision setup
@@ -216,24 +215,10 @@ public class MovingConcaveDemo extends DemoApplication {
 		}
 	}
 
-	@Override
-	public void keyboardCallback(char key, int x, int y, int modifiers) {
-		switch (key) {
-			case '.':
-				shootTrimesh(getCameraTargetPosition());
-				break;
-
-			default:
-				super.keyboardCallback(key, x, y, modifiers);
+	public GUIEvent updateKeyboard(KeyEvent event) {
+		if(event.isKeyDown(KeyEvent.TSK_SPACE)) {
+			shootTrimesh(getCameraTargetPosition());
 		}
+		return GUIEvent.NONE;
 	}
-	
-	public static void main(String[] args) throws LWJGLException {
-		MovingConcaveDemo concaveDemo = new MovingConcaveDemo(LWJGL.getGL());
-		concaveDemo.initPhysics();
-		concaveDemo.getDynamicsWorld().setDebugDrawer(new GLDebugDrawer(LWJGL.getGL()));
-
-		LWJGL.main(args, 800, 600, "Moving Concave Mesh Demo", concaveDemo);
-	}
-	
 }

@@ -23,7 +23,17 @@
 
 package com.bulletphysics.demos.forklift;
 
-import com.bulletphysics.util.ObjectArrayList;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+
+import javax.media.opengl.GL2;
+import javax.vecmath.Vector3f;
+
+import br.com.etyllica.core.event.GUIEvent;
+import br.com.etyllica.core.event.KeyEvent;
+import br.com.etyllica.core.event.KeyState;
+import br.com.luvia.core.video.Graphics3D;
+
 import com.bulletphysics.collision.broadphase.BroadphaseInterface;
 import com.bulletphysics.collision.broadphase.DbvtBroadphase;
 import com.bulletphysics.collision.dispatch.CollisionDispatcher;
@@ -36,10 +46,7 @@ import com.bulletphysics.collision.shapes.CompoundShape;
 import com.bulletphysics.collision.shapes.CylinderShapeX;
 import com.bulletphysics.collision.shapes.TriangleIndexVertexArray;
 import com.bulletphysics.demos.opengl.DemoApplication;
-import com.bulletphysics.demos.opengl.GLDebugDrawer;
 import com.bulletphysics.demos.opengl.GLShapeDrawer;
-import com.bulletphysics.demos.opengl.IGL;
-import com.bulletphysics.demos.opengl.LWJGL;
 import com.bulletphysics.dynamics.DiscreteDynamicsWorld;
 import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.dynamics.constraintsolver.ConstraintSolver;
@@ -54,13 +61,7 @@ import com.bulletphysics.dynamics.vehicle.WheelInfo;
 import com.bulletphysics.linearmath.DebugDrawModes;
 import com.bulletphysics.linearmath.MatrixUtil;
 import com.bulletphysics.linearmath.Transform;
-import java.awt.event.KeyEvent;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import javax.vecmath.Vector3f;
-import org.lwjgl.LWJGLException;
-import org.lwjgl.input.Keyboard;
-import static com.bulletphysics.demos.opengl.IGL.*;
+import com.bulletphysics.util.ObjectArrayList;
 
 /**
  *
@@ -97,7 +98,7 @@ public class ForkLiftDemo extends DemoApplication {
 	// RaycastVehicle is the interface for the constraint that implements the raycast vehicle
 	// notice that for higher-quality slow-moving vehicles, another approach might be better
 	// implementing explicit hinged-wheel constraints with cylinder collision, rather then raycasts
-	private float gEngineForce = 0.f;
+	private float gEngineForce = 0.1f;
 
 	private float defaultBreakingForce = 10.f;
 	private float gBreakingForce = 10.f;
@@ -119,14 +120,14 @@ public class ForkLiftDemo extends DemoApplication {
 	private float suspensionRestLength = 0.6f;
 
 	private static final float CUBE_HALF_EXTENTS = 1f;
-	
+
 	////////////////////////////////////////////////////////////////////////////
-	
-	
+
+
 	public RigidBody carChassis;
 
 	//----------------------------
-	
+
 	public RigidBody liftBody;
 	public final Vector3f liftStartPos = new Vector3f();
 	public HingeConstraint liftHinge;
@@ -158,8 +159,15 @@ public class ForkLiftDemo extends DemoApplication {
 	public float minCameraDistance = 3f;
 	public float maxCameraDistance = 10f;
 
-	public ForkLiftDemo(IGL gl) {
-		super(gl);
+	public ForkLiftDemo(int w, int h) {
+		super(w, h);
+		setTitle("Bullet ForkLift Demo");
+	}
+
+	@Override
+	public void load() {
+		super.load();
+
 		cameraPosition.set(30, 30, 30);
 		useDefaultCamera = false;
 	}
@@ -201,9 +209,8 @@ public class ForkLiftDemo extends DemoApplication {
 
 	@Override
 	public void clientMoveAndDisplay() {
-		gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT); 
 
-		{			
+		{
 			int wheelIndex = 2;
 			vehicle.applyEngineForce(gEngineForce,wheelIndex);
 			vehicle.setBrake(gBreakingForce,wheelIndex);
@@ -218,7 +225,7 @@ public class ForkLiftDemo extends DemoApplication {
 		}
 
 		float dt = getDeltaTimeMicroseconds() * 0.000001f;
-		
+
 		if (dynamicsWorld != null)
 		{
 			// during idle mode, just run 1 simulation step maximum
@@ -250,8 +257,6 @@ public class ForkLiftDemo extends DemoApplication {
 		//btProfiler::beginBlock("render"); 
 		//#endif //USE_QUICKPROF 
 
-		renderme(); 
-		
 		// optional but useful: debug drawing
 		if (dynamicsWorld != null) {
 			dynamicsWorld.debugDrawWorld();
@@ -312,34 +317,32 @@ public class ForkLiftDemo extends DemoApplication {
 		loadBody.setAngularVelocity(new Vector3f(0,0,0));
 	}
 
-	@Override
+	/*@Override
 	public void displayCallback() {
 		gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT);
 
 		renderme();
-		
+
 		// optional but useful: debug drawing
 		if (dynamicsWorld != null) {
 			dynamicsWorld.debugDrawWorld();
 		}
-	}
+	}*/
 
 	///a very basic camera following the vehicle
 	@Override
-	public void updateCamera() {
-		if(useDefaultCamera)
-		{
-			super.updateCamera();
-			return;
-		}
-		
+	public void updateCamera(Graphics3D g) {
+		super.updateCamera(g);
+
 		// //#define DISABLE_CAMERA 1
 		//#ifdef DISABLE_CAMERA
 		//DemoApplication::updateCamera();
 		//return;
 		//#endif //DISABLE_CAMERA
 
-		gl.glMatrixMode(gl.GL_PROJECTION);
+		GL2 gl = g.getGL2();
+
+		gl.glMatrixMode(GL2.GL_PROJECTION);
 		gl.glLoadIdentity();
 
 		Transform chassisWorldTrans = new Transform();
@@ -376,33 +379,40 @@ public class ForkLiftDemo extends DemoApplication {
 		// update OpenGL camera settings
 		gl.glFrustum(-1.0, 1.0, -1.0, 1.0, 1.0, 10000.0);
 
-		gl.glMatrixMode(IGL.GL_MODELVIEW);
+		gl.glMatrixMode(GL2.GL_MODELVIEW);
 		gl.glLoadIdentity();
-		
-		gl.gluLookAt(cameraPosition.x,cameraPosition.y,cameraPosition.z,
-				  cameraTargetPosition.x,cameraTargetPosition.y, cameraTargetPosition.z,
-				  cameraUp.x,cameraUp.y,cameraUp.z);
+
+		g.getGLU().gluLookAt(cameraPosition.x,cameraPosition.y,cameraPosition.z,
+				cameraTargetPosition.x,cameraTargetPosition.y, cameraTargetPosition.z,
+				cameraUp.x,cameraUp.y,cameraUp.z);
 	}
 
+	private boolean shiftPressed = false;
+
 	@Override
-	public void specialKeyboard(int key, int x, int y, int modifiers) {
-		if (key == Keyboard.KEY_END) {
-			return;
+	public GUIEvent updateKeyboard(KeyEvent event) {
+		if(event.isAnyKeyDown(KeyEvent.TSK_SHIFT_LEFT, KeyEvent.TSK_SHIFT_RIGHT)) {
+			shiftPressed = true;
+		} else if (shiftPressed && event.isAnyKeyUp(KeyEvent.TSK_SHIFT_LEFT, KeyEvent.TSK_SHIFT_RIGHT)) {
+			shiftPressed = false;
 		}
 
-		if ((modifiers & KeyEvent.SHIFT_DOWN_MASK) != 0) {
-			switch (key) {
-				case Keyboard.KEY_LEFT: {
+		if(event.getState() == KeyState.PRESSED) {
+
+			if (shiftPressed) {
+
+				switch (event.getKey()) {
+				case KeyEvent.TSK_LEFT_ARROW: {
 					liftHinge.setLimit(-PI / 16.0f, PI / 8.0f);
 					liftHinge.enableAngularMotor(true, -0.1f, 10.0f);
 					break;
 				}
-				case Keyboard.KEY_RIGHT: {
+				case KeyEvent.TSK_RIGHT_ARROW: {
 					liftHinge.setLimit(-PI / 16.0f, PI / 8.0f);
 					liftHinge.enableAngularMotor(true, 0.1f, 10.0f);
 					break;
 				}
-				case Keyboard.KEY_UP: {
+				case KeyEvent.TSK_UP_ARROW: {
 					forkSlider.setLowerLinLimit(0.1f);
 					forkSlider.setUpperLinLimit(3.9f);
 					forkSlider.setPoweredLinMotor(true);
@@ -410,7 +420,7 @@ public class ForkLiftDemo extends DemoApplication {
 					forkSlider.setTargetLinMotorVelocity(1.0f);
 					break;
 				}
-				case Keyboard.KEY_DOWN: {
+				case KeyEvent.TSK_DOWN_ARROW: {
 					forkSlider.setLowerLinLimit(0.1f);
 					forkSlider.setUpperLinLimit(3.9f);
 					forkSlider.setPoweredLinMotor(true);
@@ -420,78 +430,75 @@ public class ForkLiftDemo extends DemoApplication {
 				}
 
 				default:
-					super.specialKeyboard(key, x, y, modifiers);
 					break;
-			}
+				}
 
-		} else {
-			switch (key) {
-				case Keyboard.KEY_LEFT: {
+			} else {
+
+				switch (event.getKey()) {
+				case KeyEvent.TSK_LEFT_ARROW: {
 					gVehicleSteering += steeringIncrement;
 					if (gVehicleSteering > steeringClamp) {
 						gVehicleSteering = steeringClamp;
 					}
 					break;
 				}
-				case Keyboard.KEY_RIGHT: {
+				case KeyEvent.TSK_RIGHT_ARROW: {
 					gVehicleSteering -= steeringIncrement;
 					if (gVehicleSteering < -steeringClamp) {
 						gVehicleSteering = -steeringClamp;
 					}
 					break;
 				}
-				case Keyboard.KEY_UP: {
+				case KeyEvent.TSK_UP_ARROW: {
 					gEngineForce = maxEngineForce;
 					gBreakingForce = 0.f;
 					break;
 				}
-				case Keyboard.KEY_DOWN: {
+				case KeyEvent.TSK_DOWN_ARROW: {
 					gEngineForce = -maxEngineForce;
 					gBreakingForce = 0.f;
 					break;
 				}
 
-				case Keyboard.KEY_F5:
+				case KeyEvent.TSK_F5:
 					useDefaultCamera = !useDefaultCamera;
 					break;
 				default:
-					super.specialKeyboard(key, x, y, modifiers);
 					break;
+				}
 			}
-
-		}
-		//glutPostRedisplay();
-	}
-
-	@Override
-	public void specialKeyboardUp(int key, int x, int y, int modifiers) {
-		switch (key) {
-			case Keyboard.KEY_UP: {
+		} else {
+			switch (event.getKey()) {
+			
+			case KeyEvent.TSK_UP_ARROW: {
 				lockForkSlider();
-				gEngineForce = 0.f;
+				gEngineForce = 0.1f;
 				gBreakingForce = defaultBreakingForce;
 				break;
 			}
-			case Keyboard.KEY_DOWN: {
+			case KeyEvent.TSK_DOWN_ARROW: {
 				lockForkSlider();
-				gEngineForce = 0.f;
+				gEngineForce = 0.1f;
 				gBreakingForce = defaultBreakingForce;
 				break;
 			}
-			case Keyboard.KEY_LEFT:
-			case Keyboard.KEY_RIGHT: {
+			case KeyEvent.TSK_LEFT_ARROW:
+			case KeyEvent.TSK_RIGHT_ARROW: {
 				lockLiftHinge();
 				break;
 			}
 			default:
-				super.specialKeyboardUp(key, x, y, modifiers);
 				break;
+			}
 		}
+
+		return GUIEvent.NONE;
 	}
 
 	@Override
-	public void renderme() {
-		updateCamera();
+	public void display(Graphics3D g) {
+		//updateCamera(g);
 
 		//float[] m = new float[16];
 		//int i;
@@ -508,27 +515,29 @@ public class ForkLiftDemo extends DemoApplication {
 			vehicle.updateWheelTransform(i,true);
 			// draw wheels (cylinders)
 			Transform trans = vehicle.getWheelInfo(i).worldTransform;
-			GLShapeDrawer.drawOpenGL(gl,trans,wheelShape,wheelColor,getDebugMode()/*,worldBoundsMin,worldBoundsMax*/);
+			GLShapeDrawer.drawOpenGL(g,trans,wheelShape,wheelColor,getDebugMode()/*,worldBoundsMin,worldBoundsMax*/);
 		}
-		
-		super.renderme();
+
+		super.display(g);
+
+		GL2 gl = g.getGL2();
 
 		if ((getDebugMode() & DebugDrawModes.NO_HELP_TEXT) == 0) {
-			setOrthographicProjection();
-			gl.glDisable(GL_LIGHTING);
+			setOrthographicProjection(g);
+			gl.glDisable(GL2.GL_LIGHTING);
 			gl.glColor3f(0, 0, 0);
 
-			drawString("SHIFT+Cursor Left/Right - rotate lift", 350, 20, TEXT_COLOR);
-			drawString("SHIFT+Cursor UP/Down - move fork up/down", 350, 40, TEXT_COLOR);
-			drawString("F5 - toggle camera mode", 350, 60, TEXT_COLOR);
+			drawString(g, "SHIFT+Cursor Left/Right - rotate lift", 350, 20, TEXT_COLOR);
+			drawString(g, "SHIFT+Cursor UP/Down - move fork up/down", 350, 40, TEXT_COLOR);
+			drawString(g, "F5 - toggle camera mode", 350, 60, TEXT_COLOR);
 
-			resetPerspectiveProjection();
-			gl.glEnable(GL_LIGHTING);
+			resetPerspectiveProjection(g);
+			gl.glEnable(GL2.GL_LIGHTING);
 		}
 	}
 
 	@Override
-	public void initPhysics() {
+	public void initPhysics(Graphics3D g) {
 		//#ifdef FORCE_ZAXIS_UP
 		//cameraUp.set(0,0,1);
 		//forwardAxis = 1;
@@ -609,9 +618,9 @@ public class ForkLiftDemo extends DemoApplication {
 		gIndices.flip();
 
 		indexVertexArrays = new TriangleIndexVertexArray(totalTriangles,
-			gIndices,
-			indexStride,
-			totalVerts,vertices,vertStride);
+				gIndices,
+				indexStride,
+				totalVerts,vertices,vertStride);
 
 		boolean useQuantizedAabbCompression = true;
 		groundShape = new BvhTriangleMeshShape(indexVertexArrays,useQuantizedAabbCompression);
@@ -769,7 +778,7 @@ public class ForkLiftDemo extends DemoApplication {
 			forkSlider.setLowerAngLimit(-LIFT_EPS);
 			forkSlider.setUpperAngLimit(LIFT_EPS);
 			dynamicsWorld.addConstraint(forkSlider, true);
-			
+
 			CompoundShape loadCompound = new CompoundShape();
 			collisionShapes.add(loadCompound);
 			CollisionShape loadShapeA = new BoxShape(new Vector3f(2.0f,0.5f,0.5f));
@@ -854,13 +863,4 @@ public class ForkLiftDemo extends DemoApplication {
 
 		setCameraDistance(26.f);
 	}
-	
-	public static void main(String[] args) throws LWJGLException {
-		ForkLiftDemo forkLiftDemo = new ForkLiftDemo(LWJGL.getGL());
-		forkLiftDemo.initPhysics();
-		forkLiftDemo.getDynamicsWorld().setDebugDrawer(new GLDebugDrawer(LWJGL.getGL()));
-
-		LWJGL.main(args, 800, 600, "Bullet ForkLift Demo", forkLiftDemo);
-	}
-
 }

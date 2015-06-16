@@ -23,6 +23,25 @@
 
 package com.bulletphysics.demos.opengl;
 
+import java.awt.Color;
+import java.nio.FloatBuffer;
+
+import javax.media.opengl.GL2;
+import javax.media.opengl.glu.GLU;
+import javax.vecmath.Color3f;
+import javax.vecmath.Matrix3f;
+import javax.vecmath.Quat4f;
+import javax.vecmath.Vector3f;
+
+import br.com.etyllica.core.event.GUIEvent;
+import br.com.etyllica.core.event.KeyEvent;
+import br.com.etyllica.core.event.KeyState;
+import br.com.etyllica.core.event.PointerEvent;
+import br.com.etyllica.core.event.PointerState;
+import br.com.etyllica.core.graphics.Graphic;
+import br.com.luvia.core.context.ApplicationGL;
+import br.com.luvia.core.video.Graphics3D;
+
 import com.bulletphysics.BulletGlobals;
 import com.bulletphysics.BulletStats;
 import com.bulletphysics.collision.dispatch.CollisionObject;
@@ -42,41 +61,37 @@ import com.bulletphysics.linearmath.DefaultMotionState;
 import com.bulletphysics.linearmath.QuaternionUtil;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.linearmath.VectorUtil;
-import javax.vecmath.Color3f;
-import javax.vecmath.Matrix3f;
-import javax.vecmath.Quat4f;
-import javax.vecmath.Vector3f;
-import org.lwjgl.input.Keyboard;
-import static com.bulletphysics.demos.opengl.IGL.*;
 
 /**
  *
  * @author jezek2
  */
-public abstract class DemoApplication {
+public abstract class DemoApplication extends ApplicationGL {
 
 	//protected final BulletStack stack = BulletStack.get();
-	
+
 	private static final float STEPSIZE = 5;
-	
+
 	public static int numObjects = 0;
 	public static final int maxNumObjects = 16384;
 	public static Transform[] startTransforms = new Transform[maxNumObjects];
 	public static CollisionShape[] gShapePtr = new CollisionShape[maxNumObjects]; //1 rigidbody has 1 shape (no re-use of shapes)
-	
+
 	public static RigidBody pickedBody = null; // for deactivation state
 
 	private static float mousePickClamping = 3f;
-	
+
+	private boolean needUpdateCamera = false;
+
 	static {
 		for (int i=0; i<startTransforms.length; i++) {
 			startTransforms[i] = new Transform();
 		}
 	}
 	// TODO: class CProfileIterator* m_profileIterator;
-	
+
 	// JAVA NOTE: added
-	protected IGL gl;
+	//protected IGL gl;
 
 	protected Clock clock = new Clock();
 
@@ -90,7 +105,7 @@ public abstract class DemoApplication {
 
 	protected float cameraDistance = 15f;
 	protected int debugMode = 0;
-	
+
 	protected float ele = 20f;
 	protected float azi = 0f;
 	protected final Vector3f cameraPosition = new Vector3f(0f, 0f, 0f);
@@ -105,56 +120,79 @@ public abstract class DemoApplication {
 	protected int glutScreenHeight = 0;
 
 	protected float ShootBoxInitialSpeed = 40f;
-	
+
 	protected boolean stepping = true;
 	protected boolean singleStep = false;
 	protected boolean idle = false;
 	protected int lastKey;
-	
+
 	private CProfileIterator profileIterator;
 
-	public DemoApplication(IGL gl) {
-		this.gl = gl;
-		
+	public DemoApplication(int w, int h) {
+		super(w, h);
+		//this.gl = gl;
+
 		BulletStats.setProfileEnabled(true);
 		profileIterator = CProfileManager.getIterator();
 	}
-	
-	public abstract void initPhysics() throws Exception;
-	
+
+	public void load() {
+		loading = 100;
+	}
+
+	@Override
+	public void draw(Graphic g) {
+		// TODO Auto-generated method stub
+
+	}
+
+	public abstract void initPhysics(Graphics3D g) throws Exception;
+
 	public void destroy() {
 		// TODO: CProfileManager::Release_Iterator(m_profileIterator);
 		//if (m_shootBoxShape)
 		//	delete m_shootBoxShape;
 	}
 
-	public void myinit() {
-		float[] light_ambient = new float[] { 0.2f, 0.2f, 0.2f, 1.0f };
-		float[] light_diffuse = new float[] { 1.0f, 1.0f, 1.0f, 1.0f };
-		float[] light_specular = new float[] { 1.0f, 1.0f, 1.0f, 1.0f };
+	public void init(Graphics3D g) {
+
+		GL2 gl = g.getGL2();
+
+		FloatBuffer light_ambient = FloatBuffer.wrap(new float[] { 0.2f, 0.2f, 0.2f, 1.0f });
+		FloatBuffer light_diffuse = FloatBuffer.wrap(new float[] { 1.0f, 1.0f, 1.0f, 1.0f });
+		FloatBuffer light_specular = FloatBuffer.wrap(new float[] { 1.0f, 1.0f, 1.0f, 1.0f });
 		/* light_position is NOT default value */
-		float[] light_position0 = new float[] { 1.0f, 10.0f, 1.0f, 0.0f };
-		float[] light_position1 = new float[] { -1.0f, -10.0f, -1.0f, 0.0f };
+		FloatBuffer light_position0 = FloatBuffer.wrap(new float[] { 1.0f, 10.0f, 1.0f, 0.0f });
+		FloatBuffer light_position1 = FloatBuffer.wrap(new float[] { -1.0f, -10.0f, -1.0f, 0.0f });
 
-		gl.glLight(GL_LIGHT0, GL_AMBIENT, light_ambient);
-		gl.glLight(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
-		gl.glLight(GL_LIGHT0, GL_SPECULAR, light_specular);
-		gl.glLight(GL_LIGHT0, GL_POSITION, light_position0);
+		gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_AMBIENT, light_ambient);
+		gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, light_diffuse);
+		gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_SPECULAR, light_specular);
+		gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, light_position0);
 
-		gl.glLight(GL_LIGHT1, GL_AMBIENT, light_ambient);
-		gl.glLight(GL_LIGHT1, GL_DIFFUSE, light_diffuse);
-		gl.glLight(GL_LIGHT1, GL_SPECULAR, light_specular);
-		gl.glLight(GL_LIGHT1, GL_POSITION, light_position1);
+		gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_AMBIENT, light_ambient);
+		gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_DIFFUSE, light_diffuse);
+		gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_SPECULAR, light_specular);
+		gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_POSITION, light_position1);
 
-		gl.glEnable(GL_LIGHTING);
-		gl.glEnable(GL_LIGHT0);
-		gl.glEnable(GL_LIGHT1);
+		gl.glEnable(GL2.GL_LIGHTING);
+		gl.glEnable(GL2.GL_LIGHT0);
+		gl.glEnable(GL2.GL_LIGHT1);
 
-		gl.glShadeModel(GL_SMOOTH);
-		gl.glEnable(GL_DEPTH_TEST);
-		gl.glDepthFunc(GL_LESS);
+		gl.glShadeModel(GL2.GL_SMOOTH);
+		gl.glEnable(GL2.GL_DEPTH_TEST);
+		gl.glDepthFunc(GL2.GL_LESS);
 
 		gl.glClearColor(0.7f, 0.7f, 0.7f, 0f);
+
+		try {
+			initPhysics(g);
+			//Add debugger
+			getDynamicsWorld().setDebugDrawer(new GLDebugDrawer(g));
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 		//glEnable(GL_CULL_FACE);
 		//glCullFace(GL_BACK);
@@ -171,14 +209,22 @@ public abstract class DemoApplication {
 	public void toggleIdle() {
 		if (idle) {
 			idle = false;
-		}
-		else {
+		} else {
 			idle = true;
 		}
 	}
-	
-	public void updateCamera() {
-		gl.glMatrixMode(GL_PROJECTION);
+
+	public void updateCamera(Graphics3D g) {
+		/*if(!needUpdateCamera) {
+			return; 
+		} else {
+			needUpdateCamera = false;
+		}*/
+
+		GL2 gl = g.getGL2();
+		GLU glu = g.getGLU();
+
+		gl.glMatrixMode(GL2.GL_PROJECTION);
 		gl.glLoadIdentity();
 		float rele = ele * 0.01745329251994329547f; // rads per deg
 		float razi = azi * 0.01745329251994329547f; // rads per deg
@@ -217,20 +263,20 @@ public abstract class DemoApplication {
 			float aspect = glutScreenHeight / (float) glutScreenWidth;
 			gl.glFrustum(-1.0, 1.0, -aspect, aspect, 1.0, 10000.0);
 		}
-		
-		gl.glMatrixMode(GL_MODELVIEW);
+
+		gl.glMatrixMode(GL2.GL_MODELVIEW);
 		gl.glLoadIdentity();
-		gl.gluLookAt(cameraPosition.x, cameraPosition.y, cameraPosition.z,
+		glu.gluLookAt(cameraPosition.x, cameraPosition.y, cameraPosition.z,
 				cameraTargetPosition.x, cameraTargetPosition.y, cameraTargetPosition.z,
 				cameraUp.x, cameraUp.y, cameraUp.z);
 	}
-	
+
 	public void stepLeft() {
 		azi -= STEPSIZE;
 		if (azi < 0) {
 			azi += 360;
 		}
-		updateCamera();
+		needUpdateCamera = true;
 	}
 
 	public void stepRight() {
@@ -238,7 +284,7 @@ public abstract class DemoApplication {
 		if (azi >= 360) {
 			azi -= 360;
 		}
-		updateCamera();
+		needUpdateCamera = true;
 	}
 
 	public void stepFront() {
@@ -246,7 +292,7 @@ public abstract class DemoApplication {
 		if (ele >= 360) {
 			ele -= 360;
 		}
-		updateCamera();
+		needUpdateCamera = true;
 	}
 
 	public void stepBack() {
@@ -254,12 +300,12 @@ public abstract class DemoApplication {
 		if (ele < 0) {
 			ele += 360;
 		}
-		updateCamera();
+		needUpdateCamera = true;
 	}
 
 	public void zoomIn() {
 		cameraDistance -= 0.4f;
-		updateCamera();
+		needUpdateCamera = true;
 		if (cameraDistance < 0.1f) {
 			cameraDistance = 0.1f;
 		}
@@ -267,15 +313,15 @@ public abstract class DemoApplication {
 
 	public void zoomOut() {
 		cameraDistance += 0.4f;
-		updateCamera();
+		needUpdateCamera = true;
 	}
 
-	public void reshape(int w, int h) {
+	public void reshape(Graphics3D g, int x, int y, int width, int height) {
 		glutScreenWidth = w;
 		glutScreenHeight = h;
 
-		gl.glViewport(0, 0, w, h);
-		updateCamera();
+		g.getGL2().glViewport(0, 0, w, h);
+		needUpdateCamera = true;
 	}
 
 	public void keyboardCallback(char key, int x, int y, int modifiers) {
@@ -290,158 +336,146 @@ public abstract class DemoApplication {
 		}
 
 		switch (key) {
-			case 'l':
-				stepLeft();
-				break;
-			case 'r':
-				stepRight();
-				break;
-			case 'f':
-				stepFront();
-				break;
-			case 'b':
-				stepBack();
-				break;
-			case 'z':
-				zoomIn();
-				break;
-			case 'x':
-				zoomOut();
-				break;
-			case 'i':
-				toggleIdle();
-				break;
-			case 'h':
-				if ((debugMode & DebugDrawModes.NO_HELP_TEXT) != 0) {
-					debugMode = debugMode & (~DebugDrawModes.NO_HELP_TEXT);
-				}
-				else {
-					debugMode |= DebugDrawModes.NO_HELP_TEXT;
-				}
-				break;
-
-			case 'w':
-				if ((debugMode & DebugDrawModes.DRAW_WIREFRAME) != 0) {
-					debugMode = debugMode & (~DebugDrawModes.DRAW_WIREFRAME);
-				}
-				else {
-					debugMode |= DebugDrawModes.DRAW_WIREFRAME;
-				}
-				break;
-
-			case 'p':
-				if ((debugMode & DebugDrawModes.PROFILE_TIMINGS) != 0) {
-					debugMode = debugMode & (~DebugDrawModes.PROFILE_TIMINGS);
-				}
-				else {
-					debugMode |= DebugDrawModes.PROFILE_TIMINGS;
-				}
-				break;
-
-			case 'm':
-				if ((debugMode & DebugDrawModes.ENABLE_SAT_COMPARISON) != 0) {
-					debugMode = debugMode & (~DebugDrawModes.ENABLE_SAT_COMPARISON);
-				}
-				else {
-					debugMode |= DebugDrawModes.ENABLE_SAT_COMPARISON;
-				}
-				break;
-
-			case 'n':
-				if ((debugMode & DebugDrawModes.DISABLE_BULLET_LCP) != 0) {
-					debugMode = debugMode & (~DebugDrawModes.DISABLE_BULLET_LCP);
-				}
-				else {
-					debugMode |= DebugDrawModes.DISABLE_BULLET_LCP;
-				}
-				break;
-
-			case 't':
-				if ((debugMode & DebugDrawModes.DRAW_TEXT) != 0) {
-					debugMode = debugMode & (~DebugDrawModes.DRAW_TEXT);
-				}
-				else {
-					debugMode |= DebugDrawModes.DRAW_TEXT;
-				}
-				break;
-			case 'y':
-				if ((debugMode & DebugDrawModes.DRAW_FEATURES_TEXT) != 0) {
-					debugMode = debugMode & (~DebugDrawModes.DRAW_FEATURES_TEXT);
-				}
-				else {
-					debugMode |= DebugDrawModes.DRAW_FEATURES_TEXT;
-				}
-				break;
-			case 'a':
-				if ((debugMode & DebugDrawModes.DRAW_AABB) != 0) {
-					debugMode = debugMode & (~DebugDrawModes.DRAW_AABB);
-				}
-				else {
-					debugMode |= DebugDrawModes.DRAW_AABB;
-				}
-				break;
-			case 'c':
-				if ((debugMode & DebugDrawModes.DRAW_CONTACT_POINTS) != 0) {
-					debugMode = debugMode & (~DebugDrawModes.DRAW_CONTACT_POINTS);
-				}
-				else {
-					debugMode |= DebugDrawModes.DRAW_CONTACT_POINTS;
-				}
-				break;
-
-			case 'd':
-				if ((debugMode & DebugDrawModes.NO_DEACTIVATION) != 0) {
-					debugMode = debugMode & (~DebugDrawModes.NO_DEACTIVATION);
-				}
-				else {
-					debugMode |= DebugDrawModes.NO_DEACTIVATION;
-				}
-				if ((debugMode & DebugDrawModes.NO_DEACTIVATION) != 0) {
-					BulletGlobals.setDeactivationDisabled(true);
-				}
-				else {
-					BulletGlobals.setDeactivationDisabled(false);
-				}
-				break;
-
-			case 'o': {
-				stepping = !stepping;
-				break;
+		case 'l':
+			stepLeft();
+			break;
+		case 'r':
+			stepRight();
+			break;
+		case 'f':
+			stepFront();
+			break;
+		case 'b':
+			stepBack();
+			break;
+		case 'z':
+			zoomIn();
+			break;
+		case 'x':
+			zoomOut();
+			break;
+		case 'i':
+			toggleIdle();
+			break;
+		case 'h':
+			if ((debugMode & DebugDrawModes.NO_HELP_TEXT) != 0) {
+				debugMode = debugMode & (~DebugDrawModes.NO_HELP_TEXT);
+			} else {
+				debugMode |= DebugDrawModes.NO_HELP_TEXT;
 			}
-			case 's':
-				clientMoveAndDisplay();
-				break;
+			break;
+
+		case 'w':
+			if ((debugMode & DebugDrawModes.DRAW_WIREFRAME) != 0) {
+				debugMode = debugMode & (~DebugDrawModes.DRAW_WIREFRAME);
+			} else {
+				debugMode |= DebugDrawModes.DRAW_WIREFRAME;
+			}
+			break;
+
+		case 'p':
+			if ((debugMode & DebugDrawModes.PROFILE_TIMINGS) != 0) {
+				debugMode = debugMode & (~DebugDrawModes.PROFILE_TIMINGS);
+			} else {
+				debugMode |= DebugDrawModes.PROFILE_TIMINGS;
+			}
+			break;
+
+		case 'm':
+			if ((debugMode & DebugDrawModes.ENABLE_SAT_COMPARISON) != 0) {
+				debugMode = debugMode & (~DebugDrawModes.ENABLE_SAT_COMPARISON);
+			} else {
+				debugMode |= DebugDrawModes.ENABLE_SAT_COMPARISON;
+			}
+			break;
+
+		case 'n':
+			if ((debugMode & DebugDrawModes.DISABLE_BULLET_LCP) != 0) {
+				debugMode = debugMode & (~DebugDrawModes.DISABLE_BULLET_LCP);
+			} else {
+				debugMode |= DebugDrawModes.DISABLE_BULLET_LCP;
+			}
+			break;
+
+		case 't':
+			if ((debugMode & DebugDrawModes.DRAW_TEXT) != 0) {
+				debugMode = debugMode & (~DebugDrawModes.DRAW_TEXT);
+			} else {
+				debugMode |= DebugDrawModes.DRAW_TEXT;
+			}
+			break;
+		case 'y':
+			if ((debugMode & DebugDrawModes.DRAW_FEATURES_TEXT) != 0) {
+				debugMode = debugMode & (~DebugDrawModes.DRAW_FEATURES_TEXT);
+			} else {
+				debugMode |= DebugDrawModes.DRAW_FEATURES_TEXT;
+			}
+			break;
+		case 'a':
+			if ((debugMode & DebugDrawModes.DRAW_AABB) != 0) {
+				debugMode = debugMode & (~DebugDrawModes.DRAW_AABB);
+			} else {
+				debugMode |= DebugDrawModes.DRAW_AABB;
+			}
+			break;
+		case 'c':
+			if ((debugMode & DebugDrawModes.DRAW_CONTACT_POINTS) != 0) {
+				debugMode = debugMode & (~DebugDrawModes.DRAW_CONTACT_POINTS);
+			} else {
+				debugMode |= DebugDrawModes.DRAW_CONTACT_POINTS;
+			}
+			break;
+
+		case 'd':
+			if ((debugMode & DebugDrawModes.NO_DEACTIVATION) != 0) {
+				debugMode = debugMode & (~DebugDrawModes.NO_DEACTIVATION);
+			} else {
+				debugMode |= DebugDrawModes.NO_DEACTIVATION;
+			}
+			if ((debugMode & DebugDrawModes.NO_DEACTIVATION) != 0) {
+				BulletGlobals.setDeactivationDisabled(true);
+			} else {
+				BulletGlobals.setDeactivationDisabled(false);
+			}
+			break;
+
+		case 'o': {
+			stepping = !stepping;
+			break;
+		}
+		case 's':
+			//clientMoveAndDisplay();
+			break;
 			//    case ' ' : newRandom(); break;
-			case ' ':
-				clientResetScene();
-				break;
-			case '1': {
-				if ((debugMode & DebugDrawModes.ENABLE_CCD) != 0) {
-					debugMode = debugMode & (~DebugDrawModes.ENABLE_CCD);
-				}
-				else {
-					debugMode |= DebugDrawModes.ENABLE_CCD;
-				}
-				break;
+		case ' ':
+			clientResetScene();
+			break;
+		case '1': {
+			if ((debugMode & DebugDrawModes.ENABLE_CCD) != 0) {
+				debugMode = debugMode & (~DebugDrawModes.ENABLE_CCD);
+			} else {
+				debugMode |= DebugDrawModes.ENABLE_CCD;
 			}
+			break;
+		}
 
-			case '.': {
-				shootBox(getCameraTargetPosition());
-				break;
-			}
+		case '.': {
+			shootBox(getCameraTargetPosition());
+			break;
+		}
 
-			case '+': {
-				ShootBoxInitialSpeed += 10f;
-				break;
-			}
-			case '-': {
-				ShootBoxInitialSpeed -= 10f;
-				break;
-			}
+		case '+': {
+			ShootBoxInitialSpeed += 10f;
+			break;
+		}
+		case '-': {
+			ShootBoxInitialSpeed -= 10f;
+			break;
+		}
 
-			default:
-				// std::cout << "unused key : " << key << std::endl;
-				break;
+		default:
+			// std::cout << "unused key : " << key << std::endl;
+			break;
 		}
 
 		if (getDynamicsWorld() != null && getDynamicsWorld().getDebugDrawer() != null) {
@@ -454,27 +488,34 @@ public abstract class DemoApplication {
 	public int getDebugMode() {
 		return debugMode;
 	}
-	
+
 	public void setDebugMode(int mode) {
 		debugMode = mode;
 		if (getDynamicsWorld() != null && getDynamicsWorld().getDebugDrawer() != null) {
 			getDynamicsWorld().getDebugDrawer().setDebugMode(mode);
 		}
 	}
+
+	//Based on LWJGL methods
+	public void specialKeyboard(int key, int x, int y, int modifiers) {
+
+	}
 	
 	public void specialKeyboardUp(int key, int x, int y, int modifiers) {
-		//LWJGL.postRedisplay();
+
 	}
 
-	public void specialKeyboard(int key, int x, int y, int modifiers) {
-		switch (key) {
-			case Keyboard.KEY_F1: {
+	@Override
+	public GUIEvent updateKeyboard(KeyEvent event) {
+
+		if(event.getState() == KeyState.PRESSED) {
+
+			switch(event.getKey()) {
+			case KeyEvent.TSK_F1:
 				break;
-			}
-			case Keyboard.KEY_F2: {
+			case KeyEvent.TSK_F2:
 				break;
-			}
-			case Keyboard.KEY_END: {
+			case KeyEvent.TSK_END:
 				int numObj = getDynamicsWorld().getNumCollisionObjects();
 				if (numObj != 0) {
 					CollisionObject obj = getDynamicsWorld().getCollisionObjectArray().getQuick(numObj - 1);
@@ -487,42 +528,51 @@ public abstract class DemoApplication {
 					//delete obj;
 				}
 				break;
-			}
-			case Keyboard.KEY_LEFT:
+			case KeyEvent.TSK_LEFT_ARROW:
 				stepLeft();
 				break;
-			case Keyboard.KEY_RIGHT:
+			case KeyEvent.TSK_RIGHT_ARROW:
 				stepRight();
 				break;
-			case Keyboard.KEY_UP:
+			case KeyEvent.TSK_UP_ARROW:
 				stepFront();
 				break;
-			case Keyboard.KEY_DOWN:
+			case KeyEvent.TSK_DOWN_ARROW:
 				stepBack();
 				break;
-			case Keyboard.KEY_PRIOR /* TODO: check PAGE_UP */:
+			case KeyEvent.TSK_PAGE_UP:
 				zoomIn();
 				break;
-			case Keyboard.KEY_NEXT /* TODO: checkPAGE_DOWN */:
+			case KeyEvent.TSK_PAGE_DOWN:
 				zoomOut();
 				break;
-			case Keyboard.KEY_HOME:
+			case KeyEvent.TSK_HOME:
 				toggleIdle();
 				break;
-			default:
-				// std::cout << "unused (special) key : " << key << std::endl;
+
+			case KeyEvent.TSK_H:
+				if ((debugMode & DebugDrawModes.NO_HELP_TEXT) != 0) {
+					debugMode = debugMode & (~DebugDrawModes.NO_HELP_TEXT);
+
+				} else {
+					debugMode |= DebugDrawModes.NO_HELP_TEXT;
+				}
 				break;
+			}
+			
+			specialKeyboard(event.getKey(),0,0,0);
+
+		} else if(event.getState() == KeyState.RELEASED) {
+			specialKeyboardUp(event.getKey(),0,0,0);
 		}
 
-		//LWJGL.postRedisplay();
+		return GUIEvent.NONE;
 	}
-	
-	public void moveAndDisplay() {
-		if (!idle) {
-			clientMoveAndDisplay();
-		}
+
+	private void moveAndDisplay(Graphics3D g) {
+
 	}
-	
+
 	public void displayCallback() {
 	}
 
@@ -554,7 +604,7 @@ public abstract class DemoApplication {
 			worldTrans.origin.set(camPos);
 			worldTrans.setRotation(new Quat4f(0f, 0f, 0f, 1f));
 			body.setWorldTransform(worldTrans);
-			
+
 			body.setLinearVelocity(linVel);
 			body.setAngularVelocity(new Vector3f(0f, 0f, 0f));
 
@@ -562,7 +612,7 @@ public abstract class DemoApplication {
 			body.setCcdSweptSphereRadius(0.2f);
 		}
 	}
-	
+
 	public Vector3f getRayTo(int x, int y) {
 		float top = 1f;
 		float bottom = -1f;
@@ -589,19 +639,19 @@ public abstract class DemoApplication {
 		vertical.normalize();
 
 		float tanfov = (float) Math.tan(0.5f * fov);
-		
+
 		float aspect = glutScreenHeight / (float)glutScreenWidth;
-		
+
 		hor.scale(2f * farPlane * tanfov);
 		vertical.scale(2f * farPlane * tanfov);
-		
+
 		if (aspect < 1f) {
 			hor.scale(1f / aspect);
 		}
 		else {
 			vertical.scale(aspect);
 		}
-		
+
 		Vector3f rayToCenter = new Vector3f();
 		rayToCenter.add(rayFrom, rayForward);
 		Vector3f dHor = new Vector3f(hor);
@@ -625,104 +675,106 @@ public abstract class DemoApplication {
 		rayTo.sub(tmp2);
 		return rayTo;
 	}
-	
-	public void mouseFunc(int button, int state, int x, int y) {
-		//printf("button %i, state %i, x=%i,y=%i\n",button,state,x,y);
-		//button 0, state 0 means left mouse down
+
+	@Override
+	public GUIEvent updateMouse(PointerEvent event) {
+
+		int x = event.getX();
+		int y = event.getY();
 
 		Vector3f rayTo = new Vector3f(getRayTo(x, y));
 
-		switch (button) {
-			case 2: {
-				if (state == 0) {
-					shootBox(rayTo);
-				}
-				break;
+		switch (event.getKey()) {
+		case MOUSE_BUTTON_RIGHT: {
+			if (event.getState() == PointerState.PRESSED) {
+				shootBox(rayTo);
 			}
-			case 1: {
-				if (state == 0) {
-					// apply an impulse
-					if (dynamicsWorld != null) {
-						CollisionWorld.ClosestRayResultCallback rayCallback = new CollisionWorld.ClosestRayResultCallback(cameraPosition, rayTo);
-						dynamicsWorld.rayTest(cameraPosition, rayTo, rayCallback);
-						if (rayCallback.hasHit()) {
-							RigidBody body = RigidBody.upcast(rayCallback.collisionObject);
-							if (body != null) {
-								body.setActivationState(CollisionObject.ACTIVE_TAG);
-								Vector3f impulse = new Vector3f(rayTo);
-								impulse.normalize();
-								float impulseStrength = 10f;
-								impulse.scale(impulseStrength);
-								Vector3f relPos = new Vector3f();
-								relPos.sub(rayCallback.hitPointWorld, body.getCenterOfMassPosition(new Vector3f()));
-								body.applyImpulse(impulse, relPos);
-							}
-						}
-					}
-				}
-				else {
-				}
-				break;
-			}
-			case 0: {
-				if (state == 0) {
-					// add a point to point constraint for picking
-					if (dynamicsWorld != null) {
-						CollisionWorld.ClosestRayResultCallback rayCallback = new CollisionWorld.ClosestRayResultCallback(cameraPosition, rayTo);
-						dynamicsWorld.rayTest(cameraPosition, rayTo, rayCallback);
-						if (rayCallback.hasHit()) {
-							RigidBody body = RigidBody.upcast(rayCallback.collisionObject);
-							if (body != null) {
-								// other exclusions?
-								if (!(body.isStaticObject() || body.isKinematicObject())) {
-									pickedBody = body;
-									pickedBody.setActivationState(CollisionObject.DISABLE_DEACTIVATION);
-
-									Vector3f pickPos = new Vector3f(rayCallback.hitPointWorld);
-
-									Transform tmpTrans = body.getCenterOfMassTransform(new Transform());
-									tmpTrans.inverse();
-									Vector3f localPivot = new Vector3f(pickPos);
-									tmpTrans.transform(localPivot);
-
-									Point2PointConstraint p2p = new Point2PointConstraint(body, localPivot);
-									p2p.setting.impulseClamp = mousePickClamping;
-
-									dynamicsWorld.addConstraint(p2p);
-									pickConstraint = p2p;
-									// save mouse position for dragging
-									BulletStats.gOldPickingPos.set(rayTo);
-									Vector3f eyePos = new Vector3f(cameraPosition);
-									Vector3f tmp = new Vector3f();
-									tmp.sub(pickPos, eyePos);
-									BulletStats.gOldPickingDist = tmp.length();
-									// very weak constraint for picking
-									p2p.setting.tau = 0.1f;
-								}
-							}
-						}
-					}
-
-				}
-				else {
-
-					if (pickConstraint != null && dynamicsWorld != null) {
-						dynamicsWorld.removeConstraint(pickConstraint);
-						// delete m_pickConstraint;
-						//printf("removed constraint %i",gPickingConstraintId);
-						pickConstraint = null;
-						pickedBody.forceActivationState(CollisionObject.ACTIVE_TAG);
-						pickedBody.setDeactivationTime(0f);
-						pickedBody = null;
-					}
-				}
-				break;
-			}
-			default: {
-			}
+			break;
 		}
+		case MOUSE_BUTTON_MIDDLE: {
+			if (event.getState() == PointerState.PRESSED) {
+				// apply an impulse
+				if (dynamicsWorld != null) {
+					CollisionWorld.ClosestRayResultCallback rayCallback = new CollisionWorld.ClosestRayResultCallback(cameraPosition, rayTo);
+					dynamicsWorld.rayTest(cameraPosition, rayTo, rayCallback);
+					if (rayCallback.hasHit()) {
+						RigidBody body = RigidBody.upcast(rayCallback.collisionObject);
+						if (body != null) {
+							body.setActivationState(CollisionObject.ACTIVE_TAG);
+							Vector3f impulse = new Vector3f(rayTo);
+							impulse.normalize();
+							float impulseStrength = 10f;
+							impulse.scale(impulseStrength);
+							Vector3f relPos = new Vector3f();
+							relPos.sub(rayCallback.hitPointWorld, body.getCenterOfMassPosition(new Vector3f()));
+							body.applyImpulse(impulse, relPos);
+						}
+					}
+				}
+			} else {
+			}
+			break;
+		}
+		case MOUSE_BUTTON_LEFT: {
+			if (event.getState() == PointerState.PRESSED) {
+				// add a point to point constraint for picking
+				if (dynamicsWorld != null) {
+					CollisionWorld.ClosestRayResultCallback rayCallback = new CollisionWorld.ClosestRayResultCallback(cameraPosition, rayTo);
+					dynamicsWorld.rayTest(cameraPosition, rayTo, rayCallback);
+					if (rayCallback.hasHit()) {
+						RigidBody body = RigidBody.upcast(rayCallback.collisionObject);
+						if (body != null) {
+							// other exclusions?
+							if (!(body.isStaticObject() || body.isKinematicObject())) {
+								pickedBody = body;
+								pickedBody.setActivationState(CollisionObject.DISABLE_DEACTIVATION);
+
+								Vector3f pickPos = new Vector3f(rayCallback.hitPointWorld);
+
+								Transform tmpTrans = body.getCenterOfMassTransform(new Transform());
+								tmpTrans.inverse();
+								Vector3f localPivot = new Vector3f(pickPos);
+								tmpTrans.transform(localPivot);
+
+								Point2PointConstraint p2p = new Point2PointConstraint(body, localPivot);
+								p2p.setting.impulseClamp = mousePickClamping;
+
+								dynamicsWorld.addConstraint(p2p);
+								pickConstraint = p2p;
+								// save mouse position for dragging
+								BulletStats.gOldPickingPos.set(rayTo);
+								Vector3f eyePos = new Vector3f(cameraPosition);
+								Vector3f tmp = new Vector3f();
+								tmp.sub(pickPos, eyePos);
+								BulletStats.gOldPickingDist = tmp.length();
+								// very weak constraint for picking
+								p2p.setting.tau = 0.1f;
+							}
+						}
+					}
+				}
+
+			} else {
+
+				if (pickConstraint != null && dynamicsWorld != null) {
+					dynamicsWorld.removeConstraint(pickConstraint);
+					// delete m_pickConstraint;
+					//printf("removed constraint %i",gPickingConstraintId);
+					pickConstraint = null;
+					pickedBody.forceActivationState(CollisionObject.ACTIVE_TAG);
+					pickedBody.setDeactivationTime(0f);
+					pickedBody = null;
+				}
+			}
+			break;
+		}
+		default: {
+		}
+		}
+
+		return GUIEvent.NONE;
 	}
-	
+
 	public void mouseMotionFunc(int x, int y) {
 		if (pickConstraint != null) {
 			// move the constraint pivot
@@ -758,56 +810,61 @@ public abstract class DemoApplication {
 		//#define USE_MOTIONSTATE 1
 		//#ifdef USE_MOTIONSTATE
 		DefaultMotionState myMotionState = new DefaultMotionState(startTransform);
-		
+
 		RigidBodyConstructionInfo cInfo = new RigidBodyConstructionInfo(mass, myMotionState, shape, localInertia);
-		
+
 		RigidBody body = new RigidBody(cInfo);
 		//#else
 		//btRigidBody* body = new btRigidBody(mass,0,shape,localInertia);	
 		//body->setWorldTransform(startTransform);
 		//#endif//
-		
+
 		dynamicsWorld.addRigidBody(body);
 
 		return body;
 	}
 
 	// See http://www.lighthouse3d.com/opengl/glut/index.php?bmpfontortho
-	public void setOrthographicProjection() {
+	public void setOrthographicProjection(Graphics3D g) {
+		GL2 gl = g.getGL2();
+		GLU glu = g.getGLU();
+
 		// switch to projection mode
-		gl.glMatrixMode(GL_PROJECTION);
-		
+		gl.glMatrixMode(GL2.GL_PROJECTION);
+
 		// save previous matrix which contains the 
 		//settings for the perspective projection
 		gl.glPushMatrix();
 		// reset matrix
 		gl.glLoadIdentity();
 		// set a 2D orthographic projection
-		gl.gluOrtho2D(0f, glutScreenWidth, 0f, glutScreenHeight);
-		gl.glMatrixMode(GL_MODELVIEW);
+		glu.gluOrtho2D(0f, glutScreenWidth, 0f, glutScreenHeight);
+		gl.glMatrixMode(GL2.GL_MODELVIEW);
 		gl.glLoadIdentity();
-		
+
 		// invert the y axis, down is positive
 		gl.glScalef(1f, -1f, 1f);
 		// mover the origin from the bottom left corner
 		// to the upper left corner
 		gl.glTranslatef(0f, -glutScreenHeight, 0f);
 	}
-	
-	public void resetPerspectiveProjection() {
-		gl.glMatrixMode(GL_PROJECTION);
+
+	public void resetPerspectiveProjection(Graphics3D g) {
+		GL2 gl = g.getGL2();
+
+		gl.glMatrixMode(GL2.GL_PROJECTION);
 		gl.glPopMatrix();
-		gl.glMatrixMode(GL_MODELVIEW);
-		updateCamera();
+		gl.glMatrixMode(GL2.GL_MODELVIEW);
+		needUpdateCamera = true;
 	}
-	
-	private void displayProfileString(float xOffset, float yStart, CharSequence message) {
-		drawString(message, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
+
+	private void displayProfileString(Graphics3D g, float xOffset, float yStart, CharSequence message) {
+		drawString(g, message, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
 	}	
 
 	private static double time_since_reset = 0f;
-	
-	protected float showProfileInfo(float xOffset, float yStart, float yIncr) {
+
+	protected float showProfileInfo(Graphics3D g, float xOffset, float yStart, float yIncr) {
 		if (!idle) {
 			time_since_reset = CProfileManager.getTimeSinceReset();
 		}
@@ -830,10 +887,10 @@ public abstract class DemoApplication {
 				buf.append(" (total running time: ");
 				FastFormat.append(buf, (float) parent_time, 3);
 				buf.append(" ms) ---");
-				displayProfileString(xOffset, yStart, buf);
+				displayProfileString(g, xOffset, yStart, buf);
 				yStart += yIncr;
 				String s = "press number (1,2...) to display child timings, or 0 to go up to parent";
-				displayProfileString(xOffset, yStart, s);
+				displayProfileString(g, xOffset, yStart, s);
 				yStart += yIncr;
 			}
 
@@ -856,7 +913,7 @@ public abstract class DemoApplication {
 				FastFormat.append(buf, profileIterator.getCurrentTotalCalls());
 				buf.append(" calls)");
 
-				displayProfileString(xOffset, yStart, buf);
+				displayProfileString(g, xOffset, yStart, buf);
 				yStart += yIncr;
 				totalTime += current_total_time;
 			}
@@ -868,11 +925,11 @@ public abstract class DemoApplication {
 			FastFormat.append(buf, (float) (parent_time - accumulated_time), 3);
 			buf.append(" ms");
 
-			displayProfileString(xOffset, yStart, buf);
+			displayProfileString(g, xOffset, yStart, buf);
 			yStart += yIncr;
 
 			String s = "-------------------------------------------------";
-			displayProfileString(xOffset, yStart, s);
+			displayProfileString(g, xOffset, yStart, s);
 			yStart += yIncr;
 
 		}
@@ -885,8 +942,16 @@ public abstract class DemoApplication {
 	protected Color3f TEXT_COLOR = new Color3f(0f, 0f, 0f);
 	private StringBuilder buf = new StringBuilder();
 
-	public void renderme() {
-		updateCamera();
+	public void display(Graphics3D g) {
+		updateCamera(g);
+
+		g.getGL2().glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
+
+		if (!idle) {
+			clientMoveAndDisplay();
+		}
+
+		GL2 gl = g.getGL2();
 
 		if (dynamicsWorld != null) {
 			int numObjects = dynamicsWorld.getNumCollisionObjects();
@@ -932,86 +997,86 @@ public abstract class DemoApplication {
 					}
 				}
 
-				GLShapeDrawer.drawOpenGL(gl, m, colObj.getCollisionShape(), wireColor, getDebugMode());
+				GLShapeDrawer.drawOpenGL(g, m, colObj.getCollisionShape(), wireColor, getDebugMode());
 			}
 
 			float xOffset = 10f;
 			float yStart = 20f;
 			float yIncr = 20f;
 
-			gl.glDisable(GL_LIGHTING);
+			gl.glDisable(GL2.GL_LIGHTING);
 			gl.glColor3f(0f, 0f, 0f);
 
 			if ((debugMode & DebugDrawModes.NO_HELP_TEXT) == 0) {
-				setOrthographicProjection();
+				setOrthographicProjection(g);
 
-				yStart = showProfileInfo(xOffset, yStart, yIncr);
+				yStart = showProfileInfo(g, xOffset, yStart, yIncr);
 
-//					#ifdef USE_QUICKPROF
-//					if ( getDebugMode() & btIDebugDraw::DBG_ProfileTimings)
-//					{
-//						static int counter = 0;
-//						counter++;
-//						std::map<std::string, hidden::ProfileBlock*>::iterator iter;
-//						for (iter = btProfiler::mProfileBlocks.begin(); iter != btProfiler::mProfileBlocks.end(); ++iter)
-//						{
-//							char blockTime[128];
-//							sprintf(blockTime, "%s: %lf",&((*iter).first[0]),btProfiler::getBlockTime((*iter).first, btProfiler::BLOCK_CYCLE_SECONDS));//BLOCK_TOTAL_PERCENT));
-//							glRasterPos3f(xOffset,yStart,0);
-//							BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),blockTime);
-//							yStart += yIncr;
-//
-//						}
-//					}
-//					#endif //USE_QUICKPROF
+				//					#ifdef USE_QUICKPROF
+				//					if ( getDebugMode() & btIDebugDraw::DBG_ProfileTimings)
+				//					{
+				//						static int counter = 0;
+				//						counter++;
+				//						std::map<std::string, hidden::ProfileBlock*>::iterator iter;
+				//						for (iter = btProfiler::mProfileBlocks.begin(); iter != btProfiler::mProfileBlocks.end(); ++iter)
+				//						{
+				//							char blockTime[128];
+				//							sprintf(blockTime, "%s: %lf",&((*iter).first[0]),btProfiler::getBlockTime((*iter).first, btProfiler::BLOCK_CYCLE_SECONDS));//BLOCK_TOTAL_PERCENT));
+				//							glRasterPos3f(xOffset,yStart,0);
+				//							BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),blockTime);
+				//							yStart += yIncr;
+				//
+				//						}
+				//					}
+				//					#endif //USE_QUICKPROF
 
 
 				String s = "mouse to interact";
-				drawString(s, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
+				drawString(g, s, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
 				yStart += yIncr;
 
 				// JAVA NOTE: added
 				s = "LMB=drag, RMB=shoot box, MIDDLE=apply impulse";
-				drawString(s, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
+				drawString(g, s, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
 				yStart += yIncr;
-				
+
 				s = "space to reset";
-				drawString(s, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
+				drawString(g, s, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
 				yStart += yIncr;
 
 				s = "cursor keys and z,x to navigate";
-				drawString(s, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
+				drawString(g, s, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
 				yStart += yIncr;
 
 				s = "i to toggle simulation, s single step";
-				drawString(s, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
+				drawString(g, s, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
 				yStart += yIncr;
 
 				s = "q to quit";
-				drawString(s, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
+				drawString(g, s, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
 				yStart += yIncr;
 
 				s = ". to shoot box or trimesh (MovingConcaveDemo)";
-				drawString(s, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
+				drawString(g, s, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
 				yStart += yIncr;
 
 				// not yet hooked up again after refactoring...
 
 				s = "d to toggle deactivation";
-				drawString(s, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
+				drawString(g, s, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
 				yStart += yIncr;
 
 				s = "g to toggle mesh animation (ConcaveDemo)";
-				drawString(s, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
+				drawString(g, s, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
 				yStart += yIncr;
 
 				// JAVA NOTE: added
 				s = "e to spawn new body (GenericJointDemo)";
-				drawString(s, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
+				drawString(g, s, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
 				yStart += yIncr;
 
 				s = "h to toggle help text";
-				drawString(s, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
+				drawString(g, s, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
 				yStart += yIncr;
 
 				//buf = "p to toggle profiling (+results to file)";
@@ -1030,28 +1095,28 @@ public abstract class DemoApplication {
 				buf.setLength(0);
 				buf.append("+- shooting speed = ");
 				FastFormat.append(buf, ShootBoxInitialSpeed);
-				drawString(buf, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
+				drawString(g, buf, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
 				yStart += yIncr;
 
 				//#ifdef SHOW_NUM_DEEP_PENETRATIONS
 				buf.setLength(0);
 				buf.append("gNumDeepPenetrationChecks = ");
 				FastFormat.append(buf, BulletStats.gNumDeepPenetrationChecks);
-				drawString(buf, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
+				drawString(g, buf, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
 				yStart += yIncr;
 
 				buf.setLength(0);
 				buf.append("gNumGjkChecks = ");
 				FastFormat.append(buf, BulletStats.gNumGjkChecks);
-				drawString(buf, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
+				drawString(g, buf, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
 				yStart += yIncr;
 
 				buf.setLength(0);
 				buf.append("gNumSplitImpulseRecoveries = ");
 				FastFormat.append(buf, BulletStats.gNumSplitImpulseRecoveries);
-				drawString(buf, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
+				drawString(g, buf, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
 				yStart += yIncr;
-				
+
 				//buf = String.format("gNumAlignedAllocs = %d", BulletGlobals.gNumAlignedAllocs);
 				// TODO: BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
 				//yStart += yIncr;
@@ -1076,13 +1141,13 @@ public abstract class DemoApplication {
 					buf.setLength(0);
 					buf.append("# objects = ");
 					FastFormat.append(buf, getDynamicsWorld().getNumCollisionObjects());
-					drawString(buf, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
+					drawString(g, buf, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
 					yStart += yIncr;
-					
+
 					buf.setLength(0);
 					buf.append("# pairs = ");
 					FastFormat.append(buf, getDynamicsWorld().getBroadphase().getOverlappingPairCache().getNumOverlappingPairs());
-					drawString(buf, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
+					drawString(g, buf, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
 					yStart += yIncr;
 
 				}
@@ -1097,18 +1162,18 @@ public abstract class DemoApplication {
 				buf.append(" / ");
 				FastFormat.append(buf, (float)(total) / (1024*1024));
 				buf.append(" MB");
-				drawString(buf, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
+				drawString(g, buf, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
 				yStart += yIncr;
-				
-				resetPerspectiveProjection();
+
+				resetPerspectiveProjection(g);
 			}
 
-			gl.glEnable(GL_LIGHTING);
+			gl.glEnable(GL2.GL_LIGHTING);
 		}
-		
-		updateCamera();
+
+		needUpdateCamera = true;
 	}
-	
+
 	public void clientResetScene() {
 		//#ifdef SHOW_NUM_DEEP_PENETRATIONS
 		BulletStats.gNumDeepPenetrationChecks = 0;
@@ -1149,10 +1214,10 @@ public abstract class DemoApplication {
 			{
 			getDynamicsWorld()->stepSimulation(1./60.f,1);
 			}
-			*/
+			 */
 		}
 	}
-	
+
 	public DynamicsWorld getDynamicsWorld() {
 		return dynamicsWorld;
 	}
@@ -1182,7 +1247,7 @@ public abstract class DemoApplication {
 		//return btScalar(16666.);
 		//#endif
 	}
-	
+
 	public abstract void clientMoveAndDisplay();
 
 	public boolean isIdle() {
@@ -1192,9 +1257,9 @@ public abstract class DemoApplication {
 	public void setIdle(boolean idle) {
 		this.idle = idle;
 	}
-	
-	public void drawString(CharSequence s, int x, int y, Color3f color) {
-		gl.drawString(s, x, y, color.x, color.y, color.z);
+
+	public void drawString(Graphics3D g, CharSequence s, int x, int y, Color3f color) {
+		g.setColor(new Color(color.x*255, color.y*255, color.y*255));
+		g.drawString(s.toString(), x, y);
 	}
-	
 }

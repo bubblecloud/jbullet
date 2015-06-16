@@ -25,6 +25,14 @@ package com.bulletphysics.demos.vehicle;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+
+import javax.media.opengl.GL2;
+import javax.vecmath.Vector3f;
+
+import br.com.etyllica.core.event.GUIEvent;
+import br.com.etyllica.core.event.KeyEvent;
+import br.com.luvia.core.video.Graphics3D;
+
 import com.bulletphysics.collision.broadphase.BroadphaseInterface;
 import com.bulletphysics.collision.broadphase.DbvtBroadphase;
 import com.bulletphysics.collision.dispatch.CollisionDispatcher;
@@ -37,10 +45,7 @@ import com.bulletphysics.collision.shapes.CompoundShape;
 import com.bulletphysics.collision.shapes.CylinderShapeX;
 import com.bulletphysics.collision.shapes.TriangleIndexVertexArray;
 import com.bulletphysics.demos.opengl.DemoApplication;
-import com.bulletphysics.demos.opengl.GLDebugDrawer;
 import com.bulletphysics.demos.opengl.GLShapeDrawer;
-import com.bulletphysics.demos.opengl.IGL;
-import com.bulletphysics.demos.opengl.LWJGL;
 import com.bulletphysics.dynamics.DiscreteDynamicsWorld;
 import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.dynamics.constraintsolver.ConstraintSolver;
@@ -52,9 +57,6 @@ import com.bulletphysics.dynamics.vehicle.VehicleTuning;
 import com.bulletphysics.dynamics.vehicle.WheelInfo;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.util.ObjectArrayList;
-import javax.vecmath.Vector3f;
-import org.lwjgl.LWJGLException;
-import org.lwjgl.input.Keyboard;
 
 /**
  * VehicleDemo shows how to setup and use the built-in raycast vehicle.
@@ -129,8 +131,8 @@ public class VehicleDemo extends DemoApplication {
 	public float minCameraDistance;
 	public float maxCameraDistance;
 
-	public VehicleDemo(IGL gl) {
-		super(gl);
+	public VehicleDemo(int w, int h) {
+		super(w, h);
 		carChassis = null;
 		cameraHeight = 4f;
 		minCameraDistance = 3f;
@@ -139,9 +141,14 @@ public class VehicleDemo extends DemoApplication {
 		vertices = null;
 		vehicle = null;
 		cameraPosition.set(30, 30, 30);
+		
+		setTitle("Bullet Vehicle Demo");
 	}
 
-	public void initPhysics() {
+	public void initPhysics(Graphics3D g) {
+		
+		System.out.println("Vehicle Physics");
+		
 		//#ifdef FORCE_ZAXIS_UP
 		//m_cameraUp = btVector3(0,0,1);
 		//m_forwardAxis = 1;
@@ -366,7 +373,7 @@ public class VehicleDemo extends DemoApplication {
 			connectionPointCS0.set(CUBE_HALF_EXTENTS - (0.3f * wheelWidth), connectionHeight, -2f * CUBE_HALF_EXTENTS + wheelRadius);
 			//#endif
 			vehicle.addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, tuning, isFrontWheel);
-
+			
 			for (int i = 0; i < vehicle.getNumWheels(); i++) {
 				WheelInfo wheel = vehicle.getWheelInfo(i);
 				wheel.suspensionStiffness = suspensionStiffness;
@@ -382,9 +389,9 @@ public class VehicleDemo extends DemoApplication {
 	
 	// to be implemented by the demo
 	@Override
-	public void renderme() {
-		updateCamera();
-
+	public void display(Graphics3D g) {
+		super.display(g);
+		
 		CylinderShapeX wheelShape = new CylinderShapeX(new Vector3f(wheelWidth, wheelRadius, wheelRadius));
 		Vector3f wheelColor = new Vector3f(1, 0, 0);
 
@@ -393,17 +400,13 @@ public class VehicleDemo extends DemoApplication {
 			vehicle.updateWheelTransform(i, true);
 			// draw wheels (cylinders)
 			Transform trans = vehicle.getWheelInfo(i).worldTransform;
-			GLShapeDrawer.drawOpenGL(gl, trans, wheelShape, wheelColor, getDebugMode());
+			GLShapeDrawer.drawOpenGL(g, trans, wheelShape, wheelColor, getDebugMode());
 		}
-
-		super.renderme();
 	}
 	
 	@Override
 	public void clientMoveAndDisplay() {
-		gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT); 
-
-		{			
+		{
 			int wheelIndex = 2;
 			vehicle.applyEngineForce(gEngineForce,wheelIndex);
 			vehicle.setBrake(gBreakingForce,wheelIndex);
@@ -449,8 +452,6 @@ public class VehicleDemo extends DemoApplication {
 		//#ifdef USE_QUICKPROF 
 		//btProfiler::beginBlock("render"); 
 		//#endif //USE_QUICKPROF 
-
-		renderme(); 
 		
 		// optional but useful: debug drawing
 		if (dynamicsWorld != null) {
@@ -460,18 +461,6 @@ public class VehicleDemo extends DemoApplication {
 		//#ifdef USE_QUICKPROF 
 		//btProfiler::endBlock("render"); 
 		//#endif 
-	}
-
-	@Override
-	public void displayCallback() {
-		gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT);
-
-		renderme();
-		
-		// optional but useful: debug drawing
-		if (dynamicsWorld != null) {
-			dynamicsWorld.debugDrawWorld();
-		}
 	}
 
 	@Override
@@ -493,70 +482,53 @@ public class VehicleDemo extends DemoApplication {
 	}
 
 	@Override
-	public void specialKeyboardUp(int key, int x, int y, int modifiers) {
-		switch (key) {
-			case Keyboard.KEY_UP: {
-				gEngineForce = 0f;
-				break;
-			}
-			case Keyboard.KEY_DOWN: {
-				gBreakingForce = 0f;
-				break;
-			}
-			default:
-				super.specialKeyboardUp(key, x, y, modifiers);
-				break;
+	public GUIEvent updateKeyboard(KeyEvent event) {
+		
+		if(event.isKeyUp(KeyEvent.TSK_UP_ARROW)) {
+			gEngineForce = 0f;
+		} else if(event.isKeyUp(KeyEvent.TSK_DOWN_ARROW)) {
+			gBreakingForce = 0f;
 		}
+		
+		if(event.isKeyDown(KeyEvent.TSK_LEFT_ARROW)) {
+			gVehicleSteering += steeringIncrement;
+			if (gVehicleSteering > steeringClamp) {
+				gVehicleSteering = steeringClamp;
+			}
+		}
+		
+		if(event.isKeyDown(KeyEvent.TSK_RIGHT_ARROW)) {
+			gVehicleSteering -= steeringIncrement;
+			if (gVehicleSteering < -steeringClamp) {
+				gVehicleSteering = -steeringClamp;
+			}
+		}
+		
+		if(event.isKeyDown(KeyEvent.TSK_UP_ARROW)) {
+			gEngineForce = maxEngineForce;
+			gBreakingForce = 0.f;
+		}
+		
+		if(event.isKeyDown(KeyEvent.TSK_DOWN_ARROW)) {
+			gBreakingForce = maxBreakingForce;
+			gEngineForce = 0.f;
+		}
+		
+		return null;
 	}
 
 	@Override
-	public void specialKeyboard(int key, int x, int y, int modifiers) {
-		//	printf("key = %i x=%i y=%i\n",key,x,y);
+	public void updateCamera(Graphics3D g) {
 
-		switch (key) {
-			case Keyboard.KEY_LEFT: {
-				gVehicleSteering += steeringIncrement;
-				if (gVehicleSteering > steeringClamp) {
-					gVehicleSteering = steeringClamp;
-				}
-				break;
-			}
-			case Keyboard.KEY_RIGHT: {
-				gVehicleSteering -= steeringIncrement;
-				if (gVehicleSteering < -steeringClamp) {
-					gVehicleSteering = -steeringClamp;
-				}
-				break;
-			}
-			case Keyboard.KEY_UP: {
-				gEngineForce = maxEngineForce;
-				gBreakingForce = 0.f;
-				break;
-			}
-			case Keyboard.KEY_DOWN: {
-				gBreakingForce = maxBreakingForce;
-				gEngineForce = 0.f;
-				break;
-			}
-			default:
-				super.specialKeyboard(key, x, y, modifiers);
-				break;
-		}
-
-		//glutPostRedisplay();
-	}
-
-	@Override
-	public void updateCamera()
-	{
-
+		GL2 gl = g.getGL2();
+		
 		// //#define DISABLE_CAMERA 1
 		//#ifdef DISABLE_CAMERA
 		//DemoApplication::updateCamera();
 		//return;
 		//#endif //DISABLE_CAMERA
 
-		gl.glMatrixMode(gl.GL_PROJECTION);
+		gl.glMatrixMode(GL2.GL_PROJECTION);
 		gl.glLoadIdentity();
 
 		Transform chassisWorldTrans = new Transform();
@@ -593,20 +565,12 @@ public class VehicleDemo extends DemoApplication {
 		// update OpenGL camera settings
 		gl.glFrustum(-1.0, 1.0, -1.0, 1.0, 1.0, 10000.0);
 
-		gl.glMatrixMode(IGL.GL_MODELVIEW);
+		gl.glMatrixMode(GL2.GL_MODELVIEW);
 		gl.glLoadIdentity();
 		
-		gl.gluLookAt(cameraPosition.x,cameraPosition.y,cameraPosition.z,
+		g.getGLU().gluLookAt(cameraPosition.x,cameraPosition.y,cameraPosition.z,
 				  cameraTargetPosition.x,cameraTargetPosition.y, cameraTargetPosition.z,
 				  cameraUp.x,cameraUp.y,cameraUp.z);
-	}
-	
-	public static void main(String[] args) throws LWJGLException {
-		VehicleDemo vehicleDemo = new VehicleDemo(LWJGL.getGL());
-		vehicleDemo.initPhysics();
-		vehicleDemo.getDynamicsWorld().setDebugDrawer(new GLDebugDrawer(LWJGL.getGL()));
-
-		LWJGL.main(args, 800, 600, "Bullet Vehicle Demo", vehicleDemo);
 	}
 	
 }

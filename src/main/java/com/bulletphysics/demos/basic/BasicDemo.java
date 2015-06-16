@@ -23,17 +23,20 @@
 
 package com.bulletphysics.demos.basic;
 
-import com.bulletphysics.util.ObjectArrayList;
+import javax.media.opengl.GL2;
+import javax.vecmath.Vector3f;
+
+import br.com.etyllica.core.graphics.Graphic;
+import br.com.luvia.core.video.Graphics3D;
+
 import com.bulletphysics.collision.broadphase.BroadphaseInterface;
 import com.bulletphysics.collision.broadphase.DbvtBroadphase;
 import com.bulletphysics.collision.dispatch.CollisionDispatcher;
 import com.bulletphysics.collision.dispatch.DefaultCollisionConfiguration;
 import com.bulletphysics.collision.shapes.BoxShape;
 import com.bulletphysics.collision.shapes.CollisionShape;
+import com.bulletphysics.collision.shapes.SphereShape;
 import com.bulletphysics.demos.opengl.DemoApplication;
-import com.bulletphysics.demos.opengl.GLDebugDrawer;
-import com.bulletphysics.demos.opengl.IGL;
-import com.bulletphysics.demos.opengl.LWJGL;
 import com.bulletphysics.dynamics.DiscreteDynamicsWorld;
 import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.dynamics.RigidBodyConstructionInfo;
@@ -41,9 +44,7 @@ import com.bulletphysics.dynamics.constraintsolver.ConstraintSolver;
 import com.bulletphysics.dynamics.constraintsolver.SequentialImpulseConstraintSolver;
 import com.bulletphysics.linearmath.DefaultMotionState;
 import com.bulletphysics.linearmath.Transform;
-import javax.vecmath.Vector3f;
-import org.lwjgl.LWJGLException;
-import static com.bulletphysics.demos.opengl.IGL.*;
+import com.bulletphysics.util.ObjectArrayList;
 
 /**
  * BasicDemo is good starting point for learning the code base and porting.
@@ -71,13 +72,12 @@ public class BasicDemo extends DemoApplication {
 	private ConstraintSolver solver;
 	private DefaultCollisionConfiguration collisionConfiguration;
 
-	public BasicDemo(IGL gl) {
-		super(gl);
+	public BasicDemo(int w, int h) {
+		super(w, h);
 	}
 	
 	@Override
 	public void clientMoveAndDisplay() {
-		gl.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// simple dynamics world doesn't handle fixed-time-stepping
 		float ms = getDeltaTimeMicroseconds();
@@ -89,28 +89,28 @@ public class BasicDemo extends DemoApplication {
 			dynamicsWorld.debugDrawWorld();
 		}
 
-		renderme();
-
+		//super.display(g);
 		//glFlush();
 		//glutSwapBuffers();
 	}
 
 	@Override
-	public void displayCallback() {
-		gl.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	public void display(Graphics3D g) {
+		GL2 gl = g.getGL2();
+		
+		gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
 
-		renderme();
+		super.display(g);
 
 		// optional but useful: debug drawing to detect problems
 		if (dynamicsWorld != null) {
 			dynamicsWorld.debugDrawWorld();
 		}
 
-		//glFlush();
-		//glutSwapBuffers();
+		gl.glFlush();
 	}
 
-	public void initPhysics() {
+	public void initPhysics(Graphics3D g) {
 		setCameraDistance(50f);
 
 		// collision configuration contains default setup for memory, collision setup
@@ -140,6 +140,7 @@ public class BasicDemo extends DemoApplication {
 
 		Transform groundTransform = new Transform();
 		groundTransform.setIdentity();
+		//groundTransform.origin.set(-56/2, -56, -56/2);
 		groundTransform.origin.set(0, -56, 0);
 
 		// We can also use DemoApplication::localCreateRigidBody, but for clarity it is provided here:
@@ -167,8 +168,8 @@ public class BasicDemo extends DemoApplication {
 			// create a few dynamic rigidbodies
 			// Re-using the same collision is better for memory usage and performance
 
-			CollisionShape colShape = new BoxShape(new Vector3f(1, 1, 1));
-			//CollisionShape colShape = new SphereShape(1f);
+			//CollisionShape colShape = new BoxShape(new Vector3f(1, 1, 1));
+			CollisionShape colShape = new SphereShape(1f);
 			collisionShapes.add(colShape);
 
 			// Create Dynamic Objects
@@ -212,13 +213,5 @@ public class BasicDemo extends DemoApplication {
 
 		clientResetScene();
 	}
-	
-	public static void main(String[] args) throws LWJGLException {
-		BasicDemo ccdDemo = new BasicDemo(LWJGL.getGL());
-		ccdDemo.initPhysics();
-		ccdDemo.getDynamicsWorld().setDebugDrawer(new GLDebugDrawer(LWJGL.getGL()));
-
-		LWJGL.main(args, 800, 600, "Bullet Physics Demo. http://bullet.sf.net", ccdDemo);
-	}
-	
+		
 }

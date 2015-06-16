@@ -27,7 +27,12 @@
 
 package com.bulletphysics.demos.genericjoint;
 
-import com.bulletphysics.util.ObjectArrayList;
+import javax.vecmath.Vector3f;
+
+import br.com.etyllica.core.event.GUIEvent;
+import br.com.etyllica.core.event.KeyEvent;
+import br.com.luvia.core.video.Graphics3D;
+
 import com.bulletphysics.collision.broadphase.BroadphaseInterface;
 import com.bulletphysics.collision.broadphase.DbvtBroadphase;
 import com.bulletphysics.collision.dispatch.CollisionDispatcher;
@@ -35,16 +40,11 @@ import com.bulletphysics.collision.dispatch.DefaultCollisionConfiguration;
 import com.bulletphysics.collision.shapes.BoxShape;
 import com.bulletphysics.collision.shapes.CollisionShape;
 import com.bulletphysics.demos.opengl.DemoApplication;
-import com.bulletphysics.demos.opengl.GLDebugDrawer;
-import com.bulletphysics.demos.opengl.IGL;
-import com.bulletphysics.demos.opengl.LWJGL;
 import com.bulletphysics.dynamics.DiscreteDynamicsWorld;
 import com.bulletphysics.dynamics.constraintsolver.ConstraintSolver;
 import com.bulletphysics.dynamics.constraintsolver.SequentialImpulseConstraintSolver;
 import com.bulletphysics.linearmath.Transform;
-import javax.vecmath.Vector3f;
-import org.lwjgl.LWJGLException;
-import static com.bulletphysics.demos.opengl.IGL.*;
+import com.bulletphysics.util.ObjectArrayList;
 
 /**
  *
@@ -54,11 +54,19 @@ public class GenericJointDemo extends DemoApplication {
 
 	private ObjectArrayList<RagDoll> ragdolls = new ObjectArrayList<RagDoll>();
 
-	public GenericJointDemo(IGL gl) {
-		super(gl);
+	public GenericJointDemo(int w, int h) {
+		super(w, h);
+		
+		setTitle("Joint 6DOF - Sequencial Impulse Solver");
+	}
+	
+	@Override
+	public void load() {
+		super.load();
+		setCameraDistance(10f);
 	}
 
-	public void initPhysics() {
+	public void initPhysics(Graphics3D g) {
 		// Setup the basic world
 		DefaultCollisionConfiguration collision_config = new DefaultCollisionConfiguration();
 
@@ -79,8 +87,6 @@ public class GenericJointDemo extends DemoApplication {
 		dynamicsWorld = new DiscreteDynamicsWorld(dispatcher, overlappingPairCache, constraintSolver, collision_config);
 
 		dynamicsWorld.setGravity(new Vector3f(0f, -30f, 0f));
-
-		dynamicsWorld.setDebugDrawer(new GLDebugDrawer(gl));
 
 		// Setup a big ground box
 		{
@@ -108,7 +114,6 @@ public class GenericJointDemo extends DemoApplication {
 	
 	@Override
 	public void clientMoveAndDisplay() {
-		gl.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// simple dynamics world doesn't handle fixed-time-stepping
 		float ms = getDeltaTimeMicroseconds();
@@ -122,44 +127,13 @@ public class GenericJointDemo extends DemoApplication {
 			// optional but useful: debug drawing
 			dynamicsWorld.debugDrawWorld();
 		}
-
-		renderme();
-
-		//glFlush();
-		//glutSwapBuffers();
 	}
 
-	@Override
-	public void displayCallback() {
-		gl.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		if (dynamicsWorld != null) {
-			dynamicsWorld.debugDrawWorld();
+	public GUIEvent updateKeyboard(KeyEvent event) {
+		if(event.isAnyKeyDown(KeyEvent.TSK_E)) {
+			spawnRagdoll(true);
 		}
-
-		renderme();
-
-		//glFlush();
-		//glutSwapBuffers();
-	}
-
-	@Override
-	public void keyboardCallback(char key, int x, int y, int modifiers) {
-		switch (key) {
-			case 'e':
-				spawnRagdoll(true);
-				break;
-			default:
-				super.keyboardCallback(key, x, y, modifiers);
-		}
-	}
-
-	public static void main(String[] args) throws LWJGLException {
-		GenericJointDemo demoApp = new GenericJointDemo(LWJGL.getGL());
-		demoApp.initPhysics();
-		demoApp.setCameraDistance(10f);
-
-		LWJGL.main(args, 800, 600, "Joint 6DOF - Sequencial Impulse Solver", demoApp);
-	}
-	
+		
+		return GUIEvent.NONE;
+	}	
 }

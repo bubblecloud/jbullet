@@ -24,6 +24,11 @@
 
 package com.bulletphysics.demos.dynamiccontrol;
 
+import javax.media.opengl.GL2;
+import javax.vecmath.Vector3f;
+
+import br.com.luvia.core.video.Graphics3D;
+
 import com.bulletphysics.BulletGlobals;
 import com.bulletphysics.collision.broadphase.BroadphaseInterface;
 import com.bulletphysics.collision.broadphase.DbvtBroadphase;
@@ -33,8 +38,6 @@ import com.bulletphysics.collision.dispatch.DefaultCollisionConfiguration;
 import com.bulletphysics.collision.shapes.BoxShape;
 import com.bulletphysics.collision.shapes.CollisionShape;
 import com.bulletphysics.demos.opengl.DemoApplication;
-import com.bulletphysics.demos.opengl.IGL;
-import com.bulletphysics.demos.opengl.LWJGL;
 import com.bulletphysics.dynamics.DiscreteDynamicsWorld;
 import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.dynamics.constraintsolver.ConstraintSolver;
@@ -42,9 +45,6 @@ import com.bulletphysics.dynamics.constraintsolver.HingeConstraint;
 import com.bulletphysics.dynamics.constraintsolver.SequentialImpulseConstraintSolver;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.util.ObjectArrayList;
-import javax.vecmath.Vector3f;
-import org.lwjgl.LWJGLException;
-import static com.bulletphysics.demos.opengl.IGL.*;
 
 /**
  *
@@ -58,11 +58,12 @@ public class DynamicControlDemo extends DemoApplication {
 	
 	private ObjectArrayList<TestRig> rigs = new ObjectArrayList<TestRig>();
 	
-	public DynamicControlDemo(IGL gl) {
-		super(gl);
+	public DynamicControlDemo(int w, int h) {
+		super(w, h);
+		setTitle("Bullet Physics Demo. http://bullet.sf.net");
 	}
 
-	public void initPhysics() {
+	public void initPhysics(Graphics3D g) {
 		// Setup the basic world
 		time = 0.0f;
 		cyclePeriod = 2000.0f; // in milliseconds
@@ -111,8 +112,7 @@ public class DynamicControlDemo extends DemoApplication {
 	
 	@Override
 	public void clientMoveAndDisplay() {
-		gl.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+		
 		// simple dynamics world doesn't handle fixed-time-stepping
 		float ms = getDeltaTimeMicroseconds();
 		float minFPS = 1000000f / 60f;
@@ -144,32 +144,22 @@ public class DynamicControlDemo extends DemoApplication {
 			// optional but useful: debug drawing
 			dynamicsWorld.debugDrawWorld();
 		}
-
+		
+		//glFlush();
+		//glutSwapBuffers();
+	}
+	
+	@Override
+	public void display(Graphics3D g) {
+		super.display(g);
+		
 		for (int i=2; i>=0; i--) {
 			CollisionObject obj = dynamicsWorld.getCollisionObjectArray().getQuick(i);
 			RigidBody body = RigidBody.upcast(obj);
-			drawFrame(body.getWorldTransform(new Transform()));
+			drawFrame(g, body.getWorldTransform(new Transform()));
 		}
-		
-		renderme();
-
-		//glFlush();
-		//glutSwapBuffers();
-	}
-
-	@Override
-	public void displayCallback() {
-		gl.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		if (dynamicsWorld != null) {
-			dynamicsWorld.debugDrawWorld();
-		}
-
-		renderme();
-
-		//glFlush();
-		//glutSwapBuffers();
-	}
+	};
+	
 
 	@Override
 	public void keyboardCallback(char key, int x, int y, int modifiers) {
@@ -196,47 +186,40 @@ public class DynamicControlDemo extends DemoApplication {
 		}
 	}
 
-	private void vertex(Vector3f v) {
+	private void vertex(GL2 gl, Vector3f v) {
 		gl.glVertex3f(v.x, v.y, v.z);
 	}
 
-	private void drawFrame(Transform tr) {
+	private void drawFrame(Graphics3D g, Transform tr) {
 		final float size = 1.0f;
-		
-		gl.glBegin(GL_LINES);
+		GL2 gl = g.getGL2();
+		gl.glBegin(GL2.GL_LINES);
 
 		// x
 		gl.glColor3f(255.f,0,0);
 		Vector3f vX = new Vector3f();
 		vX.set(size,0,0);
 		tr.transform(vX);
-		vertex(tr.origin);
-		vertex(vX);
+		vertex(gl, tr.origin);
+		vertex(gl, vX);
 
 		// y
 		gl.glColor3f(0,255.f,0);
 		Vector3f vY = new Vector3f();
 		vY.set(0,size,0);
 		tr.transform(vY);
-		vertex(tr.origin);
-		vertex(vY);
+		vertex(gl, tr.origin);
+		vertex(gl, vY);
 
 		// z
 		gl.glColor3f(0,0,255.f);
 		Vector3f vZ = new Vector3f();
 		vZ.set(0,0,size);
 		tr.transform(vZ);
-		vertex(tr.origin);
-		vertex(vZ);
+		vertex(gl, tr.origin);
+		vertex(gl, vZ);
 
 		gl.glEnd();
-	}
-
-	public static void main(String[] args) throws LWJGLException {
-		DynamicControlDemo demoApp = new DynamicControlDemo(LWJGL.getGL());
-		demoApp.initPhysics();
-
-		LWJGL.main(args, 800, 600, "Bullet Physics Demo. http://bullet.sf.net", demoApp);
 	}
 	
 }

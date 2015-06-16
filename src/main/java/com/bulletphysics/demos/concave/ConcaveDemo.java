@@ -23,9 +23,22 @@
 
 package com.bulletphysics.demos.concave;
 
-import com.bulletphysics.util.ObjectArrayList;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
+
+import javax.vecmath.Quat4f;
+import javax.vecmath.Vector3f;
+
+import br.com.luvia.core.video.Graphics3D;
+
 import com.bulletphysics.BulletGlobals;
 import com.bulletphysics.BulletStats;
 import com.bulletphysics.ContactAddedCallback;
@@ -45,26 +58,13 @@ import com.bulletphysics.collision.shapes.OptimizedBvh;
 import com.bulletphysics.collision.shapes.TriangleIndexVertexArray;
 import com.bulletphysics.demos.opengl.DemoApplication;
 import com.bulletphysics.demos.opengl.GLDebugDrawer;
-import com.bulletphysics.demos.opengl.IGL;
-import com.bulletphysics.demos.opengl.LWJGL;
 import com.bulletphysics.dynamics.DiscreteDynamicsWorld;
 import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.dynamics.constraintsolver.ConstraintSolver;
 import com.bulletphysics.dynamics.constraintsolver.SequentialImpulseConstraintSolver;
 import com.bulletphysics.linearmath.QuaternionUtil;
 import com.bulletphysics.linearmath.Transform;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
-import javax.vecmath.Quat4f;
-import javax.vecmath.Vector3f;
-import org.lwjgl.LWJGLException;
-import static com.bulletphysics.demos.opengl.IGL.*;
+import com.bulletphysics.util.ObjectArrayList;
 
 // JAVA TODO: update for 2.70b1
 
@@ -101,8 +101,14 @@ public class ConcaveDemo extends DemoApplication {
 	private static int NUM_VERTS_Y = 30;
 	private static int totalVerts = NUM_VERTS_X*NUM_VERTS_Y;
 
-	public ConcaveDemo(IGL gl) {
-		super(gl);
+	public ConcaveDemo(int w, int h) {
+		super(w, h);
+	}
+	
+	@Override
+	public void load() {
+		setCameraDistance(30f);
+		loading = 100;
 	}
 
 	public void setVertexPositions(float waveheight, float offset) {
@@ -143,7 +149,7 @@ public class ConcaveDemo extends DemoApplication {
 		super.keyboardCallback(key, x, y, modifiers);
 	}
 
-	public void initPhysics() {
+	public void initPhysics(Graphics3D g) {
 		final float TRISIZE = 10f;
 
 		BulletGlobals.setContactAddedCallback(new CustomMaterialCombinerCallback());
@@ -264,9 +270,6 @@ public class ConcaveDemo extends DemoApplication {
 		//m_dynamicsWorld->getDispatchInfo().m_enableSPU=true;
 		//#endif //USE_PARALLEL_DISPATCHER
 
-		// JAVA NOTE: added
-		dynamicsWorld.setDebugDrawer(new GLDebugDrawer(gl));
-		
 		float mass = 0f;
 		Transform startTransform = new Transform();
 		startTransform.setIdentity();
@@ -313,7 +316,6 @@ public class ConcaveDemo extends DemoApplication {
 	
 	@Override
 	public void clientMoveAndDisplay() {
-		gl.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		float dt = getDeltaTimeMicroseconds() * 0.000001f;
 
@@ -337,28 +339,8 @@ public class ConcaveDemo extends DemoApplication {
 
 		// optional but useful: debug drawing
 		dynamicsWorld.debugDrawWorld();
-
-		renderme();
-
-		//glFlush();
-		//glutSwapBuffers();
 	}
-
-	@Override
-	public void displayCallback() {
-		gl.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		renderme();
-
-		// optional but useful: debug drawing
-		if (dynamicsWorld != null) {
-			dynamicsWorld.debugDrawWorld();
-		}
-		
-		//glFlush();
-		//glutSwapBuffers();
-	}
-
+	
 	/**
 	 * User can override this material combiner by implementing gContactAddedCallback
 	 * and setting body0->m_collisionFlags |= btCollisionObject::customMaterialCallback
@@ -408,13 +390,5 @@ public class ConcaveDemo extends DemoApplication {
 			return true;
 		}
 	}
-	
-	public static void main(String[] args) throws LWJGLException {
-		ConcaveDemo concaveDemo = new ConcaveDemo(LWJGL.getGL());
-		concaveDemo.initPhysics();
-		concaveDemo.setCameraDistance(30f);
-
-		LWJGL.main(args, 800, 600, "Static Concave Mesh Demo", concaveDemo);
-	}
-	
+		
 }

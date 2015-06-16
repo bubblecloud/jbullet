@@ -23,7 +23,12 @@
 
 package com.bulletphysics.demos.character;
 
-import com.bulletphysics.util.ObjectArrayList;
+import javax.media.opengl.GL2;
+import javax.vecmath.Vector3f;
+
+import br.com.etyllica.core.event.KeyEvent;
+import br.com.luvia.core.video.Graphics3D;
+
 import com.bulletphysics.collision.broadphase.AxisSweep3;
 import com.bulletphysics.collision.broadphase.BroadphaseInterface;
 import com.bulletphysics.collision.broadphase.CollisionFilterGroups;
@@ -39,17 +44,12 @@ import com.bulletphysics.collision.shapes.ConvexHullShape;
 import com.bulletphysics.collision.shapes.ConvexShape;
 import com.bulletphysics.demos.bsp.BspConverter;
 import com.bulletphysics.demos.opengl.DemoApplication;
-import com.bulletphysics.demos.opengl.GLDebugDrawer;
-import com.bulletphysics.demos.opengl.IGL;
-import com.bulletphysics.demos.opengl.LWJGL;
 import com.bulletphysics.dynamics.DiscreteDynamicsWorld;
 import com.bulletphysics.dynamics.character.KinematicCharacterController;
 import com.bulletphysics.dynamics.constraintsolver.ConstraintSolver;
 import com.bulletphysics.dynamics.constraintsolver.SequentialImpulseConstraintSolver;
 import com.bulletphysics.linearmath.Transform;
-import javax.vecmath.Vector3f;
-import org.lwjgl.input.Keyboard;
-import static com.bulletphysics.demos.opengl.IGL.*;
+import com.bulletphysics.util.ObjectArrayList;
 
 /**
  * 
@@ -83,11 +83,13 @@ public class CharacterDemo extends DemoApplication {
 	public ConstraintSolver constraintSolver;
 	public DefaultCollisionConfiguration collisionConfiguration;
 
-	public CharacterDemo(IGL gl) {
-		super(gl);
+	public CharacterDemo(int w, int h) {
+		super(w, h);
+		
+		setTitle("Bullet Character Demo. http://bullet.sf.net");
 	}
 	
-	public void initPhysics() throws Exception {
+	public void initPhysics(Graphics3D g) throws Exception {
 		CollisionShape groundShape = new BoxShape(new Vector3f(50, 3, 50));
 		collisionShapes.add(groundShape);
 
@@ -130,7 +132,7 @@ public class CharacterDemo extends DemoApplication {
 	
 	@Override
 	public void clientMoveAndDisplay() {
-		gl.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
+		 
 		float dt = getDeltaTimeMicroseconds() * 0.000001f;
 
 		if (dynamicsWorld != null) {
@@ -183,24 +185,6 @@ public class CharacterDemo extends DemoApplication {
 			dynamicsWorld.debugDrawWorld();
 		}
 
-		renderme();
-
-		//glFlush();
-		//glutSwapBuffers();
-	}
-
-	@Override
-	public void displayCallback() {
-		gl.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		renderme();
-
-		if (dynamicsWorld != null) {
-			dynamicsWorld.debugDrawWorld();
-		}
-
-		//glFlush();
-		//glutSwapBuffers();
 	}
 
 	@Override
@@ -212,23 +196,23 @@ public class CharacterDemo extends DemoApplication {
 		///WTF
 		character.warp(new Vector3f(0, -2, 0));
 	}
-
+	
 	@Override
 	public void specialKeyboardUp(int key, int x, int y, int modifiers) {
 		switch (key) {
-			case Keyboard.KEY_UP: {
+			case KeyEvent.TSK_UP_ARROW: {
 				gForward = 0;
 				break;
 			}
-			case Keyboard.KEY_DOWN: {
+			case KeyEvent.TSK_DOWN_ARROW: {
 				gBackward = 0;
 				break;
 			}
-			case Keyboard.KEY_LEFT: {
+			case KeyEvent.TSK_LEFT_ARROW: {
 				gLeft = 0;
 				break;
 			}
-			case Keyboard.KEY_RIGHT: {
+			case KeyEvent.TSK_RIGHT_ARROW: {
 				gRight = 0;
 				break;
 			}
@@ -241,23 +225,23 @@ public class CharacterDemo extends DemoApplication {
 	@Override
 	public void specialKeyboard(int key, int x, int y, int modifiers) {
 		switch (key) {
-			case Keyboard.KEY_UP: {
+			case KeyEvent.TSK_UP_ARROW: {
 				gForward = 1;
 				break;
 			}
-			case Keyboard.KEY_DOWN: {
+			case KeyEvent.TSK_DOWN_ARROW: {
 				gBackward = 1;
 				break;
 			}
-			case Keyboard.KEY_LEFT: {
+			case KeyEvent.TSK_LEFT_ARROW: {
 				gLeft = 1;
 				break;
 			}
-			case Keyboard.KEY_RIGHT: {
+			case KeyEvent.TSK_RIGHT_ARROW: {
 				gRight = 1;
 				break;
 			}
-			case Keyboard.KEY_F1: {
+			case KeyEvent.TSK_F1: {
 				if (character != null && character.canJump()) {
 					gJump = 1;
 				}
@@ -270,14 +254,10 @@ public class CharacterDemo extends DemoApplication {
 	}
 
 	@Override
-	public void updateCamera() {
-		//if (useDefaultCamera) {
-		if (false) {
-			super.updateCamera();
-			return;
-		}
-
-		gl.glMatrixMode(gl.GL_PROJECTION);
+	public void updateCamera(Graphics3D g) {
+		
+		GL2 gl = g.getGL2();
+		gl.glMatrixMode(GL2.GL_PROJECTION);
 		gl.glLoadIdentity();
 
 		// look at the vehicle
@@ -287,7 +267,7 @@ public class CharacterDemo extends DemoApplication {
 		Vector3f backward = new Vector3f();
 		characterWorldTrans.basis.getRow(2, backward);
 		backward.scale(-1);
-		up.normalize ();
+		up.normalize();
 		backward.normalize ();
 
 		cameraTargetPosition.set(characterWorldTrans.origin);
@@ -301,20 +281,12 @@ public class CharacterDemo extends DemoApplication {
 		// update OpenGL camera settings
 		gl.glFrustum(-1.0, 1.0, -1.0, 1.0, 1.0, 10000.0);
 
-		gl.glMatrixMode(IGL.GL_MODELVIEW);
+		gl.glMatrixMode(GL2.GL_MODELVIEW);
 		gl.glLoadIdentity();
 
-		gl.gluLookAt(cameraPosition.x, cameraPosition.y, cameraPosition.z,
+		g.getGLU().gluLookAt(cameraPosition.x, cameraPosition.y, cameraPosition.z,
 		             cameraTargetPosition.x, cameraTargetPosition.y, cameraTargetPosition.z,
 		             cameraUp.x, cameraUp.y, cameraUp.z);
-	}
-
-	public static void main(String[] args) throws Exception {
-		CharacterDemo demo = new CharacterDemo(LWJGL.getGL());
-		demo.initPhysics();
-		demo.getDynamicsWorld().setDebugDrawer(new GLDebugDrawer(LWJGL.getGL()));
-
-		LWJGL.main(args, 800, 600, "Bullet Character Demo. http://bullet.sf.net", demo);
 	}
 	
 	////////////////////////////////////////////////////////////////////////////

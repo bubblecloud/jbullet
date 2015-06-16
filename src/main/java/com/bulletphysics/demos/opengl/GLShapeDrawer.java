@@ -23,6 +23,10 @@
 
 package com.bulletphysics.demos.opengl;
 
+import java.nio.FloatBuffer;
+
+import br.com.luvia.core.video.Graphics3D;
+
 import com.bulletphysics.util.ObjectArrayList;
 import com.bulletphysics.collision.broadphase.BroadphaseNativeType;
 import com.bulletphysics.collision.shapes.BoxShape;
@@ -43,10 +47,10 @@ import com.bulletphysics.linearmath.TransformUtil;
 import com.bulletphysics.linearmath.VectorUtil;
 import com.bulletphysics.util.IntArrayList;
 import com.bulletphysics.util.ObjectPool;
+
+import javax.media.opengl.GL;
+import javax.media.opengl.GL2;
 import javax.vecmath.Vector3f;
-//import static org.lwjgl.opengl.GL11.*;
-//import static org.lwjgl.opengl.glu.GLU.*;
-import static com.bulletphysics.demos.opengl.IGL.*;
 
 /**
  *
@@ -77,8 +81,8 @@ public class GLShapeDrawer {
 	}
 	*/
 
-	public static void drawCoordSystem(IGL gl) {
-		gl.glBegin(GL_LINES);
+	public static void drawCoordSystem(GL2 gl) {
+		gl.glBegin(GL2.GL_LINES);
 		gl.glColor3f(1, 0, 0);
 		gl.glVertex3f(0, 0, 0);
 		gl.glVertex3f(1, 0, 0);
@@ -93,7 +97,10 @@ public class GLShapeDrawer {
 
 	private static float[] glMat = new float[16];
 	
-	public static void drawOpenGL(IGL gl, Transform trans, CollisionShape shape, Vector3f color, int debugMode) {
+	public static void drawOpenGL(Graphics3D g, Transform trans, CollisionShape shape, Vector3f color, int debugMode) {
+		
+		GL2 gl = g.getGL2();
+		
 		ObjectPool<Transform> transformsPool = ObjectPool.get(Transform.class);
 		ObjectPool<Vector3f> vectorsPool = ObjectPool.get(Vector3f.class);
 
@@ -101,7 +108,7 @@ public class GLShapeDrawer {
 
 		gl.glPushMatrix();
 		trans.getOpenGLMatrix(glMat);
-		gl.glMultMatrix(glMat);
+		gl.glMultMatrixf(FloatBuffer.wrap(glMat));
 //		if (shape.getShapeType() == BroadphaseNativeTypes.UNIFORM_SCALING_SHAPE_PROXYTYPE.getValue())
 //		{
 //			const btUniformScalingShape* scalingShape = static_cast<const btUniformScalingShape*>(shape);
@@ -125,7 +132,7 @@ public class GLShapeDrawer {
 			for (int i = compoundShape.getNumChildShapes() - 1; i >= 0; i--) {
 				compoundShape.getChildTransform(i, childTrans);
 				CollisionShape colShape = compoundShape.getChildShape(i);
-				drawOpenGL(gl, childTrans, colShape, color, debugMode);
+				drawOpenGL(g, childTrans, colShape, color, debugMode);
 			}
 			transformsPool.release(childTrans);
 		}
@@ -134,7 +141,7 @@ public class GLShapeDrawer {
 
 			//glPushMatrix();
 
-			gl.glEnable(GL_COLOR_MATERIAL);
+			gl.glEnable(GL2.GL_COLOR_MATERIAL);
 			gl.glColor3f(color.x, color.y, color.z);
 
 			boolean useWireframeFallback = true;
@@ -148,7 +155,7 @@ public class GLShapeDrawer {
 						BoxShape boxShape = (BoxShape) shape;
 						Vector3f halfExtent = boxShape.getHalfExtentsWithMargin(vectorsPool.get());
 						gl.glScalef(2f * halfExtent.x, 2f * halfExtent.y, 2f * halfExtent.z);
-						gl.drawCube(1f);
+						g.drawCube(1f);
 						vectorsPool.release(halfExtent);
 						useWireframeFallback = false;
 						break;
@@ -158,7 +165,7 @@ public class GLShapeDrawer {
 						float radius = sphereShape.getMargin(); // radius doesn't include the margin, so draw with margin
 						// TODO: glutSolidSphere(radius,10,10);
 						//sphere.draw(radius, 8, 8);
-						gl.drawSphere(radius, 10, 10);
+						g.drawSphere(radius, 10, 10);
 						/*
 						glPointSize(10f);
 						glBegin(GL_POINTS);
@@ -223,7 +230,7 @@ public class GLShapeDrawer {
 						pt3.scale(vecLen, vec1);
 						pt3.sub(planeOrigin, pt3);
 						
-						gl.glBegin(gl.GL_LINES);
+						gl.glBegin(GL2.GL_LINES);
 						gl.glVertex3f(pt0.x,pt0.y,pt0.z);
 						gl.glVertex3f(pt1.x,pt1.y,pt1.z);
 						gl.glVertex3f(pt2.x,pt2.y,pt2.z);
@@ -251,7 +258,7 @@ public class GLShapeDrawer {
 						Vector3f halfVec = vectorsPool.get();
 						float halfHeight = VectorUtil.getCoord(cylinder.getHalfExtentsWithMargin(halfVec), upAxis);
 
-						gl.drawCylinder(radius, halfHeight, upAxis);
+						g.drawCylinder(radius, halfHeight*2, upAxis);
 						
 						vectorsPool.release(halfVec);
 
@@ -294,7 +301,7 @@ public class GLShapeDrawer {
 									IntArrayList idx = hull.getIndexPointer();
 									ObjectArrayList<Vector3f> vtx = hull.getVertexPointer();
 
-									gl.glBegin (gl.GL_TRIANGLES);
+									gl.glBegin (GL2.GL_TRIANGLES);
 
 									for (int i=0; i<hull.numTriangles (); i++)
 									{
@@ -349,7 +356,7 @@ public class GLShapeDrawer {
 				if (shape.isPolyhedral()) {
 					PolyhedralConvexShape polyshape = (PolyhedralConvexShape) shape;
 
-					gl.glBegin(GL_LINES);
+					gl.glBegin(GL2.GL_LINES);
 
 					Vector3f a = vectorsPool.get(), b = vectorsPool.get();
 					int i;
@@ -476,13 +483,13 @@ public class GLShapeDrawer {
 	}
 	
 	private static class GlDisplaylistDrawcallback extends TriangleCallback {
-		private IGL gl;
+		private GL2 gl;
 		
 		private final Vector3f diff1 = new Vector3f();
 		private final Vector3f diff2 = new Vector3f();
 		private final Vector3f normal = new Vector3f();
 
-		public GlDisplaylistDrawcallback(IGL gl) {
+		public GlDisplaylistDrawcallback(GL2 gl) {
 			this.gl = gl;
 		}
 		
@@ -493,7 +500,7 @@ public class GLShapeDrawer {
 
 			normal.normalize();
 
-			gl.glBegin(GL_TRIANGLES);
+			gl.glBegin(GL2.GL_TRIANGLES);
 			gl.glColor3f(0, 1, 0);
 			gl.glNormal3f(normal.x, normal.y, normal.z);
 			gl.glVertex3f(triangle[0].x, triangle[0].y, triangle[0].z);
@@ -528,16 +535,16 @@ public class GLShapeDrawer {
 	}
 	
 	private static class GlDrawcallback extends TriangleCallback {
-		private IGL gl;
+		private GL2 gl;
 		public boolean wireframe = false;
 
-		public GlDrawcallback(IGL gl) {
+		public GlDrawcallback(GL2 gl) {
 			this.gl = gl;
 		}
 		
 		public void processTriangle(Vector3f[] triangle, int partId, int triangleIndex) {
 			if (wireframe) {
-				gl.glBegin(GL_LINES);
+				gl.glBegin(GL2.GL_LINES);
 				gl.glColor3f(1, 0, 0);
 				gl.glVertex3f(triangle[0].x, triangle[0].y, triangle[0].z);
 				gl.glVertex3f(triangle[1].x, triangle[1].y, triangle[1].z);
@@ -550,7 +557,7 @@ public class GLShapeDrawer {
 				gl.glEnd();
 			}
 			else {
-				gl.glBegin(GL_TRIANGLES);
+				gl.glBegin(GL2.GL_TRIANGLES);
 				gl.glColor3f(1, 0, 0);
 				gl.glVertex3f(triangle[0].x, triangle[0].y, triangle[0].z);
 				gl.glColor3f(0, 1, 0);
@@ -563,14 +570,14 @@ public class GLShapeDrawer {
 	}
 	
 	private static class TriangleGlDrawcallback extends InternalTriangleIndexCallback {
-		private IGL gl;
+		private GL2 gl;
 
-		public TriangleGlDrawcallback(IGL gl) {
+		public TriangleGlDrawcallback(GL2 gl) {
 			this.gl = gl;
 		}
 		
 		public void internalProcessTriangleIndex(Vector3f[] triangle, int partId, int triangleIndex) {
-			gl.glBegin(GL_TRIANGLES);//LINES);
+			gl.glBegin(GL2.GL_TRIANGLES);//LINES);
 			gl.glColor3f(1, 0, 0);
 			gl.glVertex3f(triangle[0].x, triangle[0].y, triangle[0].z);
 			gl.glVertex3f(triangle[1].x, triangle[1].y, triangle[1].z);

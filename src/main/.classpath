@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="java"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Etyllica"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Luvia"/>
+	<classpathentry kind="lib" path="/home/yuri/git/luvia/libs/gluegen-rt.jar"/>
+	<classpathentry kind="lib" path="/home/yuri/git/luvia/libs/jogl-all.jar"/>
+	<classpathentry kind="output" path="java"/>
+</classpath>

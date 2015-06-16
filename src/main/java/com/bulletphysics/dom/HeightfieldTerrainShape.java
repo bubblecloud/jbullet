@@ -47,7 +47,7 @@ public class HeightfieldTerrainShape extends ConcaveShape {
 	protected Vector3f m_localAabbMax = new Vector3f();
 	protected Vector3f m_localOrigin = new Vector3f();
 
-	// /terrain data
+	//terrain data
 	protected int m_heightStickWidth;
 	protected int m_heightStickLength;
 	protected float m_minHeight;
